@@ -10,6 +10,9 @@ interface User {
   id: string
   name: string
   username: string
+  profilePicture?: string | null
+  followersCount?: string
+  followingCount?: string
   createdAt: string
   updatedAt: string
 }

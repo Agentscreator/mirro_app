@@ -2,68 +2,84 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import EventCard from "./EventCard"
 import ManageEventsToggle from "./ManageEventsToggle"
 
-const upcomingEvents = [
-  {
-    id: 1,
-    title: "Summer Music Festival",
-    description: "Join us for an amazing outdoor music experience",
-    date: "July 15, 2024",
-    time: "6:00 PM",
-    location: "Central Park",
-    createdBy: "user",
-    icon: (
-      <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          fillRule="evenodd"
-          d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-          clipRule="evenodd"
-        ></path>
-      </svg>
-    ),
-    gradient: "from-sand-400 to-sand-500",
-  },
-  {
-    id: 2,
-    title: "Photography Workshop",
-    description: "Learn professional photography techniques",
-    date: "August 3, 2024",
-    time: "2:00 PM",
-    location: "Studio Downtown",
-    createdBy: "user",
-    icon: (
-      <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"></path>
-      </svg>
-    ),
-    gradient: "from-taupe-400 to-taupe-500",
-  },
-  {
-    id: 3,
-    title: "Community Meetup",
-    description: "Connect with local community members",
-    date: "August 10, 2024",
-    time: "7:00 PM",
-    location: "Community Center",
-    createdBy: "other",
-    icon: (
-      <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M13 6a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
-      </svg>
-    ),
-    gradient: "from-cream-400 to-cream-500",
-  },
-]
+// Icon components for different event types
+const getEventIcon = (iconType?: string) => {
+  switch (iconType) {
+    case 'music':
+      return (
+        <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fillRule="evenodd"
+            d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+            clipRule="evenodd"
+          ></path>
+        </svg>
+      );
+    case 'photography':
+      return (
+        <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"></path>
+        </svg>
+      );
+    case 'community':
+      return (
+        <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M13 6a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
+        </svg>
+      );
+    default:
+      return (
+        <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fillRule="evenodd"
+            d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+            clipRule="evenodd"
+          ></path>
+        </svg>
+      );
+  }
+};
 
 interface User {
   id: string
   name: string
   username: string
+  profilePicture?: string | null
+  followersCount?: string
+  followingCount?: string
   createdAt: string
   updatedAt: string
+}
+
+interface DatabaseEvent {
+  id: string
+  title: string
+  description: string
+  date: string
+  time: string
+  location: string
+  icon?: string | null
+  gradient?: string | null
+  createdBy: string
+  createdAt: string
+  creatorName?: string | null
+  creatorUsername?: string | null
+}
+
+interface EventCardData {
+  id: string
+  title: string
+  description: string
+  date: string
+  time: string
+  location: string
+  createdBy: string
+  icon: React.ReactNode
+  gradient: string
 }
 
 interface ProfilePageProps {
@@ -72,26 +88,89 @@ interface ProfilePageProps {
 
 export default function ProfilePage({ user }: ProfilePageProps) {
   const [isManageMode, setIsManageMode] = useState(false)
-  const [profilePicture, setProfilePicture] = useState<string | null>(null)
+  const [profilePicture, setProfilePicture] = useState<string | null>(user.profilePicture || null)
+  const [allEvents, setAllEvents] = useState<EventCardData[]>([])
+  const [userEvents, setUserEvents] = useState<EventCardData[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const handleEditEvent = (eventId: number) => {
+  // Fetch events data
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true)
+        
+        // Fetch all events
+        const allEventsResponse = await fetch('/api/events')
+        const allEventsData: DatabaseEvent[] = await allEventsResponse.json()
+        
+        // Fetch user's events
+        const userEventsResponse = await fetch(`/api/events/user/${user.id}`)
+        const userEventsData: DatabaseEvent[] = await userEventsResponse.json()
+        
+        // Transform database events to component format
+        const transformEvent = (event: DatabaseEvent): EventCardData => ({
+          id: event.id,
+          title: event.title,
+          description: event.description,
+          date: event.date,
+          time: event.time,
+          location: event.location,
+          createdBy: event.createdBy,
+          icon: getEventIcon(event.icon || undefined),
+          gradient: event.gradient || "from-taupe-400 to-taupe-500"
+        })
+        
+        setAllEvents(allEventsData.map(transformEvent))
+        setUserEvents(userEventsData.map(transformEvent))
+      } catch (error) {
+        console.error('Error fetching events:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchEvents()
+  }, [user.id])
+
+  const handleEditEvent = (eventId: string) => {
     console.log("Editing event:", eventId)
     // Here you would implement the edit functionality
   }
 
-  const handleProfilePictureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfilePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       const reader = new FileReader()
-      reader.onload = (e) => {
-        setProfilePicture(e.target?.result as string)
+      reader.onload = async (e) => {
+        const newProfilePicture = e.target?.result as string
+        setProfilePicture(newProfilePicture)
+        
+        // TODO: Upload to server and update database
+        // For now, just update local state
+        try {
+          const response = await fetch('/api/user/profile', {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: user.id,
+              profilePicture: newProfilePicture
+            })
+          })
+          
+          if (!response.ok) {
+            console.error('Failed to update profile picture')
+          }
+        } catch (error) {
+          console.error('Error updating profile picture:', error)
+        }
       }
       reader.readAsDataURL(file)
     }
   }
 
-  const userCreatedEvents = upcomingEvents.filter((event) => event.createdBy === "user")
-  const eventsToShow = isManageMode ? userCreatedEvents : upcomingEvents
+  const eventsToShow = isManageMode ? userEvents : allEvents
 
   return (
     <div className="px-6 py-4 pb-24">
@@ -124,11 +203,11 @@ export default function ProfilePage({ user }: ProfilePageProps) {
         {/* Followers/Following */}
         <div className="flex items-center justify-center space-x-6 mt-4">
           <div className="text-center">
-            <div className="text-lg font-medium text-text-primary">1.2k</div>
+            <div className="text-lg font-medium text-text-primary">{user.followersCount || '0'}</div>
             <div className="text-xs text-text-muted font-normal">Followers</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-medium text-text-primary">342</div>
+            <div className="text-lg font-medium text-text-primary">{user.followingCount || '0'}</div>
             <div className="text-xs text-text-muted font-normal">Following</div>
           </div>
         </div>
@@ -141,15 +220,33 @@ export default function ProfilePage({ user }: ProfilePageProps) {
           <ManageEventsToggle isManageMode={isManageMode} onToggle={setIsManageMode} />
         </div>
 
-        <div className="space-y-3">
-          {eventsToShow.map((event) => (
-            <EventCard key={event.id} event={event} isManageMode={isManageMode} onEdit={handleEditEvent} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="glass-card rounded-3xl p-8 text-center soft-shadow">
+            <p className="text-text-muted">Loading events...</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {eventsToShow.map((event) => (
+              <EventCard 
+                key={event.id} 
+                event={event} 
+                isManageMode={isManageMode} 
+                currentUserId={user.id}
+                onEdit={handleEditEvent} 
+              />
+            ))}
+          </div>
+        )}
 
-        {isManageMode && userCreatedEvents.length === 0 && (
+        {!loading && isManageMode && userEvents.length === 0 && (
           <div className="glass-card rounded-3xl p-8 text-center soft-shadow">
             <p className="text-text-muted">You haven't created any events yet.</p>
+          </div>
+        )}
+
+        {!loading && !isManageMode && allEvents.length === 0 && (
+          <div className="glass-card rounded-3xl p-8 text-center soft-shadow">
+            <p className="text-text-muted">No events available.</p>
           </div>
         )}
       </div>

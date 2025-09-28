@@ -3,7 +3,7 @@
 import type React from "react"
 
 interface Event {
-  id: number
+  id: string
   title: string
   description: string
   date: string
@@ -17,11 +17,12 @@ interface Event {
 interface EventCardProps {
   event: Event
   isManageMode: boolean
-  onEdit: (eventId: number) => void
+  currentUserId: string
+  onEdit: (eventId: string) => void
 }
 
-export default function EventCard({ event, isManageMode, onEdit }: EventCardProps) {
-  const canEdit = event.createdBy === "user"
+export default function EventCard({ event, isManageMode, currentUserId, onEdit }: EventCardProps) {
+  const canEdit = event.createdBy === currentUserId
 
   return (
     <div className="glass-card rounded-3xl p-5 soft-shadow hover-lift transition-all duration-300">

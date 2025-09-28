@@ -8,6 +8,13 @@
       "when": 1759097877728,
       "tag": "0000_freezing_penance",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1759099429403,
+      "tag": "0001_bored_reavers",
+      "breakpoints": true
     }
   ]
 }
