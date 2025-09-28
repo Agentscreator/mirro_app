@@ -1,5 +1,5 @@
 import { db } from './index';
-import { users, events } from './schema';
+import { users, events, follows } from './schema';
 import { hashPassword } from '../auth';
 
 async function seed() {
@@ -18,16 +18,24 @@ async function seed() {
         name: 'John Doe',
         username: 'johndoe',
         password: hashedPassword,
-        followersCount: '1200',
-        followingCount: '342',
       }).returning();
 
       const [user2] = await db.insert(users).values({
         name: 'Jane Smith',
         username: 'janesmith',
         password: hashedPassword,
-        followersCount: '850',
-        followingCount: '195',
+      }).returning();
+
+      const [user3] = await db.insert(users).values({
+        name: 'Mike Johnson',
+        username: 'mikejohnson',
+        password: hashedPassword,
+      }).returning();
+
+      const [user4] = await db.insert(users).values({
+        name: 'Sarah Wilson',
+        username: 'sarahwilson',
+        password: hashedPassword,
       }).returning();
 
       console.log('Sample users created');
@@ -79,6 +87,20 @@ async function seed() {
       ]);
 
       console.log('Sample events created');
+
+      // Create some follow relationships
+      console.log('Creating follow relationships...');
+      await db.insert(follows).values([
+        { followerId: user1.id, followingId: user2.id },
+        { followerId: user1.id, followingId: user3.id },
+        { followerId: user1.id, followingId: user4.id },
+        { followerId: user2.id, followingId: user1.id },
+        { followerId: user2.id, followingId: user3.id },
+        { followerId: user3.id, followingId: user1.id },
+        { followerId: user4.id, followingId: user1.id },
+        { followerId: user4.id, followingId: user2.id },
+      ]);
+      console.log('Follow relationships created');
     } else {
       console.log('Users already exist, skipping seed');
     }

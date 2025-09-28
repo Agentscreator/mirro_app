@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getUserByUsername, getAllEvents, getUserEvents } from '@/lib/auth';
+import { getUserByUsername, getAllEvents, getUserEvents, getUserWithCounts } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -18,6 +18,12 @@ export async function GET() {
       return NextResponse.json({ error: 'Test user not found' }, { status: 404 });
     }
 
+    // Get user with follower counts
+    const userWithCounts = await getUserWithCounts(user.id);
+    if (!userWithCounts) {
+      return NextResponse.json({ error: 'Failed to get user data' }, { status: 500 });
+    }
+
     // Get all events
     const allEvents = await getAllEvents();
     
@@ -26,14 +32,14 @@ export async function GET() {
 
     return NextResponse.json({
       user: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        profilePicture: user.profilePicture,
-        followersCount: user.followersCount,
-        followingCount: user.followingCount,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+        id: userWithCounts.id,
+        name: userWithCounts.name,
+        username: userWithCounts.username,
+        profilePicture: userWithCounts.profilePicture,
+        followersCount: userWithCounts.followersCount,
+        followingCount: userWithCounts.followingCount,
+        createdAt: userWithCounts.createdAt,
+        updatedAt: userWithCounts.updatedAt,
       },
       allEvents,
       userEvents,

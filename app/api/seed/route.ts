@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { users, events } from '@/lib/db/schema';
+import { users, events, follows } from '@/lib/db/schema';
 import { hashPassword } from '@/lib/auth';
 
 export async function POST() {
@@ -22,16 +22,24 @@ export async function POST() {
       name: 'John Doe',
       username: 'johndoe',
       password: hashedPassword,
-      followersCount: '1200',
-      followingCount: '342',
     }).returning();
 
     const [user2] = await db.insert(users).values({
       name: 'Jane Smith',
       username: 'janesmith',
       password: hashedPassword,
-      followersCount: '850',
-      followingCount: '195',
+    }).returning();
+
+    const [user3] = await db.insert(users).values({
+      name: 'Mike Johnson',
+      username: 'mikejohnson',
+      password: hashedPassword,
+    }).returning();
+
+    const [user4] = await db.insert(users).values({
+      name: 'Sarah Wilson',
+      username: 'sarahwilson',
+      password: hashedPassword,
     }).returning();
 
     console.log('Sample users created');
@@ -84,10 +92,25 @@ export async function POST() {
 
     console.log('Sample events created');
 
+    // Create some follow relationships
+    console.log('Creating follow relationships...');
+    await db.insert(follows).values([
+      { followerId: user1.id, followingId: user2.id },
+      { followerId: user1.id, followingId: user3.id },
+      { followerId: user1.id, followingId: user4.id },
+      { followerId: user2.id, followingId: user1.id },
+      { followerId: user2.id, followingId: user3.id },
+      { followerId: user3.id, followingId: user1.id },
+      { followerId: user4.id, followingId: user1.id },
+      { followerId: user4.id, followingId: user2.id },
+    ]);
+    console.log('Follow relationships created');
+
     return NextResponse.json({ 
       message: 'Database seeded successfully!',
-      users: [user1, user2],
-      eventsCount: 4
+      users: [user1, user2, user3, user4],
+      eventsCount: 4,
+      followsCount: 8
     });
   } catch (error) {
     console.error('Error seeding database:', error);

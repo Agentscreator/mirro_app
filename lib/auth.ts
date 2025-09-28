@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { db } from './db';
-import { users, events } from './db/schema';
-import { eq } from 'drizzle-orm';
+import { users, events, follows } from './db/schema';
+import { eq, count, sql } from 'drizzle-orm';
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
@@ -33,6 +33,31 @@ export async function getUserById(userId: string) {
   return user;
 }
 
+export async function getUserWithCounts(userId: string) {
+  // Get user data
+  const [user] = await db.select().from(users).where(eq(users.id, userId));
+  
+  if (!user) return null;
+
+  // Get followers count
+  const [followersResult] = await db
+    .select({ count: count() })
+    .from(follows)
+    .where(eq(follows.followingId, userId));
+
+  // Get following count
+  const [followingResult] = await db
+    .select({ count: count() })
+    .from(follows)
+    .where(eq(follows.followerId, userId));
+
+  return {
+    ...user,
+    followersCount: followersResult.count.toString(),
+    followingCount: followingResult.count.toString(),
+  };
+}
+
 export async function getUserEvents(userId: string) {
   return await db.select().from(events).where(eq(events.createdBy, userId));
 }
@@ -56,13 +81,77 @@ export async function getAllEvents() {
 
 export async function updateUserProfile(userId: string, updates: {
   profilePicture?: string;
-  followersCount?: string;
-  followingCount?: string;
+  name?: string;
 }) {
   const [user] = await db.update(users)
-    .set(updates)
+    .set({
+      ...updates,
+      updatedAt: new Date(),
+    })
     .where(eq(users.id, userId))
     .returning();
   
   return user;
+}
+
+export async function followUser(followerId: string, followingId: string) {
+  if (followerId === followingId) {
+    throw new Error('Cannot follow yourself');
+  }
+
+  try {
+    await db.insert(follows).values({
+      followerId,
+      followingId,
+    });
+    return true;
+  } catch (error) {
+    // Handle duplicate follow attempt
+    return false;
+  }
+}
+
+export async function unfollowUser(followerId: string, followingId: string) {
+  await db.delete(follows)
+    .where(
+      sql`${follows.followerId} = ${followerId} AND ${follows.followingId} = ${followingId}`
+    );
+  return true;
+}
+
+export async function isFollowing(followerId: string, followingId: string) {
+  const [result] = await db
+    .select()
+    .from(follows)
+    .where(
+      sql`${follows.followerId} = ${followerId} AND ${follows.followingId} = ${followingId}`
+    );
+  
+  return !!result;
+}
+
+export async function getFollowers(userId: string) {
+  return await db
+    .select({
+      id: users.id,
+      name: users.name,
+      username: users.username,
+      profilePicture: users.profilePicture,
+    })
+    .from(follows)
+    .innerJoin(users, eq(follows.followerId, users.id))
+    .where(eq(follows.followingId, userId));
+}
+
+export async function getFollowing(userId: string) {
+  return await db
+    .select({
+      id: users.id,
+      name: users.name,
+      username: users.username,
+      profilePicture: users.profilePicture,
+    })
+    .from(follows)
+    .innerJoin(users, eq(follows.followingId, users.id))
+    .where(eq(follows.followerId, userId));
 }

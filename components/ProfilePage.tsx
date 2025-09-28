@@ -85,18 +85,25 @@ interface ProfilePageProps {
   user: User
 }
 
-export default function ProfilePage({ user }: ProfilePageProps) {
+export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
   const [isManageMode, setIsManageMode] = useState(false)
-  const [profilePicture, setProfilePicture] = useState<string | null>(user.profilePicture || null)
+  const [user, setUser] = useState<User>(initialUser)
+  const [profilePicture, setProfilePicture] = useState<string | null>(initialUser.profilePicture || null)
   const [allEvents, setAllEvents] = useState<EventCardData[]>([])
   const [userEvents, setUserEvents] = useState<EventCardData[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Fetch events data
+  // Fetch user data and events
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
+        
+        // Fetch user data with real follower counts
+        const userResponse = await fetch(`/api/user/profile?userId=${user.id}`)
+        const userData = await userResponse.json()
+        setUser(userData)
+        setProfilePicture(userData.profilePicture || null)
         
         // Fetch all events
         const allEventsResponse = await fetch('/api/events')
@@ -122,13 +129,13 @@ export default function ProfilePage({ user }: ProfilePageProps) {
         setAllEvents(allEventsData.map(transformEvent))
         setUserEvents(userEventsData.map(transformEvent))
       } catch (error) {
-        console.error('Error fetching events:', error)
+        console.error('Error fetching data:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchEvents()
+    fetchData()
   }, [user.id])
 
   const handleEditEvent = (eventId: string) => {
@@ -139,14 +146,24 @@ export default function ProfilePage({ user }: ProfilePageProps) {
   const handleProfilePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB')
+        return
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file')
+        return
+      }
+
       const reader = new FileReader()
       reader.onload = async (e) => {
         const newProfilePicture = e.target?.result as string
-        setProfilePicture(newProfilePicture)
         
-        // TODO: Upload to server and update database
-        // For now, just update local state
         try {
+          // Update profile picture on server
           const response = await fetch('/api/user/profile', {
             method: 'PATCH',
             headers: {
@@ -158,11 +175,20 @@ export default function ProfilePage({ user }: ProfilePageProps) {
             })
           })
           
-          if (!response.ok) {
+          if (response.ok) {
+            const updatedUser = await response.json()
+            setUser(updatedUser)
+            setProfilePicture(newProfilePicture)
+            
+            // Update localStorage with new user data
+            localStorage.setItem('user', JSON.stringify(updatedUser))
+          } else {
             console.error('Failed to update profile picture')
+            alert('Failed to update profile picture. Please try again.')
           }
         } catch (error) {
           console.error('Error updating profile picture:', error)
+          alert('Error updating profile picture. Please try again.')
         }
       }
       reader.readAsDataURL(file)
