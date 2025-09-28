@@ -58,7 +58,19 @@ const upcomingEvents = [
   },
 ]
 
-export default function ProfilePage() {
+interface User {
+  id: string
+  name: string
+  username: string
+  createdAt: string
+  updatedAt: string
+}
+
+interface ProfilePageProps {
+  user: User
+}
+
+export default function ProfilePage({ user }: ProfilePageProps) {
   const [isManageMode, setIsManageMode] = useState(false)
   const [profilePicture, setProfilePicture] = useState<string | null>(null)
 
@@ -106,8 +118,8 @@ export default function ProfilePage() {
             <input type="file" accept="image/*" className="hidden" onChange={handleProfilePictureUpload} />
           </label>
         </div>
-        <h2 className="text-2xl font-normal text-text-primary mb-2">Alex Morgan</h2>
-        <p className="text-text-secondary font-normal">Event Organizer</p>
+        <h2 className="text-2xl font-normal text-text-primary mb-2">{user.name}</h2>
+        <p className="text-text-secondary font-normal">@{user.username}</p>
 
         {/* Followers/Following */}
         <div className="flex items-center justify-center space-x-6 mt-4">
