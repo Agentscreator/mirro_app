@@ -30,8 +30,8 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
 
     if (!formData.username.trim()) {
       newErrors.username = "Username is required"
-    } else if (formData.username.length < 8) {
-      newErrors.username = "Username must be at least 8 characters"
+    } else if (formData.username.length < 3) {
+      newErrors.username = "Username must be at least 3 characters"
     }
 
     if (!formData.password) {
