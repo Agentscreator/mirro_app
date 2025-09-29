@@ -23,12 +23,43 @@ export default function EventsApp() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Check if user is logged in
-    const storedUser = localStorage.getItem('user')
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+    // Check if user is logged in and validate session
+    const validateSession = async () => {
+      const storedUser = localStorage.getItem('user')
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser)
+
+          // Validate the session with the server
+          const response = await fetch('/api/auth/validate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId: userData.id }),
+          })
+
+          if (response.ok) {
+            const data = await response.json()
+            // Update user data with fresh information from server
+            setUser(data.user)
+            localStorage.setItem('user', JSON.stringify(data.user))
+          } else {
+            // Invalid session, clear localStorage
+            localStorage.removeItem('user')
+            setUser(null)
+          }
+        } catch (error) {
+          console.error('Session validation error:', error)
+          // Clear invalid session data
+          localStorage.removeItem('user')
+          setUser(null)
+        }
+      }
+      setIsLoading(false)
     }
-    setIsLoading(false)
+
+    validateSession()
   }, [])
 
   const handleAuthSuccess = () => {
