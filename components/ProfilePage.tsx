@@ -4,6 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import EventCard from "./EventCard"
 import ManageEventsToggle from "./ManageEventsToggle"
+import FollowersModal from "./FollowersModal"
 
 // Icon components for different event types
 const getEventIcon = (iconType?: string) => {
@@ -100,6 +101,10 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
   const [editUsername, setEditUsername] = useState(initialUser.username)
   const [usernameError, setUsernameError] = useState('')
   const [usernameChecking, setUsernameChecking] = useState(false)
+  
+  // Modal states
+  const [isFollowersModalOpen, setIsFollowersModalOpen] = useState(false)
+  const [isFollowingModalOpen, setIsFollowingModalOpen] = useState(false)
 
   // Fetch user data and events
   useEffect(() => {
@@ -491,14 +496,20 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
 
         {/* Followers/Following */}
         <div className="flex items-center justify-center space-x-6 mt-4">
-          <div className="text-center">
+          <button 
+            onClick={() => setIsFollowersModalOpen(true)}
+            className="text-center hover:bg-taupe-50 rounded-lg p-2 transition-colors duration-200"
+          >
             <div className="text-lg font-medium text-text-primary">{user.followersCount || '0'}</div>
             <div className="text-xs text-text-muted font-normal">Followers</div>
-          </div>
-          <div className="text-center">
+          </button>
+          <button 
+            onClick={() => setIsFollowingModalOpen(true)}
+            className="text-center hover:bg-taupe-50 rounded-lg p-2 transition-colors duration-200"
+          >
             <div className="text-lg font-medium text-text-primary">{user.followingCount || '0'}</div>
             <div className="text-xs text-text-muted font-normal">Following</div>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -539,6 +550,23 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      <FollowersModal
+        isOpen={isFollowersModalOpen}
+        onClose={() => setIsFollowersModalOpen(false)}
+        userId={user.id}
+        type="followers"
+        currentUserId={user.id}
+      />
+      
+      <FollowersModal
+        isOpen={isFollowingModalOpen}
+        onClose={() => setIsFollowingModalOpen(false)}
+        userId={user.id}
+        type="following"
+        currentUserId={user.id}
+      />
     </div>
   )
 }
