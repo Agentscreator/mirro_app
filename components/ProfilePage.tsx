@@ -92,6 +92,14 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
   const [allEvents, setAllEvents] = useState<EventCardData[]>([])
   const [userEvents, setUserEvents] = useState<EventCardData[]>([])
   const [loading, setLoading] = useState(true)
+  
+  // Editing states
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [isEditingUsername, setIsEditingUsername] = useState(false)
+  const [editName, setEditName] = useState(initialUser.name)
+  const [editUsername, setEditUsername] = useState(initialUser.username)
+  const [usernameError, setUsernameError] = useState('')
+  const [usernameChecking, setUsernameChecking] = useState(false)
 
   // Fetch user data and events
   useEffect(() => {
@@ -195,6 +203,132 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
     }
   }
 
+  const handleNameEdit = async () => {
+    if (!editName.trim()) {
+      alert('Name cannot be empty')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          name: editName.trim()
+        })
+      })
+
+      if (response.ok) {
+        const updatedUser = await response.json()
+        setUser(updatedUser)
+        setIsEditingName(false)
+        
+        // Update localStorage with new user data
+        localStorage.setItem('user', JSON.stringify(updatedUser))
+      } else {
+        alert('Failed to update name. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error updating name:', error)
+      alert('Error updating name. Please try again.')
+    }
+  }
+
+  const checkUsernameAvailability = async (username: string) => {
+    if (username === user.username) {
+      setUsernameError('')
+      return true
+    }
+
+    if (username.length < 3) {
+      setUsernameError('Username must be at least 3 characters long')
+      return false
+    }
+
+    if (username.length > 30) {
+      setUsernameError('Username must be less than 30 characters long')
+      return false
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      setUsernameError('Username can only contain letters, numbers, and underscores')
+      return false
+    }
+
+    setUsernameChecking(true)
+    try {
+      const response = await fetch(`/api/user/check-username?username=${encodeURIComponent(username)}&currentUserId=${user.id}`)
+      const data = await response.json()
+      
+      if (data.available) {
+        setUsernameError('')
+        return true
+      } else {
+        setUsernameError(data.error || 'Username is not available')
+        return false
+      }
+    } catch (error) {
+      setUsernameError('Error checking username availability')
+      return false
+    } finally {
+      setUsernameChecking(false)
+    }
+  }
+
+  const handleUsernameEdit = async () => {
+    if (!editUsername.trim()) {
+      alert('Username cannot be empty')
+      return
+    }
+
+    const isValid = await checkUsernameAvailability(editUsername.trim())
+    if (!isValid) return
+
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          username: editUsername.trim()
+        })
+      })
+
+      if (response.ok) {
+        const updatedUser = await response.json()
+        setUser(updatedUser)
+        setIsEditingUsername(false)
+        
+        // Update localStorage with new user data
+        localStorage.setItem('user', JSON.stringify(updatedUser))
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Failed to update username. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error updating username:', error)
+      alert('Error updating username. Please try again.')
+    }
+  }
+
+  const handleUsernameChange = (value: string) => {
+    setEditUsername(value)
+    if (value !== user.username) {
+      // Debounce username checking
+      const timeoutId = setTimeout(() => {
+        checkUsernameAvailability(value)
+      }, 500)
+      return () => clearTimeout(timeoutId)
+    } else {
+      setUsernameError('')
+    }
+  }
+
   const eventsToShow = isManageMode ? userEvents : allEvents
 
   return (
@@ -222,8 +356,129 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
             <input type="file" accept="image/*" className="hidden" onChange={handleProfilePictureUpload} />
           </label>
         </div>
-        <h2 className="text-2xl font-normal text-text-primary mb-2">{user.name}</h2>
-        <p className="text-text-secondary font-normal">@{user.username}</p>
+        {/* Name editing */}
+        <div className="mb-2">
+          {isEditingName ? (
+            <div className="flex items-center justify-center space-x-2">
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="text-2xl font-normal text-text-primary bg-transparent border-b-2 border-taupe-300 focus:border-taupe-500 outline-none text-center"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleNameEdit()
+                  if (e.key === 'Escape') {
+                    setEditName(user.name)
+                    setIsEditingName(false)
+                  }
+                }}
+                autoFocus
+              />
+              <button
+                onClick={handleNameEdit}
+                className="p-1 text-green-600 hover:text-green-700"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <button
+                onClick={() => {
+                  setEditName(user.name)
+                  setIsEditingName(false)
+                }}
+                className="p-1 text-red-600 hover:text-red-700"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center space-x-2">
+              <h2 className="text-2xl font-normal text-text-primary">{user.name}</h2>
+              <button
+                onClick={() => {
+                  setEditName(user.name)
+                  setIsEditingName(true)
+                }}
+                className="p-1 text-taupe-500 hover:text-taupe-700 opacity-70 hover:opacity-100"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Username editing */}
+        <div className="mb-4">
+          {isEditingUsername ? (
+            <div className="flex flex-col items-center space-y-2">
+              <div className="flex items-center space-x-2">
+                <span className="text-text-secondary">@</span>
+                <input
+                  type="text"
+                  value={editUsername}
+                  onChange={(e) => handleUsernameChange(e.target.value)}
+                  className="text-text-secondary font-normal bg-transparent border-b-2 border-taupe-300 focus:border-taupe-500 outline-none text-center"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleUsernameEdit()
+                    if (e.key === 'Escape') {
+                      setEditUsername(user.username)
+                      setIsEditingUsername(false)
+                      setUsernameError('')
+                    }
+                  }}
+                  autoFocus
+                />
+                <button
+                  onClick={handleUsernameEdit}
+                  disabled={!!usernameError || usernameChecking}
+                  className="p-1 text-green-600 hover:text-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => {
+                    setEditUsername(user.username)
+                    setIsEditingUsername(false)
+                    setUsernameError('')
+                  }}
+                  className="p-1 text-red-600 hover:text-red-700"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+              {usernameChecking && (
+                <p className="text-xs text-taupe-500">Checking availability...</p>
+              )}
+              {usernameError && (
+                <p className="text-xs text-red-500">{usernameError}</p>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center space-x-2">
+              <p className="text-text-secondary font-normal">@{user.username}</p>
+              <button
+                onClick={() => {
+                  setEditUsername(user.username)
+                  setIsEditingUsername(true)
+                }}
+                className="p-1 text-taupe-500 hover:text-taupe-700 opacity-70 hover:opacity-100"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Followers/Following */}
         <div className="flex items-center justify-center space-x-6 mt-4">

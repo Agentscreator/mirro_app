@@ -7,12 +7,12 @@ export async function POST() {
   try {
     console.log('Seeding database...');
 
-    // Check if users already exist
-    const existingUsers = await db.select().from(users);
+    // Clear existing data for fresh seed
+    await db.delete(follows);
+    await db.delete(events);
+    await db.delete(users);
     
-    if (existingUsers.length > 0) {
-      return NextResponse.json({ message: 'Database already seeded' });
-    }
+    console.log('Cleared existing data');
 
     console.log('Creating sample users...');
     

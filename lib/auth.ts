@@ -82,7 +82,16 @@ export async function getAllEvents() {
 export async function updateUserProfile(userId: string, updates: {
   profilePicture?: string;
   name?: string;
+  username?: string;
 }) {
+  // If username is being updated, check for uniqueness
+  if (updates.username) {
+    const existingUser = await getUserByUsername(updates.username);
+    if (existingUser && existingUser.id !== userId) {
+      throw new Error('Username already exists');
+    }
+  }
+
   const [user] = await db.update(users)
     .set({
       ...updates,
@@ -92,6 +101,19 @@ export async function updateUserProfile(userId: string, updates: {
     .returning();
   
   return user;
+}
+
+export async function checkUsernameAvailability(username: string, currentUserId?: string) {
+  const existingUser = await getUserByUsername(username);
+  
+  // If no user found, username is available
+  if (!existingUser) return true;
+  
+  // If user found but it's the current user, username is available for them
+  if (currentUserId && existingUser.id === currentUserId) return true;
+  
+  // Username is taken by someone else
+  return false;
 }
 
 export async function followUser(followerId: string, followingId: string) {
