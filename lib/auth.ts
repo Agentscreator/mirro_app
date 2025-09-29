@@ -103,6 +103,58 @@ export async function createEvent(eventData: {
   return event;
 }
 
+export async function updateEvent(eventId: string, eventData: {
+  title?: string;
+  description?: string;
+  date?: string;
+  time?: string;
+  location?: string;
+  icon?: string;
+  gradient?: string;
+}, userId: string) {
+  // First check if the user owns this event
+  const [existingEvent] = await db.select().from(events).where(eq(events.id, eventId));
+  
+  if (!existingEvent) {
+    throw new Error('Event not found');
+  }
+  
+  if (existingEvent.createdBy !== userId) {
+    throw new Error('You can only edit your own events');
+  }
+
+  const [updatedEvent] = await db.update(events)
+    .set({
+      ...eventData,
+      updatedAt: new Date(),
+    })
+    .where(eq(events.id, eventId))
+    .returning();
+  
+  return updatedEvent;
+}
+
+export async function getEventById(eventId: string) {
+  const [event] = await db.select().from(events).where(eq(events.id, eventId));
+  return event;
+}
+
+export async function deleteEvent(eventId: string, userId: string) {
+  // First check if the user owns this event
+  const [existingEvent] = await db.select().from(events).where(eq(events.id, eventId));
+  
+  if (!existingEvent) {
+    throw new Error('Event not found');
+  }
+  
+  if (existingEvent.createdBy !== userId) {
+    throw new Error('You can only delete your own events');
+  }
+
+  await db.delete(events).where(eq(events.id, eventId));
+  return true;
+}
+
 export async function updateUserProfile(userId: string, updates: {
   profilePicture?: string;
   name?: string;

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import EventCard from "./EventCard"
 import ManageEventsToggle from "./ManageEventsToggle"
 import FollowersModal from "./FollowersModal"
+import EditEventModal from "./EditEventModal"
 
 // Icon components for different event types
 const getEventIcon = (iconType?: string) => {
@@ -105,6 +106,8 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
   // Modal states
   const [isFollowersModalOpen, setIsFollowersModalOpen] = useState(false)
   const [isFollowingModalOpen, setIsFollowingModalOpen] = useState(false)
+  const [isEditEventModalOpen, setIsEditEventModalOpen] = useState(false)
+  const [editingEventId, setEditingEventId] = useState<string | null>(null)
 
   // Fetch user data and events
   useEffect(() => {
@@ -152,8 +155,77 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
   }, [user.id])
 
   const handleEditEvent = (eventId: string) => {
-    console.log("Editing event:", eventId)
-    // Here you would implement the edit functionality
+    setEditingEventId(eventId)
+    setIsEditEventModalOpen(true)
+  }
+
+  const handleEventUpdated = () => {
+    // Refresh events data after update
+    const fetchData = async () => {
+      try {
+        // Fetch all events
+        const allEventsResponse = await fetch('/api/events')
+        const allEventsData: DatabaseEvent[] = await allEventsResponse.json()
+
+        // Fetch user's events
+        const userEventsResponse = await fetch(`/api/events/user/${user.id}`)
+        const userEventsData: DatabaseEvent[] = await userEventsResponse.json()
+
+        // Transform database events to component format
+        const transformEvent = (event: DatabaseEvent): EventCardData => ({
+          id: event.id,
+          title: event.title,
+          description: event.description,
+          date: event.date,
+          time: event.time,
+          location: event.location,
+          createdBy: event.createdBy,
+          icon: getEventIcon(event.icon || undefined),
+          gradient: event.gradient || "from-taupe-400 to-taupe-500"
+        })
+
+        setAllEvents(allEventsData.map(transformEvent))
+        setUserEvents(userEventsData.map(transformEvent))
+      } catch (error) {
+        console.error('Error refreshing events:', error)
+      }
+    }
+
+    fetchData()
+  }
+
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      const storedUser = localStorage.getItem('user')
+      if (!storedUser) {
+        alert('Please log in to delete events')
+        return
+      }
+      
+      const user = JSON.parse(storedUser)
+      
+      const response = await fetch('/api/events', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventId: eventId,
+          userId: user.id,
+        }),
+      })
+
+      if (response.ok) {
+        alert("Event deleted successfully!")
+        handleEventUpdated() // Refresh the events list
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Failed to delete event')
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error)
+      alert('Error deleting event. Please try again.')
+    }
   }
 
   const handleProfilePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -533,6 +605,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                 isManageMode={isManageMode}
                 currentUserId={user.id}
                 onEdit={handleEditEvent}
+                onDelete={handleDeleteEvent}
               />
             ))}
           </div>
@@ -566,6 +639,16 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
         userId={user.id}
         type="following"
         currentUserId={user.id}
+      />
+
+      <EditEventModal
+        isOpen={isEditEventModalOpen}
+        onClose={() => {
+          setIsEditEventModalOpen(false)
+          setEditingEventId(null)
+        }}
+        eventId={editingEventId}
+        onEventUpdated={handleEventUpdated}
       />
     </div>
   )

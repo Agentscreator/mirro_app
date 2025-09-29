@@ -6,7 +6,12 @@ export async function GET(
   { params }: { params: { userId: string } }
 ) {
   try {
-    const { userId } = params;
+    const userId = params.userId;
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    }
+
     const events = await getUserEvents(userId);
     return NextResponse.json(events);
   } catch (error) {
