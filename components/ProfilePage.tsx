@@ -357,169 +357,134 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
           </label>
         </div>
         {/* Name editing */}
-        <div className="mb-3">
+        <div className="mb-2">
           {isEditingName ? (
-            <div className="glass-card rounded-2xl p-4 soft-shadow mx-auto max-w-sm">
-              <div className="flex flex-col space-y-3">
-                <label className="text-sm font-medium text-text-secondary text-center">Edit Name</label>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="text-xl font-normal text-text-primary bg-white/50 rounded-xl px-4 py-3 border border-cream-200 focus:ring-2 focus:ring-taupe-400 focus:border-transparent outline-none text-center transition-all duration-200"
-                  placeholder="Enter your name"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleNameEdit()
-                    if (e.key === 'Escape') {
-                      setEditName(user.name)
-                      setIsEditingName(false)
-                    }
-                  }}
-                  autoFocus
-                />
-                <div className="flex space-x-2">
-                  <button
-                    onClick={handleNameEdit}
-                    className="flex-1 gradient-primary text-white py-2 px-4 rounded-xl font-medium hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2"
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    <span>Save</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setEditName(user.name)
-                      setIsEditingName(false)
-                    }}
-                    className="flex-1 glass-card hover:bg-white/60 text-text-secondary py-2 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-center space-x-2"
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                    <span>Cancel</span>
-                  </button>
-                </div>
-              </div>
+            <div className="flex items-center justify-center space-x-2">
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="text-2xl font-normal text-text-primary bg-transparent border-b-2 border-taupe-300 focus:border-taupe-500 outline-none text-center"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleNameEdit()
+                  if (e.key === 'Escape') {
+                    setEditName(user.name)
+                    setIsEditingName(false)
+                  }
+                }}
+                autoFocus
+              />
+              <button
+                onClick={handleNameEdit}
+                className="p-1 text-green-600 hover:text-green-700 transition-colors duration-200"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <button
+                onClick={() => {
+                  setEditName(user.name)
+                  setIsEditingName(false)
+                }}
+                className="p-1 text-red-600 hover:text-red-700 transition-colors duration-200"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
             </div>
           ) : (
-            <div className="group cursor-pointer" onClick={() => {
-              setEditName(user.name)
-              setIsEditingName(true)
-            }}>
-              <div className="glass-card rounded-2xl p-3 soft-shadow hover:shadow-lg transition-all duration-200 hover-lift mx-auto max-w-sm">
-                <div className="flex items-center justify-center space-x-3">
-                  <h2 className="text-2xl font-normal text-text-primary">{user.name}</h2>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-taupe-400 to-taupe-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 transform scale-90 group-hover:scale-100">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                    </svg>
-                  </div>
-                </div>
-                <p className="text-xs text-text-muted text-center mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">Click to edit name</p>
-              </div>
+            <div className="group flex items-center justify-center space-x-1">
+              <h2 className="text-2xl font-normal text-text-primary">{user.name}</h2>
+              <button
+                onClick={() => {
+                  setEditName(user.name)
+                  setIsEditingName(true)
+                }}
+                className="p-1 text-taupe-400 hover:text-taupe-600 opacity-0 group-hover:opacity-100 transition-all duration-300"
+              >
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+              </button>
             </div>
           )}
         </div>
 
         {/* Username editing */}
-        <div className="mb-6">
+        <div className="mb-4">
           {isEditingUsername ? (
-            <div className="glass-card rounded-2xl p-4 soft-shadow mx-auto max-w-sm">
-              <div className="flex flex-col space-y-3">
-                <label className="text-sm font-medium text-text-secondary text-center">Edit Username</label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-text-secondary font-medium">@</div>
-                  <input
-                    type="text"
-                    value={editUsername}
-                    onChange={(e) => handleUsernameChange(e.target.value)}
-                    className="w-full text-text-secondary font-normal bg-white/50 rounded-xl pl-8 pr-4 py-3 border border-cream-200 focus:ring-2 focus:ring-taupe-400 focus:border-transparent outline-none text-center transition-all duration-200"
-                    placeholder="username"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleUsernameEdit()
-                      if (e.key === 'Escape') {
-                        setEditUsername(user.username)
-                        setIsEditingUsername(false)
-                        setUsernameError('')
-                      }
-                    }}
-                    autoFocus
-                  />
-                </div>
-                
-                {/* Status indicators */}
-                <div className="min-h-[20px] flex items-center justify-center">
-                  {usernameChecking && (
-                    <div className="flex items-center space-x-2 text-taupe-500">
-                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <span className="text-sm">Checking availability...</span>
-                    </div>
-                  )}
-                  {!usernameChecking && usernameError && (
-                    <div className="flex items-center space-x-2 text-red-500">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                      <span className="text-sm">{usernameError}</span>
-                    </div>
-                  )}
-                  {!usernameChecking && !usernameError && editUsername !== user.username && editUsername.length >= 3 && (
-                    <div className="flex items-center space-x-2 text-green-600">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      <span className="text-sm">Username available!</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex space-x-2">
-                  <button
-                    onClick={handleUsernameEdit}
-                    disabled={!!usernameError || usernameChecking}
-                    className="flex-1 gradient-primary text-white py-2 px-4 rounded-xl font-medium hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    <span>Save</span>
-                  </button>
-                  <button
-                    onClick={() => {
+            <div className="flex flex-col items-center space-y-3">
+              <div className="flex items-center space-x-2">
+                <span className="text-text-secondary">@</span>
+                <input
+                  type="text"
+                  value={editUsername}
+                  onChange={(e) => handleUsernameChange(e.target.value)}
+                  className="text-text-secondary font-normal bg-transparent border-b-2 border-taupe-300 focus:border-taupe-500 outline-none text-center"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleUsernameEdit()
+                    if (e.key === 'Escape') {
                       setEditUsername(user.username)
                       setIsEditingUsername(false)
                       setUsernameError('')
-                    }}
-                    className="flex-1 glass-card hover:bg-white/60 text-text-secondary py-2 px-4 rounded-xl font-medium transition-all duration-200 flex items-center justify-center space-x-2"
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                    <span>Cancel</span>
-                  </button>
-                </div>
+                    }
+                  }}
+                  autoFocus
+                />
+                <button
+                  onClick={handleUsernameEdit}
+                  disabled={!!usernameError || usernameChecking}
+                  className="p-1 text-green-600 hover:text-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => {
+                    setEditUsername(user.username)
+                    setIsEditingUsername(false)
+                    setUsernameError('')
+                  }}
+                  className="p-1 text-red-600 hover:text-red-700 transition-colors duration-200"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
               </div>
+              {usernameChecking && (
+                <p className="text-xs text-taupe-500 flex items-center space-x-1">
+                  <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Checking...</span>
+                </p>
+              )}
+              {usernameError && (
+                <p className="text-xs text-red-500">{usernameError}</p>
+              )}
+              {!usernameChecking && !usernameError && editUsername !== user.username && editUsername.length >= 3 && (
+                <p className="text-xs text-green-600">Available!</p>
+              )}
             </div>
           ) : (
-            <div className="group cursor-pointer" onClick={() => {
-              setEditUsername(user.username)
-              setIsEditingUsername(true)
-            }}>
-              <div className="glass-card rounded-2xl p-3 soft-shadow hover:shadow-lg transition-all duration-200 hover-lift mx-auto max-w-sm">
-                <div className="flex items-center justify-center space-x-3">
-                  <p className="text-text-secondary font-normal">@{user.username}</p>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-taupe-400 to-taupe-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 transform scale-90 group-hover:scale-100">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                    </svg>
-                  </div>
-                </div>
-                <p className="text-xs text-text-muted text-center mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">Click to edit username</p>
-              </div>
+            <div className="group flex items-center justify-center space-x-1">
+              <p className="text-text-secondary font-normal">@{user.username}</p>
+              <button
+                onClick={() => {
+                  setEditUsername(user.username)
+                  setIsEditingUsername(true)
+                }}
+                className="p-1 text-taupe-400 hover:text-taupe-600 opacity-0 group-hover:opacity-100 transition-all duration-300"
+              >
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+              </button>
             </div>
           )}
         </div>
