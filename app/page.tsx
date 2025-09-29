@@ -21,6 +21,7 @@ export default function EventsApp() {
   const [currentPage, setCurrentPage] = useState<"profile" | "create">("profile")
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [refreshEvents, setRefreshEvents] = useState(0)
 
   useEffect(() => {
     // Check if user is logged in and validate session
@@ -120,8 +121,11 @@ export default function EventsApp() {
       </header>
 
       {/* Pages */}
-      {currentPage === "profile" && <ProfilePage user={user} />}
-      {currentPage === "create" && <CreateEventPage />}
+      {currentPage === "profile" && <ProfilePage user={user} key={refreshEvents} />}
+      {currentPage === "create" && <CreateEventPage onEventCreated={() => {
+        setRefreshEvents(prev => prev + 1)
+        setCurrentPage("profile")
+      }} />}
 
       {/* Bottom Navigation */}
       <BottomNavigation currentPage={currentPage} onPageChange={setCurrentPage} />

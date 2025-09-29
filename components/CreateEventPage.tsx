@@ -4,7 +4,11 @@ import type React from "react"
 
 import { useState } from "react"
 
-export default function CreateEventPage() {
+interface CreateEventPageProps {
+  onEventCreated?: () => void
+}
+
+export default function CreateEventPage({ onEventCreated }: CreateEventPageProps) {
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedMedia, setSelectedMedia] = useState<{ type: string; data: string } | null>(null)
   const [eventData, setEventData] = useState({
@@ -13,6 +17,7 @@ export default function CreateEventPage() {
     date: "",
     time: "",
     location: "",
+    type: "general", // Add event type
   })
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,11 +43,69 @@ export default function CreateEventPage() {
     setCurrentStep(3)
   }
 
-  const handlePublish = () => {
-    alert("Event published successfully!")
-    setCurrentStep(1)
-    setSelectedMedia(null)
-    setEventData({ title: "", description: "", date: "", time: "", location: "" })
+  const handlePublish = async () => {
+    try {
+      // Get user data from localStorage
+      const storedUser = localStorage.getItem('user')
+      if (!storedUser) {
+        alert('Please log in to create an event')
+        return
+      }
+      
+      const user = JSON.parse(storedUser)
+      
+      // Determine icon and gradient based on event type
+      const getEventTypeDetails = (type: string) => {
+        switch (type) {
+          case 'music':
+            return { icon: 'music', gradient: 'from-purple-400 to-purple-500' }
+          case 'photography':
+            return { icon: 'photography', gradient: 'from-blue-400 to-blue-500' }
+          case 'community':
+            return { icon: 'community', gradient: 'from-green-400 to-green-500' }
+          case 'sports':
+            return { icon: 'sports', gradient: 'from-orange-400 to-orange-500' }
+          case 'food':
+            return { icon: 'food', gradient: 'from-red-400 to-red-500' }
+          default:
+            return { icon: 'calendar', gradient: 'from-taupe-400 to-taupe-500' }
+        }
+      }
+      
+      const { icon: eventIcon, gradient: eventGradient } = getEventTypeDetails(eventData.type)
+      
+      const response = await fetch('/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: eventData.title,
+          description: eventData.description,
+          date: eventData.date,
+          time: eventData.time,
+          location: eventData.location,
+          icon: eventIcon,
+          gradient: eventGradient,
+          createdBy: user.id,
+        }),
+      })
+
+      if (response.ok) {
+        alert("Event published successfully!")
+        setCurrentStep(1)
+        setSelectedMedia(null)
+        setEventData({ title: "", description: "", date: "", time: "", location: "", type: "general" })
+        // Call the callback to refresh events and navigate back to profile
+        onEventCreated?.()
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Failed to create event')
+      }
+    } catch (error) {
+      console.error('Error creating event:', error)
+      alert('Error creating event. Please try again.')
+    }
   }
 
   return (
@@ -146,6 +209,22 @@ export default function CreateEventPage() {
               handleFormSubmit()
             }}
           >
+            <div>
+              <label className="block text-sm font-medium mb-3 text-text-secondary">Event Type</label>
+              <select
+                className="w-full px-5 py-4 text-base rounded-2xl border border-cream-300 glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary"
+                value={eventData.type}
+                onChange={(e) => setEventData({ ...eventData, type: e.target.value })}
+              >
+                <option value="general">General Event</option>
+                <option value="music">Music & Concert</option>
+                <option value="photography">Photography</option>
+                <option value="community">Community</option>
+                <option value="sports">Sports & Fitness</option>
+                <option value="food">Food & Dining</option>
+              </select>
+            </div>
+
             <div>
               <label className="block text-sm font-medium mb-3 text-text-secondary">Event Title</label>
               <input

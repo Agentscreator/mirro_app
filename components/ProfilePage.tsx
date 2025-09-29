@@ -93,7 +93,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
   const [allEvents, setAllEvents] = useState<EventCardData[]>([])
   const [userEvents, setUserEvents] = useState<EventCardData[]>([])
   const [loading, setLoading] = useState(true)
-  
+
   // Editing states
   const [isEditingName, setIsEditingName] = useState(false)
   const [isEditingUsername, setIsEditingUsername] = useState(false)
@@ -101,7 +101,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
   const [editUsername, setEditUsername] = useState(initialUser.username)
   const [usernameError, setUsernameError] = useState('')
   const [usernameChecking, setUsernameChecking] = useState(false)
-  
+
   // Modal states
   const [isFollowersModalOpen, setIsFollowersModalOpen] = useState(false)
   const [isFollowingModalOpen, setIsFollowingModalOpen] = useState(false)
@@ -111,21 +111,21 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
     const fetchData = async () => {
       try {
         setLoading(true)
-        
+
         // Fetch user data with real follower counts
         const userResponse = await fetch(`/api/user/profile?userId=${user.id}`)
         const userData = await userResponse.json()
         setUser(userData)
         setProfilePicture(userData.profilePicture || null)
-        
+
         // Fetch all events
         const allEventsResponse = await fetch('/api/events')
         const allEventsData: DatabaseEvent[] = await allEventsResponse.json()
-        
+
         // Fetch user's events
         const userEventsResponse = await fetch(`/api/events/user/${user.id}`)
         const userEventsData: DatabaseEvent[] = await userEventsResponse.json()
-        
+
         // Transform database events to component format
         const transformEvent = (event: DatabaseEvent): EventCardData => ({
           id: event.id,
@@ -138,7 +138,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
           icon: getEventIcon(event.icon || undefined),
           gradient: event.gradient || "from-taupe-400 to-taupe-500"
         })
-        
+
         setAllEvents(allEventsData.map(transformEvent))
         setUserEvents(userEventsData.map(transformEvent))
       } catch (error) {
@@ -174,7 +174,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
       const reader = new FileReader()
       reader.onload = async (e) => {
         const newProfilePicture = e.target?.result as string
-        
+
         try {
           // Update profile picture on server
           const response = await fetch('/api/user/profile', {
@@ -187,12 +187,12 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
               profilePicture: newProfilePicture
             })
           })
-          
+
           if (response.ok) {
             const updatedUser = await response.json()
             setUser(updatedUser)
             setProfilePicture(newProfilePicture)
-            
+
             // Update localStorage with new user data
             localStorage.setItem('user', JSON.stringify(updatedUser))
           } else {
@@ -230,7 +230,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
         const updatedUser = await response.json()
         setUser(updatedUser)
         setIsEditingName(false)
-        
+
         // Update localStorage with new user data
         localStorage.setItem('user', JSON.stringify(updatedUser))
       } else {
@@ -267,7 +267,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
     try {
       const response = await fetch(`/api/user/check-username?username=${encodeURIComponent(username)}&currentUserId=${user.id}`)
       const data = await response.json()
-      
+
       if (data.available) {
         setUsernameError('')
         return true
@@ -308,7 +308,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
         const updatedUser = await response.json()
         setUser(updatedUser)
         setIsEditingUsername(false)
-        
+
         // Update localStorage with new user data
         localStorage.setItem('user', JSON.stringify(updatedUser))
       } else {
@@ -496,14 +496,14 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
 
         {/* Followers/Following */}
         <div className="flex items-center justify-center space-x-6 mt-4">
-          <button 
+          <button
             onClick={() => setIsFollowersModalOpen(true)}
             className="text-center hover:bg-taupe-50 rounded-lg p-2 transition-colors duration-200"
           >
             <div className="text-lg font-medium text-text-primary">{user.followersCount || '0'}</div>
             <div className="text-xs text-text-muted font-normal">Followers</div>
           </button>
-          <button 
+          <button
             onClick={() => setIsFollowingModalOpen(true)}
             className="text-center hover:bg-taupe-50 rounded-lg p-2 transition-colors duration-200"
           >
@@ -527,12 +527,12 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
         ) : (
           <div className="space-y-3">
             {eventsToShow.map((event) => (
-              <EventCard 
-                key={event.id} 
-                event={event} 
-                isManageMode={isManageMode} 
+              <EventCard
+                key={event.id}
+                event={event}
+                isManageMode={isManageMode}
                 currentUserId={user.id}
-                onEdit={handleEditEvent} 
+                onEdit={handleEditEvent}
               />
             ))}
           </div>
@@ -559,7 +559,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
         type="followers"
         currentUserId={user.id}
       />
-      
+
       <FollowersModal
         isOpen={isFollowingModalOpen}
         onClose={() => setIsFollowingModalOpen(false)}

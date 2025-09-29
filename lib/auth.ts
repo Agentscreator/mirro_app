@@ -79,6 +79,30 @@ export async function getAllEvents() {
   }).from(events).leftJoin(users, eq(events.createdBy, users.id));
 }
 
+export async function createEvent(eventData: {
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  icon?: string;
+  gradient?: string;
+  createdBy: string;
+}) {
+  const [event] = await db.insert(events).values({
+    title: eventData.title,
+    description: eventData.description,
+    date: eventData.date,
+    time: eventData.time,
+    location: eventData.location,
+    icon: eventData.icon || 'calendar',
+    gradient: eventData.gradient || 'from-taupe-400 to-taupe-500',
+    createdBy: eventData.createdBy,
+  }).returning();
+  
+  return event;
+}
+
 export async function updateUserProfile(userId: string, updates: {
   profilePicture?: string;
   name?: string;
