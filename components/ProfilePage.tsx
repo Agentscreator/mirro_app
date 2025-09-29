@@ -6,6 +6,14 @@ import EventCard from "./EventCard"
 import ManageEventsToggle from "./ManageEventsToggle"
 import FollowersModal from "./FollowersModal"
 import EditEventModal from "./EditEventModal"
+import EventPreviewModal from "./EventPreviewModal"
+import type { Event } from "@/lib/db/schema"
+
+interface EventWithCreator extends Omit<Event, 'icon'> {
+  creatorName?: string
+  creatorUsername?: string
+  icon?: React.ReactNode | string
+}
 
 // Icon components for different event types
 const getEventIcon = (iconType?: string) => {
@@ -67,8 +75,8 @@ interface DatabaseEvent {
   gradient?: string | null
   createdBy: string
   createdAt: string
-  creatorName?: string | null
-  creatorUsername?: string | null
+  creatorName?: string 
+  creatorUsername?: string
 }
 
 interface EventCardData {
@@ -81,6 +89,10 @@ interface EventCardData {
   createdBy: string
   icon: React.ReactNode
   gradient: string
+  creatorName?: string
+  creatorUsername?: string 
+  createdAt: Date
+  updatedAt: Date
 }
 
 interface ProfilePageProps {
@@ -108,6 +120,8 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
   const [isFollowingModalOpen, setIsFollowingModalOpen] = useState(false)
   const [isEditEventModalOpen, setIsEditEventModalOpen] = useState(false)
   const [editingEventId, setEditingEventId] = useState<string | null>(null)
+  const [isEventPreviewModalOpen, setIsEventPreviewModalOpen] = useState(false)
+  const [previewEvent, setPreviewEvent] = useState<EventWithCreator | null>(null)
 
   // Fetch user data and events
   useEffect(() => {
@@ -139,7 +153,11 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
           location: event.location,
           createdBy: event.createdBy,
           icon: getEventIcon(event.icon || undefined),
-          gradient: event.gradient || "from-taupe-400 to-taupe-500"
+          gradient: event.gradient || "from-taupe-400 to-taupe-500",
+          creatorName: event.creatorName,
+          creatorUsername: event.creatorUsername,
+          createdAt: new Date(event.createdAt),
+          updatedAt: new Date(event.createdAt) // Using createdAt as fallback since updatedAt might not be in DatabaseEvent
         })
 
         setAllEvents(allEventsData.map(transformEvent))
@@ -157,6 +175,36 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
   const handleEditEvent = (eventId: string) => {
     setEditingEventId(eventId)
     setIsEditEventModalOpen(true)
+  }
+
+  const handlePreviewEvent = (event: EventCardData) => {
+    // Convert EventCardData to EventWithCreator format
+    const eventWithCreator: EventWithCreator = {
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      date: event.date,
+      time: event.time,
+      location: event.location,
+      createdBy: event.createdBy,
+      createdAt: event.createdAt,
+      updatedAt: event.updatedAt,
+      icon: event.icon,
+      gradient: event.gradient,
+      creatorName: event.creatorName,
+      creatorUsername: event.creatorUsername
+    }
+    setPreviewEvent(eventWithCreator)
+    setIsEventPreviewModalOpen(true)
+  }
+
+  // Create a wrapper function that matches EventCard's expected signature
+  const handleEventCardPreview = (event: { id: string; title: string; description: string; date: string; time: string; location: string; createdBy: string; icon: React.ReactNode; gradient: string; creatorName?: string; creatorUsername?: string }) => {
+    // Find the full EventCardData from our state
+    const fullEvent = eventsToShow.find(e => e.id === event.id)
+    if (fullEvent) {
+      handlePreviewEvent(fullEvent)
+    }
   }
 
   const handleEventUpdated = () => {
@@ -181,7 +229,11 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
           location: event.location,
           createdBy: event.createdBy,
           icon: getEventIcon(event.icon || undefined),
-          gradient: event.gradient || "from-taupe-400 to-taupe-500"
+          gradient: event.gradient || "from-taupe-400 to-taupe-500",
+          creatorName: event.creatorName,
+          creatorUsername: event.creatorUsername,
+          createdAt: new Date(event.createdAt),
+          updatedAt: new Date(event.createdAt) // Using createdAt as fallback since updatedAt might not be in DatabaseEvent
         })
 
         setAllEvents(allEventsData.map(transformEvent))
@@ -606,6 +658,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                 currentUserId={user.id}
                 onEdit={handleEditEvent}
                 onDelete={handleDeleteEvent}
+                onPreview={handleEventCardPreview}
               />
             ))}
           </div>
@@ -649,6 +702,16 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
         }}
         eventId={editingEventId}
         onEventUpdated={handleEventUpdated}
+      />
+
+      <EventPreviewModal
+        isOpen={isEventPreviewModalOpen}
+        onClose={() => {
+          setIsEventPreviewModalOpen(false)
+          setPreviewEvent(null)
+        }}
+        event={previewEvent}
+        currentUserId={user.id}
       />
     </div>
   )

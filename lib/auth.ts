@@ -59,7 +59,20 @@ export async function getUserWithCounts(userId: string) {
 }
 
 export async function getUserEvents(userId: string) {
-  return await db.select().from(events).where(eq(events.createdBy, userId));
+  return await db.select({
+    id: events.id,
+    title: events.title,
+    description: events.description,
+    date: events.date,
+    time: events.time,
+    location: events.location,
+    icon: events.icon,
+    gradient: events.gradient,
+    createdBy: events.createdBy,
+    createdAt: events.createdAt,
+    creatorName: users.name,
+    creatorUsername: users.username,
+  }).from(events).leftJoin(users, eq(events.createdBy, users.id)).where(eq(events.createdBy, userId));
 }
 
 export async function getAllEvents() {
@@ -74,6 +87,7 @@ export async function getAllEvents() {
     gradient: events.gradient,
     createdBy: events.createdBy,
     createdAt: events.createdAt,
+    updatedAt: events.updatedAt,
     creatorName: users.name,
     creatorUsername: users.username,
   }).from(events).leftJoin(users, eq(events.createdBy, users.id));

@@ -176,6 +176,34 @@ body {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
+/* Modal backdrop styles */
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Enhanced button styles for modals */
+.modal-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.modal-button:active {
+  transform: translateY(0);
+}
+
+/* Improved glass effect for modal cards */
+.modal-glass-card {
+  background: rgba(245, 232, 213, 0.95);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(225, 204, 168, 0.8);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
