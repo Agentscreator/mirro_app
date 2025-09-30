@@ -14,6 +14,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
   const [showCamera, setShowCamera] = useState(false)
   const [aiMethod, setAiMethod] = useState<string | null>(null)
   const [aiGeneratedContent, setAiGeneratedContent] = useState<string | null>(null)
+  const [aiPromptInput, setAiPromptInput] = useState<string>("")
   const [eventData, setEventData] = useState({
     title: "",
     description: "",
@@ -22,13 +23,86 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     location: "",
   })
 
+  // State preservation for step navigation
+  const [stepStates, setStepStates] = useState({
+    step1: { completed: false },
+    step2: { completed: false, method: null as string | null, input: "" },
+    step3: { completed: false }
+  })
+
   const handleStepClick = (step: number) => {
-    if (step <= currentStep) {
+    // Allow navigation to any step that has been reached or is the next logical step
+    const maxReachableStep = getMaxReachableStep()
+    
+    if (step <= maxReachableStep) {
+      // Save current step state before navigating
+      saveCurrentStepState()
+      
+      // Navigate to new step
       setCurrentStep(step)
-      if (step === 2) {
-        setAiMethod(null)
-      }
+      
+      // Restore state for the target step
+      restoreStepState(step)
     }
+  }
+
+  const saveCurrentStepState = () => {
+    const newStepStates = { ...stepStates }
+    
+    switch (currentStep) {
+      case 1:
+        newStepStates.step1.completed = !!selectedMedia
+        break
+      case 2:
+        newStepStates.step2.completed = !!aiGeneratedContent
+        newStepStates.step2.method = aiMethod
+        newStepStates.step2.input = aiPromptInput
+        break
+      case 3:
+        newStepStates.step3.completed = !!(eventData.title && eventData.description && eventData.date && eventData.time && eventData.location)
+        break
+    }
+    
+    setStepStates(newStepStates)
+  }
+
+  const restoreStepState = (step: number) => {
+    switch (step) {
+      case 2:
+        // Restore AI method and input if returning to step 2
+        if (stepStates.step2.method && !aiGeneratedContent) {
+          setAiMethod(stepStates.step2.method)
+          setAiPromptInput(stepStates.step2.input)
+        } else if (aiGeneratedContent) {
+          // If AI content exists, don't reset the method
+          // This allows users to see their previous choice
+        } else {
+          // Fresh start on step 2
+          setAiMethod(null)
+          setAiPromptInput("")
+        }
+        break
+      case 3:
+        // Step 3 state is already preserved in eventData
+        break
+    }
+  }
+
+  const getMaxReachableStep = () => {
+    // Step 1 is always reachable
+    let maxStep = 1
+    
+    // Step 2 is reachable if media is selected
+    if (selectedMedia) {
+      maxStep = 2
+    }
+    
+    // Step 3 is reachable if AI content has been generated
+    if (aiGeneratedContent) {
+      maxStep = 3
+    }
+    
+    return maxStep
   }
 
   const handleMediaStep = () => {
@@ -44,10 +118,18 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     setAiMethod(method)
   }
 
-  const handleAIGenerate = (content: string) => {
+  const handleAIGenerate = (content: string, input: string) => {
     setAiGeneratedContent(content)
+    setAiPromptInput(input)
     const parsed = JSON.parse(content)
     setEventData({ ...eventData, title: parsed.title, description: parsed.description })
+    
+    // Update step state
+    setStepStates(prev => ({
+      ...prev,
+      step2: { ...prev.step2, completed: true, input }
+    }))
+    
     setCurrentStep(3)
   }
 
@@ -110,30 +192,106 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
   return (
     <>
       <div className="px-6 py-6 pb-24">
-        <div className="flex items-center justify-center mb-10">
-          <div className="flex items-center space-x-2">
-            <div
-              onClick={() => handleStepClick(1)}
-              className={`step-indicator ${currentStep >= 1 ? "active" : ""} w-9 h-9 rounded-2xl flex items-center justify-center text-sm font-medium cursor-pointer hover:scale-105 transition-transform duration-200`}
-            >
-              {currentStep > 1 ? "✓" : "1"}
-            </div>
-            <div className={`w-8 h-1 step-indicator ${currentStep >= 2 ? "active" : ""} rounded-full`}></div>
-            <div
-              onClick={() => handleStepClick(2)}
-              className={`step-indicator ${currentStep >= 2 ? "active" : ""} w-9 h-9 rounded-2xl flex items-center justify-center text-sm font-medium ${currentStep >= 2 ? "cursor-pointer hover:scale-105" : "cursor-not-allowed opacity-50"} transition-transform duration-200`}
-            >
-              {currentStep > 2 ? "✓" : "2"}
-            </div>
-            <div className={`w-8 h-1 step-indicator ${currentStep >= 3 ? "active" : ""} rounded-full`}></div>
-            <div
-              onClick={() => handleStepClick(3)}
-              className={`step-indicator ${currentStep >= 3 ? "active" : ""} w-9 h-9 rounded-2xl flex items-center justify-center text-sm font-medium ${currentStep >= 3 ? "cursor-pointer hover:scale-105" : "cursor-not-allowed opacity-50"} transition-transform duration-200`}
-            >
-              3
+        {/* Step Navigation */}
+        <div className="mb-10">
+          {/* Step Indicators */}
+          <div className="flex items-center justify-center mb-6">
+            <div className="flex items-center space-x-2">
+              {[1, 2, 3].map((step, index) => {
+                const maxReachableStep = getMaxReachableStep()
+                const isClickable = step <= maxReachableStep
+                const isActive = currentStep >= step
+                const isCompleted = currentStep > step && (step === 1 ? selectedMedia : step === 2 ? aiGeneratedContent : false)
+                
+                return (
+                  <div key={step} className="flex items-center">
+                    <div
+                      onClick={() => isClickable && handleStepClick(step)}
+                      className={`step-indicator ${isActive ? "active" : ""} w-9 h-9 rounded-2xl flex items-center justify-center text-sm font-medium transition-all duration-200 ${
+                        isClickable 
+                          ? "cursor-pointer hover:scale-105 hover:shadow-md" 
+                          : "cursor-not-allowed opacity-50"
+                      } ${currentStep === step ? "ring-2 ring-taupe-300 ring-offset-2" : ""}`}
+                      title={isClickable ? `Go to step ${step}` : `Complete previous steps to unlock step ${step}`}
+                    >
+                      {isCompleted ? "✓" : step}
+                    </div>
+                    {index < 2 && (
+                      <div className={`w-8 h-1 step-indicator ${currentStep > step ? "active" : ""} rounded-full transition-all duration-200`}></div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </div>
+
+          {/* Step Navigation Breadcrumbs */}
+          <div className="flex items-center justify-center space-x-2 text-sm">
+            {[
+              { 
+                step: 1, 
+                title: "Add Media", 
+                isClickable: getMaxReachableStep() >= 1,
+                status: selectedMedia ? `${selectedMedia.type} selected` : null
+              },
+              { 
+                step: 2, 
+                title: "AI Generation", 
+                isClickable: getMaxReachableStep() >= 2,
+                status: aiGeneratedContent ? `Generated with ${aiMethod}` : null
+              },
+              { 
+                step: 3, 
+                title: "Preview & Edit", 
+                isClickable: getMaxReachableStep() >= 3,
+                status: eventData.title ? "Details filled" : null
+              }
+            ].map((item, index) => (
+              <div key={item.step} className="flex items-center">
+                <div className="flex flex-col items-center">
+                  <button
+                    onClick={() => item.isClickable && handleStepClick(item.step)}
+                    className={`px-3 py-1 rounded-lg transition-all duration-200 ${
+                      currentStep === item.step
+                        ? "bg-taupe-100 text-taupe-700 font-medium"
+                        : item.isClickable
+                        ? "text-text-secondary hover:text-text-primary hover:bg-cream-100"
+                        : "text-text-light cursor-not-allowed"
+                    }`}
+                    disabled={!item.isClickable}
+                  >
+                    {item.title}
+                  </button>
+                  {item.status && (
+                    <span className="text-xs text-taupe-500 mt-1 capitalize">
+                      {item.status}
+                    </span>
+                  )}
+                </div>
+                {index < 2 && (
+                  <svg className="w-4 h-4 mx-2 text-text-light" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Navigation Helper */}
+        {currentStep > 1 && (
+          <div className="mb-6">
+            <button
+              onClick={() => handleStepClick(currentStep - 1)}
+              className="flex items-center text-text-secondary hover:text-text-primary transition-colors duration-200"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to {currentStep === 2 ? "Media" : "AI Generation"}
+            </button>
+          </div>
+        )}
 
         {/* Step 1: Media Upload */}
         {currentStep === 1 && (
@@ -194,7 +352,12 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         {currentStep === 2 && !aiMethod && <AIGenerationStep onSelect={handleAIMethodSelect} />}
 
         {currentStep === 2 && aiMethod && (
-          <AIPromptInput method={aiMethod} onGenerate={handleAIGenerate} onBack={() => setAiMethod(null)} />
+          <AIPromptInput 
+            method={aiMethod} 
+            onGenerate={handleAIGenerate} 
+            onBack={() => setAiMethod(null)}
+            initialInput={aiPromptInput}
+          />
         )}
 
         {currentStep === 3 && (

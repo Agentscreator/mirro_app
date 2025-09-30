@@ -3,12 +3,13 @@ import { useState } from "react"
 
 interface AIPromptInputProps {
   method: string
-  onGenerate: (content: string) => void
+  onGenerate: (content: string, input: string) => void
   onBack: () => void
+  initialInput?: string
 }
 
-export default function AIPromptInput({ method, onGenerate, onBack }: AIPromptInputProps) {
-  const [input, setInput] = useState("")
+export default function AIPromptInput({ method, onGenerate, onBack, initialInput = "" }: AIPromptInputProps) {
+  const [input, setInput] = useState(initialInput)
   const [isGenerating, setIsGenerating] = useState(false)
 
   const handleGenerate = async () => {
@@ -24,7 +25,7 @@ export default function AIPromptInput({ method, onGenerate, onBack }: AIPromptIn
       description: `An exciting event about ${input}. Join us for an unforgettable experience filled with great moments and wonderful memories.`,
     }
 
-    onGenerate(JSON.stringify(mockEventData))
+    onGenerate(JSON.stringify(mockEventData), input)
     setIsGenerating(false)
   }
 
