@@ -30,9 +30,9 @@ export async function POST(request: NextRequest) {
       createdBy,
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Event created successfully',
-      event 
+      event
     });
   } catch (error) {
     console.error('Error creating event:', error);
@@ -58,9 +58,9 @@ export async function PUT(request: NextRequest) {
       gradient,
     }, userId);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Event updated successfully',
-      event: updatedEvent 
+      event: updatedEvent
     });
   } catch (error) {
     console.error('Error updating event:', error);
@@ -81,7 +81,7 @@ export async function DELETE(request: NextRequest) {
 
     await deleteEvent(eventId, userId);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Event deleted successfully'
     });
   } catch (error) {

@@ -1,0 +1,321 @@
+"use client"
+
+import type React from "react"
+import { useState, useRef, useEffect } from "react"
+
+interface UnifiedCameraProps {
+  onCapture: (data: string, type: "photo" | "video") => void
+  onClose: () => void
+}
+
+export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps) {
+  const [mode, setMode] = useState<"photo" | "video">("photo")
+  const [isRecording, setIsRecording] = useState(false)
+  const [recordingTime, setRecordingTime] = useState(0)
+  const [isPaused, setIsPaused] = useState(false)
+
+  const [selectedEffect, setSelectedEffect] = useState<string | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const chunksRef = useRef<Blob[]>([])
+  const streamRef = useRef<MediaStream | null>(null)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    startCamera()
+    return () => {
+      stopCamera()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isRecording && !isPaused) {
+      timerRef.current = setInterval(() => {
+        setRecordingTime((prev) => prev + 1)
+      }, 1000)
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+      }
+    }
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+      }
+    }
+  }, [isRecording, isPaused])
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+        audio: mode === "video",
+      })
+      streamRef.current = stream
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+      }
+    } catch (err) {
+      console.error("Error accessing camera:", err)
+      alert("Unable to access camera. Please check permissions.")
+    }
+  }
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop())
+    }
+  }
+
+  const handleCapture = () => {
+    if (mode === "photo") {
+      capturePhoto()
+    } else {
+      if (isRecording) {
+        stopRecording()
+      } else {
+        startRecording()
+      }
+    }
+  }
+
+  const capturePhoto = () => {
+    if (videoRef.current) {
+      const canvas = document.createElement("canvas")
+      canvas.width = videoRef.current.videoWidth
+      canvas.height = videoRef.current.videoHeight
+      const ctx = canvas.getContext("2d")
+      if (ctx) {
+        ctx.drawImage(videoRef.current, 0, 0)
+        const dataUrl = canvas.toDataURL("image/jpeg")
+        onCapture(dataUrl, "photo")
+        stopCamera()
+      }
+    }
+  }
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+        audio: true,
+      })
+      streamRef.current = stream
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+      }
+
+      const mediaRecorder = new MediaRecorder(stream)
+      mediaRecorderRef.current = mediaRecorder
+      chunksRef.current = []
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunksRef.current.push(e.data)
+        }
+      }
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: "video/webm" })
+        const url = URL.createObjectURL(blob)
+        onCapture(url, "video")
+        stopCamera()
+      }
+
+      mediaRecorder.start()
+      setIsRecording(true)
+      setRecordingTime(0)
+    } catch (err) {
+      console.error("Error starting recording:", err)
+      alert("Unable to start recording. Please check permissions.")
+    }
+  }
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop()
+      setIsRecording(false)
+      setIsPaused(false)
+    }
+  }
+
+  const togglePause = () => {
+    if (mediaRecorderRef.current) {
+      if (isPaused) {
+        mediaRecorderRef.current.resume()
+      } else {
+        mediaRecorderRef.current.pause()
+      }
+      setIsPaused(!isPaused)
+    }
+  }
+
+  const handleUpload = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const data = e.target?.result as string
+        const type = file.type.startsWith("video/") ? "video" : "photo"
+        onCapture(data, type)
+        stopCamera()
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+  }
+
+  const effects = [
+    { id: "greenscreen", name: "Green Screen", icon: "🎬" },
+    { id: "filter", name: "Filters", icon: "🎨" },
+    { id: "timer", name: "Timer", icon: "⏱️" },
+  ]
+
+  return (
+    <div className="fixed inset-0 z-50 bg-cream-100">
+      {/* Camera View */}
+      <div className="relative w-full h-full">
+        <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+
+        {/* Green Screen Effect Overlay */}
+        {selectedEffect === "greenscreen" && (
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 bg-green-500 opacity-20"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
+              <p className="text-sm font-medium bg-black/50 px-4 py-2 rounded-full">Green Screen Active</p>
+            </div>
+          </div>
+        )}
+
+        {/* Top Bar */}
+        <div className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between">
+          <button
+            onClick={onClose}
+            className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/40 transition-all"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          {/* Mode Toggle - Subtle */}
+          <div className="flex items-center space-x-2 bg-black/30 backdrop-blur-sm rounded-full px-4 py-2">
+            <button
+              onClick={() => setMode("photo")}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                mode === "photo" ? "bg-white text-text-primary" : "text-white/70"
+              }`}
+            >
+              Photo
+            </button>
+            <button
+              onClick={() => setMode("video")}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                mode === "video" ? "bg-white text-text-primary" : "text-white/70"
+              }`}
+            >
+              Video
+            </button>
+          </div>
+
+          <div className="w-10"></div>
+        </div>
+
+        {/* Recording Timer */}
+        {isRecording && (
+          <div className="absolute top-20 left-1/2 transform -translate-x-1/2">
+            <div className="bg-red-500 text-white px-4 py-2 rounded-full flex items-center space-x-2 shadow-lg">
+              <div className={`w-3 h-3 rounded-full bg-white ${isPaused ? "" : "animate-pulse"}`}></div>
+              <span className="font-medium">{formatTime(recordingTime)}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Side Panel - Effects */}
+        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 space-y-4">
+          {effects.map((effect) => (
+            <button
+              key={effect.id}
+              onClick={() => setSelectedEffect(selectedEffect === effect.id ? null : effect.id)}
+              className={`w-14 h-14 rounded-full backdrop-blur-sm flex flex-col items-center justify-center transition-all ${
+                selectedEffect === effect.id
+                  ? "bg-cream-300 scale-110 text-text-primary shadow-lg"
+                  : "bg-cream-200/80 hover:bg-cream-300/90 text-text-secondary"
+              }`}
+            >
+              <span className="text-xl">{effect.icon}</span>
+              <span className="text-[10px] mt-0.5 font-medium">{effect.name}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Bottom Controls */}
+        <div className="absolute bottom-0 left-0 right-0 p-8 pb-12">
+          <div className="flex items-center justify-center space-x-8">
+            {/* Upload Button */}
+            <button
+              onClick={handleUpload}
+              className="w-14 h-14 rounded-2xl bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-all shadow-lg"
+            >
+              <svg className="w-7 h-7 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+            </button>
+
+            {/* Record/Capture Button - Darker Beige/Red */}
+            <button
+              onClick={handleCapture}
+              className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all hover:scale-105"
+              style={{ backgroundColor: "#A67C6D" }}
+            >
+              {mode === "photo" ? (
+                <div className="w-16 h-16 rounded-full bg-white"></div>
+              ) : isRecording ? (
+                <div className="w-8 h-8 rounded bg-white"></div>
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-white"></div>
+              )}
+            </button>
+
+            {/* Pause Button (only visible when recording) */}
+            {isRecording && (
+              <button
+                onClick={togglePause}
+                className="w-14 h-14 rounded-2xl bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-all shadow-lg"
+              >
+                {isPaused ? (
+                  <svg className="w-7 h-7 text-text-primary" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                ) : (
+                  <svg className="w-7 h-7 text-text-primary" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                  </svg>
+                )}
+              </button>
+            )}
+            {!isRecording && <div className="w-14"></div>}
+          </div>
+        </div>
+      </div>
+
+      {/* Hidden File Input */}
+      <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleFileSelect} className="hidden" />
+    </div>
+  )
+}
