@@ -16,13 +16,8 @@ export default function AIGenerationStep({ onSelect }: { onSelect: (method: stri
         >
           <div className="flex items-start space-x-4">
             <div className="w-16 h-16 bg-gradient-to-br from-cream-300 to-cream-400 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
-              <svg className="w-8 h-8 text-taupe-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                />
+              <svg className="w-8 h-8 text-taupe-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L13.09 8.26L19 7L17.74 13.09L24 12L17.74 10.91L19 17L13.09 15.74L12 22L10.91 15.74L5 17L6.26 10.91L0 12L6.26 13.09L5 7L10.91 8.26L12 2Z"/>
               </svg>
             </div>
             <div className="flex-1">
@@ -41,13 +36,9 @@ export default function AIGenerationStep({ onSelect }: { onSelect: (method: stri
         >
           <div className="flex items-start space-x-4">
             <div className="w-16 h-16 bg-gradient-to-br from-cream-300 to-cream-400 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
-              <svg className="w-8 h-8 text-taupe-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
+              <svg className="w-8 h-8 text-taupe-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                <path d="M8,12V14H16V12H8M8,16V18H13V16H8Z"/>
               </svg>
             </div>
             <div className="flex-1">
@@ -66,13 +57,9 @@ export default function AIGenerationStep({ onSelect }: { onSelect: (method: stri
         >
           <div className="flex items-start space-x-4">
             <div className="w-16 h-16 bg-gradient-to-br from-cream-300 to-cream-400 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
-              <svg className="w-8 h-8 text-taupe-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                />
+              <svg className="w-8 h-8 text-taupe-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                <path d="M12,11L16,15H13V19H11V15H8L12,11Z"/>
               </svg>
             </div>
             <div className="flex-1">
