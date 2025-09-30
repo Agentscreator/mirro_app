@@ -28,7 +28,7 @@ export default function AIGenerationStep({ onSelect }: { onSelect: (method: stri
             <div className="flex-1">
               <h3 className="font-medium mb-2 text-text-primary text-lg">Generate</h3>
               <p className="text-sm text-text-secondary font-normal leading-relaxed">
-                Create from a one-line prompt in a few seconds
+                Turn a one-line idea into a full event instantly
               </p>
             </div>
           </div>
@@ -51,9 +51,9 @@ export default function AIGenerationStep({ onSelect }: { onSelect: (method: stri
               </svg>
             </div>
             <div className="flex-1">
-              <h3 className="font-medium mb-2 text-text-primary text-lg">Paste in text</h3>
+              <h3 className="font-medium mb-2 text-text-primary text-lg">From Notes</h3>
               <p className="text-sm text-text-secondary font-normal leading-relaxed">
-                Create from notes, an outline, or existing content
+                Build an event from outlines, text, or drafts.
               </p>
             </div>
           </div>
@@ -76,9 +76,9 @@ export default function AIGenerationStep({ onSelect }: { onSelect: (method: stri
               </svg>
             </div>
             <div className="flex-1">
-              <h3 className="font-medium mb-2 text-text-primary text-lg">Import file or URL</h3>
+              <h3 className="font-medium mb-2 text-text-primary text-lg">Import</h3>
               <p className="text-sm text-text-secondary font-normal leading-relaxed">
-                Enhance existing docs, presentations, or webpages
+                Upload a file, link, or image to polish into an event.
               </p>
             </div>
           </div>
