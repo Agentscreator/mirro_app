@@ -176,9 +176,33 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   }
 
   const effects = [
-    { id: "greenscreen", name: "Green Screen", icon: "🎬" },
-    { id: "filter", name: "Filters", icon: "🎨" },
-    { id: "timer", name: "Timer", icon: "⏱️" },
+    { 
+      id: "greenscreen", 
+      name: "Green Screen", 
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      )
+    },
+    { 
+      id: "filter", 
+      name: "Filters", 
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+        </svg>
+      )
+    },
+    { 
+      id: "timer", 
+      name: "Timer", 
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      )
+    },
   ]
 
   return (
@@ -242,19 +266,19 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         )}
 
         {/* Side Panel - Effects */}
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 space-y-4">
+        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 space-y-3">
           {effects.map((effect) => (
             <button
               key={effect.id}
               onClick={() => setSelectedEffect(selectedEffect === effect.id ? null : effect.id)}
-              className={`w-14 h-14 rounded-full backdrop-blur-sm flex flex-col items-center justify-center transition-all ${
+              className={`w-16 h-16 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center transition-all duration-200 ${
                 selectedEffect === effect.id
-                  ? "bg-cream-300 scale-110 text-text-primary shadow-lg"
-                  : "bg-cream-200/80 hover:bg-cream-300/90 text-text-secondary"
+                  ? "bg-white/95 scale-105 text-text-primary shadow-xl border-2 border-sand-300"
+                  : "bg-black/20 hover:bg-black/30 text-white/90 hover:text-white border border-white/20"
               }`}
             >
-              <span className="text-xl">{effect.icon}</span>
-              <span className="text-[10px] mt-0.5 font-medium">{effect.name}</span>
+              <div className="mb-1">{effect.icon}</div>
+              <span className="text-[9px] font-medium leading-tight text-center">{effect.name}</span>
             </button>
           ))}
         </div>
