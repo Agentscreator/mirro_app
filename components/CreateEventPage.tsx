@@ -356,24 +356,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
               <p className="text-text-secondary font-normal">Review and finalize your event</p>
             </div>
 
-            {/* AI Extraction Summary */}
-            {aiGeneratedContent && (
-              <div className="glass-card rounded-2xl p-4 mb-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200">
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-green-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-sm font-medium text-green-700 mb-1">AI Extracted Information</h4>
-                    <p className="text-xs text-green-600 leading-relaxed">
-                      Successfully extracted event details from your text. Review and edit as needed below.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
+
 
             {/* Media Preview */}
             <div className="glass-card rounded-3xl p-6 mb-6 soft-shadow">
