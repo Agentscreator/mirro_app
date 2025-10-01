@@ -21,19 +21,19 @@ const getEventIcon = (iconType?: string, eventTitle?: string) => {
         switch (iconType) {
             case 'music':
                 return (
-                    <svg className="w-6 h-6" fill="#D4A574" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6" fill="#F5E8D5" viewBox="0 0 24 24">
                         <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
                     </svg>
                 );
             case 'photography':
                 return (
-                    <svg className="w-6 h-6" fill="#8B7355" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6" fill="#6B8E6B" viewBox="0 0 24 24">
                         <path d="M9 2l1.17 1H16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.83L11 2h2m3 15a4 4 0 1 0-4-4 4 4 0 0 0 4 4z" />
                     </svg>
                 );
             case 'community':
                 return (
-                    <svg className="w-6 h-6" fill="#6B8E6B" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6" fill="#F5E8D5" viewBox="0 0 24 24">
                         <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2m4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2 1l-3 4v6h2v7h3v-7h2M12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5M5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2M7.5 22v-7H9V9c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v6h1.5v7h4z" />
                     </svg>
                 );
@@ -52,7 +52,7 @@ const getEventIcon = (iconType?: string, eventTitle?: string) => {
             title.includes('choir') || title.includes('singing') || title.includes('karaoke') ||
             title.includes('dj') || title.includes('festival') && title.includes('music')) {
             return (
-                <svg className="w-6 h-6" fill="#D4A574" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="#F5E8D5" viewBox="0 0 24 24">
                     <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
                 </svg>
             );
@@ -64,7 +64,7 @@ const getEventIcon = (iconType?: string, eventTitle?: string) => {
             title.includes('graduation') || title.includes('gallery') || title.includes('exhibition') ||
             title.includes('art show') || title.includes('visual')) {
             return (
-                <svg className="w-6 h-6" fill="#8B7355" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="#6B8E6B" viewBox="0 0 24 24">
                     <path d="M9 2l1.17 1H16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.83L11 2h2m3 15a4 4 0 1 0-4-4 4 4 0 0 0 4 4z" />
                 </svg>
             );
@@ -78,7 +78,7 @@ const getEventIcon = (iconType?: string, eventTitle?: string) => {
             title.includes('race') || title.includes('marathon') || title.includes('gym') ||
             title.includes('fitness') || title.includes('workout')) {
             return (
-                <svg className="w-6 h-6" fill="#A67C6D" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="#6B8E6B" viewBox="0 0 24 24">
                     <path d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-5.2 2.2v4.7h2v-3.4l1.8-.7-1.6 8.1-4.9-1-.4 2 7 1.4z" />
                 </svg>
             );
@@ -92,7 +92,7 @@ const getEventIcon = (iconType?: string, eventTitle?: string) => {
             title.includes('wine') || title.includes('tasting') || title.includes('bbq') ||
             title.includes('barbecue') || title.includes('potluck')) {
             return (
-                <svg className="w-6 h-6" fill="#C17B5A" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="#F5E8D5" viewBox="0 0 24 24">
                     <path d="M8.1 13.34l2.83-2.83L3.91 3.5a4.008 4.008 0 0 0 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.20-1.10-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z" />
                 </svg>
             );
@@ -117,7 +117,7 @@ const getEventIcon = (iconType?: string, eventTitle?: string) => {
             title.includes('interview') || title.includes('networking') || title.includes('corporate') ||
             title.includes('professional') || title.includes('team') || title.includes('project')) {
             return (
-                <svg className="w-6 h-6" fill="#5A7A5A" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="#6B8E6B" viewBox="0 0 24 24">
                     <path d="M10 2h4a2 2 0 0 1 2 2v2h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4V4a2 2 0 0 1 2-2zm2 4V4h-4v2h4zm-6 4v8h12V10H6z" />
                 </svg>
             );
@@ -129,7 +129,7 @@ const getEventIcon = (iconType?: string, eventTitle?: string) => {
             title.includes('carnival') || title.includes('dance') || title.includes('club') ||
             title.includes('nightlife') || title.includes('fun') || title.includes('social')) {
             return (
-                <svg className="w-6 h-6" fill="#D4A574" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="#F5E8D5" viewBox="0 0 24 24">
                     <path d="M7 8a3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3m4.65-4.65l.7-.7a1 1 0 0 1 1.41 0 1 1 0 0 1 0 1.41l-.7.7C12.58 3.9 11.32 3.5 10 3.5c-.36 0-.71.04-1.06.11l.71-.26zm-2.3 2.3l-.7-.7a1 1 0 0 1 0-1.41 1 1 0 0 1 1.41 0l.7.7C10.1 3.42 9.68 2.16 9.68 1.84c0-.36.04-.71.11-1.06l-.26.71zm2.3 9.7l.7.7a1 1 0 0 1-1.41 0 1 1 0 0 1 0-1.41l.7-.7C11.42 14.1 12.68 14.5 14 14.5c.36 0 .71-.04 1.06-.11l-.71.26zm-2.3-2.3l-.7.7a1 1 0 0 1 0 1.41 1 1 0 0 1-1.41 0l-.7-.7C5.9 13.58 5.5 12.32 5.5 12c0-.36.04-.71.11-1.06l-.26.71z" />
                 </svg>
             );
@@ -153,7 +153,7 @@ const getEventIcon = (iconType?: string, eventTitle?: string) => {
             title.includes('beach') || title.includes('mountain') || title.includes('explore') ||
             title.includes('journey') || title.includes('tour') || title.includes('visit')) {
             return (
-                <svg className="w-6 h-6" fill="#8B7355" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="#F5E8D5" viewBox="0 0 24 24">
                     <path d="M14.12 4l1.83 2H20v2h-8.95l-1.83-2H4v6h8.05l1.83 2H20v2h-4.05L14.12 12H4V8h5.88L11.71 6H20V4h-5.88zM2 20v-8h2v6h16v2H2z" />
                 </svg>
             );
@@ -162,7 +162,7 @@ const getEventIcon = (iconType?: string, eventTitle?: string) => {
 
     // Default calendar icon
     return (
-        <svg className="w-6 h-6" fill="#8B7355" viewBox="0 0 24 24">
+        <svg className="w-6 h-6" fill="#6B8E6B" viewBox="0 0 24 24">
             <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
         </svg>
     );
