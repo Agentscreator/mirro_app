@@ -9,7 +9,7 @@ interface UnifiedCameraProps {
 }
 
 export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps) {
-  const [mode, setMode] = useState<"photo" | "video">("photo")
+  const [mode, setMode] = useState<"photo" | "video">("video")
   const [isRecording, setIsRecording] = useState(false)
   const [recordingTime, setRecordingTime] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
@@ -381,9 +381,9 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
             {/* Upload Button */}
             <button
               onClick={handleUpload}
-              className="w-14 h-14 rounded-2xl bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-all shadow-lg"
+              className="flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm hover:bg-white transition-all shadow-lg rounded-2xl px-4 py-3 min-w-[80px]"
             >
-              <svg className="w-7 h-7 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-text-primary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -391,6 +391,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
+              <span className="text-xs font-medium text-text-primary">Upload</span>
             </button>
 
             {/* Record/Capture Button - Darker Beige/Red */}
