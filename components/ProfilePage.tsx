@@ -14,155 +14,30 @@ interface EventWithCreator extends Omit<Event, 'icon'> {
     icon?: React.ReactNode | string
 }
 
-// Icon components for different event types with earthy, sophisticated aesthetic
-const getEventIcon = (iconType?: string, eventTitle?: string) => {
-    // If iconType is explicitly set, use it
-    if (iconType) {
-        switch (iconType) {
-            case 'music':
-                return (
-                    <svg className="w-6 h-6" fill="#E53E3E" viewBox="0 0 24 24">
-                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-                    </svg>
-                );
-            case 'photography':
-                return (
-                    <svg className="w-6 h-6" fill="#3182CE" viewBox="0 0 24 24">
-                        <path d="M9 2l1.17 1H16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.83L11 2h2m3 15a4 4 0 1 0-4-4 4 4 0 0 0 4 4z" />
-                    </svg>
-                );
-            case 'community':
-                return (
-                    <svg className="w-6 h-6" fill="#38A169" viewBox="0 0 24 24">
-                        <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2m4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2 1l-3 4v6h2v7h3v-7h2M12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5M5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2M7.5 22v-7H9V9c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v6h1.5v7h4z" />
-                    </svg>
-                );
-        }
-    }
+// Generate random color for calendar icons
+const getRandomColor = () => {
+    const colors = [
+        '#E53E3E', // Red
+        '#3182CE', // Blue
+        '#38A169', // Green
+        '#D69E2E', // Yellow
+        '#9F7AEA', // Purple
+        '#00B5D8', // Cyan
+        '#FF6B35', // Orange
+        '#4A5568', // Gray
+        '#E91E63', // Pink
+        '#795548', // Brown
+        '#607D8B', // Blue Gray
+        '#FF5722', // Deep Orange
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+};
 
-    // Auto-detect icon based on event title with bright colors
-    if (eventTitle) {
-        const title = eventTitle.toLowerCase();
-
-        // Music-related keywords
-        if (title.includes('concert') || title.includes('music') || title.includes('band') ||
-            title.includes('song') || title.includes('album') || title.includes('guitar') ||
-            title.includes('piano') || title.includes('jazz') || title.includes('rock') ||
-            title.includes('pop') || title.includes('classical') || title.includes('orchestra') ||
-            title.includes('choir') || title.includes('singing') || title.includes('karaoke') ||
-            title.includes('dj') || title.includes('festival') && title.includes('music')) {
-            return (
-                <svg className="w-6 h-6" fill="#E53E3E" viewBox="0 0 24 24">
-                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-                </svg>
-            );
-        }
-
-        // Photography-related keywords
-        if (title.includes('photo') || title.includes('camera') || title.includes('picture') ||
-            title.includes('shoot') || title.includes('portrait') || title.includes('wedding') ||
-            title.includes('graduation') || title.includes('gallery') || title.includes('exhibition') ||
-            title.includes('art show') || title.includes('visual')) {
-            return (
-                <svg className="w-6 h-6" fill="#3182CE" viewBox="0 0 24 24">
-                    <path d="M9 2l1.17 1H16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.83L11 2h2m3 15a4 4 0 1 0-4-4 4 4 0 0 0 4 4z" />
-                </svg>
-            );
-        }
-
-        // Sports-related keywords
-        if (title.includes('game') || title.includes('match') || title.includes('tournament') ||
-            title.includes('championship') || title.includes('soccer') || title.includes('football') ||
-            title.includes('basketball') || title.includes('tennis') || title.includes('baseball') ||
-            title.includes('hockey') || title.includes('volleyball') || title.includes('sport') ||
-            title.includes('race') || title.includes('marathon') || title.includes('gym') ||
-            title.includes('fitness') || title.includes('workout')) {
-            return (
-                <svg className="w-6 h-6" fill="#D69E2E" viewBox="0 0 24 24">
-                    <path d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-5.2 2.2v4.7h2v-3.4l1.8-.7-1.6 8.1-4.9-1-.4 2 7 1.4z" />
-                </svg>
-            );
-        }
-
-        // Food-related keywords
-        if (title.includes('dinner') || title.includes('lunch') || title.includes('breakfast') ||
-            title.includes('food') || title.includes('restaurant') || title.includes('cooking') ||
-            title.includes('recipe') || title.includes('chef') || title.includes('kitchen') ||
-            title.includes('meal') || title.includes('pizza') || title.includes('coffee') ||
-            title.includes('wine') || title.includes('tasting') || title.includes('bbq') ||
-            title.includes('barbecue') || title.includes('potluck')) {
-            return (
-                <svg className="w-6 h-6" fill="#FF6B35" viewBox="0 0 24 24">
-                    <path d="M8.1 13.34l2.83-2.83L3.91 3.5a4.008 4.008 0 0 0 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.20-1.10-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z" />
-                </svg>
-            );
-        }
-
-        // Education/Learning keywords
-        if (title.includes('class') || title.includes('workshop') || title.includes('seminar') ||
-            title.includes('lecture') || title.includes('course') || title.includes('training') ||
-            title.includes('tutorial') || title.includes('lesson') || title.includes('study') ||
-            title.includes('school') || title.includes('university') || title.includes('college') ||
-            title.includes('learn') || title.includes('teach') || title.includes('education')) {
-            return (
-                <svg className="w-6 h-6" fill="#38A169" viewBox="0 0 24 24">
-                    <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
-                </svg>
-            );
-        }
-
-        // Business/Work keywords
-        if (title.includes('meeting') || title.includes('conference') || title.includes('business') ||
-            title.includes('work') || title.includes('office') || title.includes('presentation') ||
-            title.includes('interview') || title.includes('networking') || title.includes('corporate') ||
-            title.includes('professional') || title.includes('team') || title.includes('project')) {
-            return (
-                <svg className="w-6 h-6" fill="#4A5568" viewBox="0 0 24 24">
-                    <path d="M10 2h4a2 2 0 0 1 2 2v2h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4V4a2 2 0 0 1 2-2zm2 4V4h-4v2h4zm-6 4v8h12V10H6z" />
-                </svg>
-            );
-        }
-
-        // Party/Celebration keywords
-        if (title.includes('party') || title.includes('birthday') || title.includes('celebration') ||
-            title.includes('anniversary') || title.includes('holiday') || title.includes('festival') ||
-            title.includes('carnival') || title.includes('dance') || title.includes('club') ||
-            title.includes('nightlife') || title.includes('fun') || title.includes('social')) {
-            return (
-                <svg className="w-6 h-6" fill="#9F7AEA" viewBox="0 0 24 24">
-                    <path d="M7 8a3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3m4.65-4.65l.7-.7a1 1 0 0 1 1.41 0 1 1 0 0 1 0 1.41l-.7.7C12.58 3.9 11.32 3.5 10 3.5c-.36 0-.71.04-1.06.11l.71-.26zm-2.3 2.3l-.7-.7a1 1 0 0 1 0-1.41 1 1 0 0 1 1.41 0l.7.7C10.1 3.42 9.68 2.16 9.68 1.84c0-.36.04-.71.11-1.06l-.26.71zm2.3 9.7l.7.7a1 1 0 0 1-1.41 0 1 1 0 0 1 0-1.41l.7-.7C11.42 14.1 12.68 14.5 14 14.5c.36 0 .71-.04 1.06-.11l-.71.26zm-2.3-2.3l-.7.7a1 1 0 0 1 0 1.41 1 1 0 0 1-1.41 0l-.7-.7C5.9 13.58 5.5 12.32 5.5 12c0-.36.04-.71.11-1.06l-.26.71z" />
-                </svg>
-            );
-        }
-
-        // Community/Social keywords
-        if (title.includes('community') || title.includes('volunteer') || title.includes('charity') ||
-            title.includes('fundraiser') || title.includes('social') || title.includes('group') ||
-            title.includes('club') || title.includes('organization') || title.includes('nonprofit') ||
-            title.includes('support') || title.includes('help') || title.includes('outreach')) {
-            return (
-                <svg className="w-6 h-6" fill="#38A169" viewBox="0 0 24 24">
-                    <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2m4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2 1l-3 4v6h2v7h3v-7h2M12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5M5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2M7.5 22v-7H9V9c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v6h1.5v7h4z" />
-                </svg>
-            );
-        }
-
-        // Travel/Adventure keywords
-        if (title.includes('trip') || title.includes('travel') || title.includes('vacation') ||
-            title.includes('adventure') || title.includes('hiking') || title.includes('camping') ||
-            title.includes('beach') || title.includes('mountain') || title.includes('explore') ||
-            title.includes('journey') || title.includes('tour') || title.includes('visit')) {
-            return (
-                <svg className="w-6 h-6" fill="#00B5D8" viewBox="0 0 24 24">
-                    <path d="M14.12 4l1.83 2H20v2h-8.95l-1.83-2H4v6h8.05l1.83 2H20v2h-4.05L14.12 12H4V8h5.88L11.71 6H20V4h-5.88zM2 20v-8h2v6h16v2H2z" />
-                </svg>
-            );
-        }
-    }
-
-    // Default calendar icon
+// Simple calendar icon with random colors
+const getEventIcon = () => {
+    const randomColor = getRandomColor();
     return (
-        <svg className="w-6 h-6" fill="#718096" viewBox="0 0 24 24">
+        <svg className="w-6 h-6" fill={randomColor} viewBox="0 0 24 24">
             <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
         </svg>
     );
@@ -264,7 +139,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     time: event.time,
                     location: event.location,
                     createdBy: event.createdBy,
-                    icon: getEventIcon(event.icon || undefined, event.title),
+                    icon: getEventIcon(),
                     gradient: event.gradient || "from-amber-100 to-amber-200",
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
@@ -342,7 +217,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     time: event.time,
                     location: event.location,
                     createdBy: event.createdBy,
-                    icon: getEventIcon(event.icon || undefined, event.title),
+                    icon: getEventIcon(),
                     gradient: event.gradient || "from-amber-100 to-amber-200",
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
