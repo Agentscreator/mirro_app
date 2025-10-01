@@ -12,6 +12,8 @@ interface Event {
   createdBy: string
   icon: React.ReactNode
   gradient: string
+  mediaUrl?: string | null
+  mediaType?: string | null
   creatorName?: string
   creatorUsername?: string
 }
@@ -34,10 +36,35 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
       onClick={() => onPreview && onPreview(event)}
     >
       <div className="flex items-start space-x-4">
-        <div
-          className={`w-14 h-14 bg-gradient-to-br ${event.gradient} rounded-2xl flex items-center justify-center shadow-md`}
-        >
-          {event.icon}
+        <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-md flex-shrink-0">
+          {event.mediaUrl && event.mediaType ? (
+            event.mediaType === 'image' ? (
+              <img
+                src={event.mediaUrl}
+                alt={event.title}
+                className="w-full h-full object-cover"
+              />
+            ) : event.mediaType === 'video' ? (
+              <video
+                src={event.mediaUrl}
+                className="w-full h-full object-cover"
+                muted
+                poster=""
+              />
+            ) : (
+              <div
+                className={`w-full h-full bg-gradient-to-br ${event.gradient} flex items-center justify-center`}
+              >
+                {event.icon}
+              </div>
+            )
+          ) : (
+            <div
+              className={`w-full h-full bg-gradient-to-br ${event.gradient} flex items-center justify-center`}
+            >
+              {event.icon}
+            </div>
+          )}
         </div>
         <div className="flex-1">
           <h4 className="font-medium mb-1 text-text-primary">{event.title}</h4>

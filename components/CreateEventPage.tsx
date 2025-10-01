@@ -162,6 +162,8 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
           location: eventData.location,
           icon: 'calendar', // Default icon
           gradient: 'from-taupe-400 to-taupe-500', // Default gradient
+          mediaUrl: selectedMedia?.data,
+          mediaType: selectedMedia?.type,
           createdBy: user.id,
         }),
       })

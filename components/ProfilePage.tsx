@@ -89,6 +89,8 @@ interface EventCardData {
   createdBy: string
   icon: React.ReactNode
   gradient: string
+  mediaUrl?: string | null
+  mediaType?: string | null
   creatorName?: string
   creatorUsername?: string 
   createdAt: Date
@@ -203,6 +205,8 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
       updatedAt: event.updatedAt,
       icon: event.icon,
       gradient: event.gradient,
+      mediaUrl: event.mediaUrl || null,
+      mediaType: event.mediaType || null,
       creatorName: event.creatorName,
       creatorUsername: event.creatorUsername
     }

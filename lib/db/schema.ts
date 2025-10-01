@@ -20,6 +20,8 @@ export const events = pgTable('events', {
   location: text('location').notNull(),
   icon: text('icon'), // Store icon type or SVG
   gradient: text('gradient'), // Store gradient class
+  mediaUrl: text('media_url'), // Store media file URL
+  mediaType: text('media_type'), // Store media type (image/video)
   createdBy: uuid('created_by').notNull().references(() => users.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

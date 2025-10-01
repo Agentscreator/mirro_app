@@ -68,6 +68,8 @@ export async function getUserEvents(userId: string) {
     location: events.location,
     icon: events.icon,
     gradient: events.gradient,
+    mediaUrl: events.mediaUrl,
+    mediaType: events.mediaType,
     createdBy: events.createdBy,
     createdAt: events.createdAt,
     creatorName: users.name,
@@ -85,6 +87,8 @@ export async function getAllEvents() {
     location: events.location,
     icon: events.icon,
     gradient: events.gradient,
+    mediaUrl: events.mediaUrl,
+    mediaType: events.mediaType,
     createdBy: events.createdBy,
     createdAt: events.createdAt,
     updatedAt: events.updatedAt,
@@ -101,6 +105,8 @@ export async function createEvent(eventData: {
   location: string;
   icon?: string;
   gradient?: string;
+  mediaUrl?: string;
+  mediaType?: string;
   createdBy: string;
 }) {
   const [event] = await db.insert(events).values({
@@ -111,6 +117,8 @@ export async function createEvent(eventData: {
     location: eventData.location,
     icon: eventData.icon || 'calendar',
     gradient: eventData.gradient || 'from-taupe-400 to-taupe-500',
+    mediaUrl: eventData.mediaUrl,
+    mediaType: eventData.mediaType,
     createdBy: eventData.createdBy,
   }).returning();
   
@@ -340,6 +348,8 @@ export async function getUserParticipatingEvents(userId: string) {
       location: events.location,
       icon: events.icon,
       gradient: events.gradient,
+      mediaUrl: events.mediaUrl,
+      mediaType: events.mediaType,
       createdBy: events.createdBy,
       createdAt: events.createdAt,
       updatedAt: events.updatedAt,

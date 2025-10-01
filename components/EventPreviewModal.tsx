@@ -149,13 +149,41 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
         {/* Event Media */}
         <div className="relative h-64 overflow-hidden rounded-t-3xl">
-          <div className="w-full h-full bg-gradient-to-br from-cream-300 to-cream-400 flex items-center justify-center">
-            <div
-              className={`w-20 h-20 bg-gradient-to-br ${event.gradient || "from-taupe-400 to-taupe-500"} rounded-2xl flex items-center justify-center shadow-lg`}
-            >
-              {typeof event.icon === 'string' ? getEventIcon(event.icon) : (event.icon || getEventIcon())}
+          {event.mediaUrl && event.mediaType ? (
+            // Show actual media if available
+            event.mediaType === 'image' ? (
+              <img
+                src={event.mediaUrl}
+                alt={event.title}
+                className="w-full h-full object-cover"
+              />
+            ) : event.mediaType === 'video' ? (
+              <video
+                src={event.mediaUrl}
+                className="w-full h-full object-cover"
+                controls
+                poster=""
+              />
+            ) : (
+              // Fallback to icon if media type is unknown
+              <div className="w-full h-full bg-gradient-to-br from-cream-300 to-cream-400 flex items-center justify-center">
+                <div
+                  className={`w-20 h-20 bg-gradient-to-br ${event.gradient || "from-taupe-400 to-taupe-500"} rounded-2xl flex items-center justify-center shadow-lg`}
+                >
+                  {typeof event.icon === 'string' ? getEventIcon(event.icon) : (event.icon || getEventIcon())}
+                </div>
+              </div>
+            )
+          ) : (
+            // Show icon if no media available
+            <div className="w-full h-full bg-gradient-to-br from-cream-300 to-cream-400 flex items-center justify-center">
+              <div
+                className={`w-20 h-20 bg-gradient-to-br ${event.gradient || "from-taupe-400 to-taupe-500"} rounded-2xl flex items-center justify-center shadow-lg`}
+              >
+                {typeof event.icon === 'string' ? getEventIcon(event.icon) : (event.icon || getEventIcon())}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Event Content */}
@@ -206,16 +234,15 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
               <button
                 onClick={handleJoinToggle}
                 disabled={isJoining || isCheckingParticipation}
-                className={`w-full py-4 rounded-2xl font-semibold text-base modal-button disabled:opacity-50 ${
-                  isParticipating 
-                    ? "bg-gradient-to-r from-red-500 to-red-600 text-white" 
-                    : "bg-gradient-to-r from-sand-500 to-sand-600 text-white"
-                }`}
+                className={`w-full py-4 rounded-2xl font-semibold text-base modal-button disabled:opacity-50 ${isParticipating
+                  ? "bg-gradient-to-r from-red-500 to-red-600 text-white"
+                  : "bg-gradient-to-r from-sand-500 to-sand-600 text-white"
+                  }`}
               >
-                {isCheckingParticipation 
-                  ? "Loading..." 
-                  : isJoining 
-                    ? (isParticipating ? "Leaving..." : "Joining...") 
+                {isCheckingParticipation
+                  ? "Loading..."
+                  : isJoining
+                    ? (isParticipating ? "Leaving..." : "Joining...")
                     : (isParticipating ? "Leave Event" : "Join Event")
                 }
               </button>
