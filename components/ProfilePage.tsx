@@ -14,46 +14,42 @@ interface EventWithCreator extends Omit<Event, 'icon'> {
     icon?: React.ReactNode | string
 }
 
-// Icon component with randomized color
-const getEventIconWithRandomColor = (eventId: string) => {
-    // Use event ID as seed for consistent randomization per event
-    const seed = eventId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-
-    // Array of vibrant colors
-    const colors = [
-        'text-red-400',
-        'text-orange-400',
-        'text-amber-400',
-        'text-yellow-400',
-        'text-lime-400',
-        'text-green-400',
-        'text-emerald-400',
-        'text-teal-400',
-        'text-cyan-400',
-        'text-sky-400',
-        'text-blue-400',
-        'text-indigo-400',
-        'text-violet-400',
-        'text-purple-400',
-        'text-fuchsia-400',
-        'text-pink-400',
-        'text-rose-400'
-    ];
-
-    // Select color based on seed
-    const colorIndex = seed % colors.length;
-    const selectedColor = colors[colorIndex];
-
-    // Return default calendar icon with random color
-    return (
-        <svg className={`w-7 h-7 ${selectedColor}`} fill="currentColor" viewBox="0 0 20 20">
-            <path
-                fillRule="evenodd"
-                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                clipRule="evenodd"
-            />
-        </svg>
-    );
+// Icon components for different event types
+const getEventIcon = (iconType?: string) => {
+    switch (iconType) {
+        case 'music':
+            return (
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                        fillRule="evenodd"
+                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                        clipRule="evenodd"
+                    ></path>
+                </svg>
+            );
+        case 'photography':
+            return (
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"></path>
+                </svg>
+            );
+        case 'community':
+            return (
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13 6a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
+                </svg>
+            );
+        default:
+            return (
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                        fillRule="evenodd"
+                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                        clipRule="evenodd"
+                    ></path>
+                </svg>
+            );
+    }
 };
 
 interface User {
@@ -152,7 +148,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     time: event.time,
                     location: event.location,
                     createdBy: event.createdBy,
-                    icon: getEventIconWithRandomColor(event.id),
+                    icon: getEventIcon(event.icon || undefined),
                     gradient: event.gradient || "from-taupe-400 to-taupe-500",
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
@@ -230,7 +226,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     time: event.time,
                     location: event.location,
                     createdBy: event.createdBy,
-                    icon: getEventIconWithRandomColor(event.id),
+                    icon: getEventIcon(event.icon || undefined),
                     gradient: event.gradient || "from-taupe-400 to-taupe-500",
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
