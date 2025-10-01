@@ -83,17 +83,17 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
   const getEventTypeDetails = (type: string) => {
     switch (type) {
       case 'music':
-        return { icon: 'music', gradient: 'from-purple-400 to-purple-500' }
+        return { icon: 'music', gradient: 'from-amber-100 to-amber-200' }
       case 'photography':
-        return { icon: 'photography', gradient: 'from-blue-400 to-blue-500' }
+        return { icon: 'photography', gradient: 'from-amber-100 to-amber-200' }
       case 'community':
-        return { icon: 'community', gradient: 'from-green-400 to-green-500' }
+        return { icon: 'community', gradient: 'from-amber-100 to-amber-200' }
       case 'sports':
-        return { icon: 'sports', gradient: 'from-orange-400 to-orange-500' }
+        return { icon: 'sports', gradient: 'from-amber-100 to-amber-200' }
       case 'food':
-        return { icon: 'food', gradient: 'from-red-400 to-red-500' }
+        return { icon: 'food', gradient: 'from-amber-100 to-amber-200' }
       default:
-        return { icon: 'calendar', gradient: 'from-taupe-400 to-taupe-500' }
+        return { icon: 'calendar', gradient: 'from-amber-100 to-amber-200' }
     }
   }
 
