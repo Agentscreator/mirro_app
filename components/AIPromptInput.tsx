@@ -102,7 +102,7 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
       case "paste":
         return "Paste your event details here..."
       case "import":
-        return extractedText ? "Edit the extracted text above..." : "Upload a file above or enter text manually..."
+        return extractedText ? "Edit the extracted text above..." : "Enter event details..."
       default:
         return "Enter details..."
     }
