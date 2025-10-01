@@ -15,41 +15,161 @@ interface EventWithCreator extends Omit<Event, 'icon'> {
 }
 
 // Icon components for different event types
-const getEventIcon = (iconType?: string) => {
-    switch (iconType) {
-        case 'music':
-            return (
-                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                        fillRule="evenodd"
-                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                        clipRule="evenodd"
-                    ></path>
-                </svg>
-            );
-        case 'photography':
-            return (
-                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"></path>
-                </svg>
-            );
-        case 'community':
-            return (
-                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M13 6a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
-                </svg>
-            );
-        default:
-            return (
-                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                        fillRule="evenodd"
-                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                        clipRule="evenodd"
-                    ></path>
-                </svg>
-            );
+const getEventIcon = (iconType?: string, eventTitle?: string) => {
+    // If iconType is explicitly set, use it
+    if (iconType) {
+        switch (iconType) {
+            case 'music':
+                return (
+                    <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"></path>
+                    </svg>
+                );
+            case 'photography':
+                return (
+                    <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd"></path>
+                    </svg>
+                );
+            case 'community':
+                return (
+                    <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                    </svg>
+                );
+        }
     }
+
+    // Auto-detect icon based on event title
+    if (eventTitle) {
+        const title = eventTitle.toLowerCase();
+
+        // Music-related keywords
+        if (title.includes('concert') || title.includes('music') || title.includes('band') ||
+            title.includes('song') || title.includes('album') || title.includes('guitar') ||
+            title.includes('piano') || title.includes('jazz') || title.includes('rock') ||
+            title.includes('pop') || title.includes('classical') || title.includes('orchestra') ||
+            title.includes('choir') || title.includes('singing') || title.includes('karaoke') ||
+            title.includes('dj') || title.includes('festival') && title.includes('music')) {
+            return (
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"></path>
+                </svg>
+            );
+        }
+
+        // Photography-related keywords
+        if (title.includes('photo') || title.includes('camera') || title.includes('picture') ||
+            title.includes('shoot') || title.includes('portrait') || title.includes('wedding') ||
+            title.includes('graduation') || title.includes('gallery') || title.includes('exhibition') ||
+            title.includes('art show') || title.includes('visual')) {
+            return (
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd"></path>
+                </svg>
+            );
+        }
+
+        // Sports-related keywords
+        if (title.includes('game') || title.includes('match') || title.includes('tournament') ||
+            title.includes('championship') || title.includes('soccer') || title.includes('football') ||
+            title.includes('basketball') || title.includes('tennis') || title.includes('baseball') ||
+            title.includes('hockey') || title.includes('volleyball') || title.includes('sport') ||
+            title.includes('race') || title.includes('marathon') || title.includes('gym') ||
+            title.includes('fitness') || title.includes('workout')) {
+            return (
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-4-1a1 1 0 100 2v3a1 1 0 11-2 0v-3a1 1 0 011-1z" clipRule="evenodd"></path>
+                </svg>
+            );
+        }
+
+        // Food-related keywords
+        if (title.includes('dinner') || title.includes('lunch') || title.includes('breakfast') ||
+            title.includes('food') || title.includes('restaurant') || title.includes('cooking') ||
+            title.includes('recipe') || title.includes('chef') || title.includes('kitchen') ||
+            title.includes('meal') || title.includes('pizza') || title.includes('coffee') ||
+            title.includes('wine') || title.includes('tasting') || title.includes('bbq') ||
+            title.includes('barbecue') || title.includes('potluck')) {
+            return (
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"></path>
+                </svg>
+            );
+        }
+
+        // Education/Learning keywords
+        if (title.includes('class') || title.includes('workshop') || title.includes('seminar') ||
+            title.includes('lecture') || title.includes('course') || title.includes('training') ||
+            title.includes('tutorial') || title.includes('lesson') || title.includes('study') ||
+            title.includes('school') || title.includes('university') || title.includes('college') ||
+            title.includes('learn') || title.includes('teach') || title.includes('education')) {
+            return (
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"></path>
+                </svg>
+            );
+        }
+
+        // Business/Work keywords
+        if (title.includes('meeting') || title.includes('conference') || title.includes('business') ||
+            title.includes('work') || title.includes('office') || title.includes('presentation') ||
+            title.includes('interview') || title.includes('networking') || title.includes('corporate') ||
+            title.includes('professional') || title.includes('team') || title.includes('project')) {
+            return (
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2zm4-3a1 1 0 00-1 1v1h2V4a1 1 0 00-1-1zM4 9a1 1 0 000 2v5a1 1 0 001 1h10a1 1 0 001-1v-5a1 1 0 100-2H4z" clipRule="evenodd"></path>
+                </svg>
+            );
+        }
+
+        // Party/Celebration keywords
+        if (title.includes('party') || title.includes('birthday') || title.includes('celebration') ||
+            title.includes('anniversary') || title.includes('holiday') || title.includes('festival') ||
+            title.includes('carnival') || title.includes('dance') || title.includes('club') ||
+            title.includes('nightlife') || title.includes('fun') || title.includes('social')) {
+            return (
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732L14.146 12.8l-1.179 4.456a1 1 0 01-1.934 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732L9.854 7.2l1.179-4.456A1 1 0 0112 2z" clipRule="evenodd"></path>
+                </svg>
+            );
+        }
+
+        // Community/Social keywords
+        if (title.includes('community') || title.includes('volunteer') || title.includes('charity') ||
+            title.includes('fundraiser') || title.includes('social') || title.includes('group') ||
+            title.includes('club') || title.includes('organization') || title.includes('nonprofit') ||
+            title.includes('support') || title.includes('help') || title.includes('outreach')) {
+            return (
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                </svg>
+            );
+        }
+
+        // Travel/Adventure keywords
+        if (title.includes('trip') || title.includes('travel') || title.includes('vacation') ||
+            title.includes('adventure') || title.includes('hiking') || title.includes('camping') ||
+            title.includes('beach') || title.includes('mountain') || title.includes('explore') ||
+            title.includes('journey') || title.includes('tour') || title.includes('visit')) {
+            return (
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clipRule="evenodd"></path>
+                </svg>
+            );
+        }
+    }
+
+    // Default calendar icon
+    return (
+        <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path
+                fillRule="evenodd"
+                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                clipRule="evenodd"
+            ></path>
+        </svg>
+    );
 };
 
 interface User {
@@ -148,7 +268,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     time: event.time,
                     location: event.location,
                     createdBy: event.createdBy,
-                    icon: getEventIcon(event.icon || undefined),
+                    icon: getEventIcon(event.icon || undefined, event.title),
                     gradient: event.gradient || "from-taupe-400 to-taupe-500",
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
@@ -226,7 +346,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     time: event.time,
                     location: event.location,
                     createdBy: event.createdBy,
-                    icon: getEventIcon(event.icon || undefined),
+                    icon: getEventIcon(event.icon || undefined, event.title),
                     gradient: event.gradient || "from-taupe-400 to-taupe-500",
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
