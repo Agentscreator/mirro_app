@@ -14,30 +14,12 @@ interface EventWithCreator extends Omit<Event, 'icon'> {
     icon?: React.ReactNode | string
 }
 
-// Calendar icon with exact colors from the provided image
-const getEventIcon = () => {
+// Simple placeholder for events without media
+const getEventPlaceholder = () => {
     return (
-        <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#CD8B6B' }}>
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-                {/* Calendar body with rounded corners */}
-                <path 
-                    d="M19 4H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" 
-                    fill="#F5E8D5" 
-                />
-                {/* Spiral binding rings */}
-                <rect x="7" y="1" width="2" height="4" rx="1" fill="#F5E8D5" />
-                <rect x="15" y="1" width="2" height="4" rx="1" fill="#F5E8D5" />
-                {/* Calendar grid - subtle squares */}
-                <rect x="6" y="9" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
-                <rect x="9" y="9" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
-                <rect x="12" y="9" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
-                <rect x="15" y="9" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
-                <rect x="6" y="12" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
-                <rect x="9" y="12" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
-                <rect x="12" y="12" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
-                <rect x="15" y="12" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
-                <rect x="6" y="15" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
-                <rect x="9" y="15" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
+        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+            <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
             </svg>
         </div>
     );
@@ -139,8 +121,8 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     time: event.time,
                     location: event.location,
                     createdBy: event.createdBy,
-                    icon: getEventIcon(),
-                    gradient: event.gradient || "from-amber-100 to-amber-200",
+                    icon: getEventPlaceholder(),
+                    gradient: "bg-gray-50", // Simple neutral background
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
                     createdAt: new Date(event.createdAt),
@@ -217,8 +199,8 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     time: event.time,
                     location: event.location,
                     createdBy: event.createdBy,
-                    icon: getEventIcon(),
-                    gradient: event.gradient || "from-amber-100 to-amber-200",
+                    icon: getEventPlaceholder(),
+                    gradient: "bg-gray-50", // Simple neutral background
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
                     createdAt: new Date(event.createdAt),

@@ -53,14 +53,14 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
               />
             ) : (
               <div
-                className={`w-full h-full bg-gradient-to-br ${event.gradient} flex items-center justify-center`}
+                className={`w-full h-full ${event.gradient} flex items-center justify-center`}
               >
                 {event.icon}
               </div>
             )
           ) : (
             <div
-              className={`w-full h-full bg-gradient-to-br ${event.gradient} flex items-center justify-center`}
+              className={`w-full h-full ${event.gradient} flex items-center justify-center`}
             >
               {event.icon}
             </div>

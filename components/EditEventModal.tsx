@@ -32,7 +32,6 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
     date: "",
     time: "",
     location: "",
-    type: "general",
   })
 
   // Fetch event data when modal opens
@@ -57,7 +56,6 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
           date: eventData.date,
           time: eventData.time,
           location: eventData.location,
-          type: getEventTypeFromIcon(eventData.icon),
         })
       } else {
         console.error('Failed to fetch event')
@@ -69,33 +67,7 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
     }
   }
 
-  const getEventTypeFromIcon = (icon?: string) => {
-    switch (icon) {
-      case 'music': return 'music'
-      case 'photography': return 'photography'
-      case 'community': return 'community'
-      case 'sports': return 'sports'
-      case 'food': return 'food'
-      default: return 'general'
-    }
-  }
-
-  const getEventTypeDetails = (type: string) => {
-    switch (type) {
-      case 'music':
-        return { icon: 'music', gradient: 'from-amber-100 to-amber-200' }
-      case 'photography':
-        return { icon: 'photography', gradient: 'from-amber-100 to-amber-200' }
-      case 'community':
-        return { icon: 'community', gradient: 'from-amber-100 to-amber-200' }
-      case 'sports':
-        return { icon: 'sports', gradient: 'from-amber-100 to-amber-200' }
-      case 'food':
-        return { icon: 'food', gradient: 'from-amber-100 to-amber-200' }
-      default:
-        return { icon: 'calendar', gradient: 'from-amber-100 to-amber-200' }
-    }
-  }
+  // Removed icon/gradient type system - events now use media or simple placeholder
 
   const handleSave = async () => {
     if (!eventData.title || !eventData.description || !eventData.date || !eventData.time || !eventData.location) {
@@ -114,8 +86,6 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
       }
       
       const user = JSON.parse(storedUser)
-      const { icon: eventIcon, gradient: eventGradient } = getEventTypeDetails(eventData.type)
-      
       const response = await fetch('/api/events', {
         method: 'PUT',
         headers: {
@@ -128,8 +98,8 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
           date: eventData.date,
           time: eventData.time,
           location: eventData.location,
-          icon: eventIcon,
-          gradient: eventGradient,
+          icon: null, // No icon system
+          gradient: 'bg-gray-50', // Simple neutral background
           userId: user.id,
         }),
       })
@@ -158,7 +128,6 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
       date: "",
       time: "",
       location: "",
-      type: "general",
     })
     onClose()
   }
@@ -193,21 +162,7 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
               handleSave()
             }}
           >
-            <div>
-              <label className="block text-sm font-medium mb-2 text-text-secondary">Event Type</label>
-              <select
-                className="w-full px-4 py-3 text-base rounded-2xl border border-cream-300 glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary"
-                value={eventData.type}
-                onChange={(e) => setEventData({ ...eventData, type: e.target.value })}
-              >
-                <option value="general">General Event</option>
-                <option value="music">Music & Concert</option>
-                <option value="photography">Photography</option>
-                <option value="community">Community</option>
-                <option value="sports">Sports & Fitness</option>
-                <option value="food">Food & Dining</option>
-              </select>
-            </div>
+            {/* Event type selector removed - simplified design */}
 
             <div>
               <label className="block text-sm font-medium mb-2 text-text-secondary">Event Title</label>
