@@ -14,47 +14,32 @@ interface EventWithCreator extends Omit<Event, 'icon'> {
     icon?: React.ReactNode | string
 }
 
-// Generate random color for calendar icons
-const getRandomColor = () => {
-    const colors = [
-        '#E53E3E', // Red
-        '#3182CE', // Blue
-        '#38A169', // Green
-        '#D69E2E', // Yellow
-        '#9F7AEA', // Purple
-        '#00B5D8', // Cyan
-        '#FF6B35', // Orange
-        '#4A5568', // Gray
-        '#E91E63', // Pink
-        '#795548', // Brown
-        '#607D8B', // Blue Gray
-        '#FF5722', // Deep Orange
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
-};
-
-// Rounded calendar icon with spiral binding rings
+// Calendar icon with exact colors from the provided image
 const getEventIcon = () => {
-    const randomColor = getRandomColor();
     return (
-        <svg className="w-6 h-6" fill={randomColor} viewBox="0 0 24 24">
-            {/* Calendar body with rounded corners */}
-            <path d="M19 4H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" />
-            {/* Spiral binding rings */}
-            <rect x="7" y="1" width="2" height="4" rx="1" />
-            <rect x="15" y="1" width="2" height="4" rx="1" />
-            {/* Calendar grid */}
-            <rect x="6" y="9" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
-            <rect x="9" y="9" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
-            <rect x="12" y="9" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
-            <rect x="15" y="9" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
-            <rect x="6" y="12" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
-            <rect x="9" y="12" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
-            <rect x="12" y="12" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
-            <rect x="15" y="12" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
-            <rect x="6" y="15" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
-            <rect x="9" y="15" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
-        </svg>
+        <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#CD8B6B' }}>
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                {/* Calendar body with rounded corners */}
+                <path 
+                    d="M19 4H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" 
+                    fill="#F5E8D5" 
+                />
+                {/* Spiral binding rings */}
+                <rect x="7" y="1" width="2" height="4" rx="1" fill="#F5E8D5" />
+                <rect x="15" y="1" width="2" height="4" rx="1" fill="#F5E8D5" />
+                {/* Calendar grid - subtle squares */}
+                <rect x="6" y="9" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
+                <rect x="9" y="9" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
+                <rect x="12" y="9" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
+                <rect x="15" y="9" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
+                <rect x="6" y="12" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
+                <rect x="9" y="12" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
+                <rect x="12" y="12" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
+                <rect x="15" y="12" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
+                <rect x="6" y="15" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
+                <rect x="9" y="15" width="2" height="2" rx="0.3" fill="#CD8B6B" opacity="0.3" />
+            </svg>
+        </div>
     );
 };
 
