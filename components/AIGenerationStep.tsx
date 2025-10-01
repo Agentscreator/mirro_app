@@ -65,7 +65,7 @@ export default function AIGenerationStep({ onSelect }: { onSelect: (method: stri
             <div className="flex-1">
               <h3 className="font-medium mb-2 text-text-primary text-lg">Import</h3>
               <p className="text-sm text-text-secondary font-normal leading-relaxed">
-                Upload a file, link, or image to polish into an event.
+                Upload a file to extract event details.
               </p>
             </div>
           </div>
