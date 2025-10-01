@@ -14,63 +14,10 @@ interface EventWithCreator extends Omit<Event, 'icon'> {
     icon?: React.ReactNode | string
 }
 
-// Icon components with randomized icons and colors
-const getRandomEventIcon = (eventId: string) => {
+// Icon component with randomized color
+const getEventIconWithRandomColor = (eventId: string) => {
     // Use event ID as seed for consistent randomization per event
     const seed = eventId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-
-    // Array of available icons
-    const icons = [
-        // Music/Entertainment
-        <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"></path>
-        </svg>,
-
-        // Camera/Photography
-        <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd"></path>
-        </svg>,
-
-        // People/Community
-        <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
-        </svg>,
-
-        // Calendar/Event
-        <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"></path>
-        </svg>,
-
-        // Star/Featured
-        <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-        </svg>,
-
-        // Heart/Social
-        <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd"></path>
-        </svg>,
-
-        // Location/Map
-        <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"></path>
-        </svg>,
-
-        // Gift/Celebration
-        <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0115 5a3 3 0 013 3v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a3 3 0 013-3zm4 2.236A3 3 0 0110 5a3 3 0 011 2.236V16H9V7.236z" clipRule="evenodd"></path>
-        </svg>,
-
-        // Lightning/Energy
-        <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"></path>
-        </svg>,
-
-        // Fire/Hot
-        <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd"></path>
-        </svg>
-    ];
 
     // Array of vibrant colors
     const colors = [
@@ -93,17 +40,20 @@ const getRandomEventIcon = (eventId: string) => {
         'text-rose-400'
     ];
 
-    // Select icon and color based on seed
-    const iconIndex = seed % icons.length;
-    const colorIndex = (seed * 7) % colors.length; // Multiply by 7 for different distribution
-
-    const selectedIcon = icons[iconIndex];
+    // Select color based on seed
+    const colorIndex = seed % colors.length;
     const selectedColor = colors[colorIndex];
 
-    // Clone the icon element and add the color class
-    return React.cloneElement(selectedIcon, {
-        className: `w-7 h-7 ${selectedColor}`
-    });
+    // Return default calendar icon with random color
+    return (
+        <svg className={`w-7 h-7 ${selectedColor}`} fill="currentColor" viewBox="0 0 20 20">
+            <path
+                fillRule="evenodd"
+                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                clipRule="evenodd"
+            />
+        </svg>
+    );
 };
 
 interface User {
@@ -202,7 +152,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     time: event.time,
                     location: event.location,
                     createdBy: event.createdBy,
-                    icon: getRandomEventIcon(event.id),
+                    icon: getEventIconWithRandomColor(event.id),
                     gradient: event.gradient || "from-taupe-400 to-taupe-500",
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
@@ -280,7 +230,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     time: event.time,
                     location: event.location,
                     createdBy: event.createdBy,
-                    icon: getRandomEventIcon(event.id),
+                    icon: getEventIconWithRandomColor(event.id),
                     gradient: event.gradient || "from-taupe-400 to-taupe-500",
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
