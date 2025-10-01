@@ -48,9 +48,29 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
         setExtractedText(result.text)
         setInput(result.text)
       }
+      // For Word, PowerPoint, and PDF files, use document extraction API
+      else if (file.type.includes('word') || file.type.includes('powerpoint') || file.type === 'application/pdf' ||
+               file.name.endsWith('.doc') || file.name.endsWith('.docx') || 
+               file.name.endsWith('.ppt') || file.name.endsWith('.pptx') || file.name.endsWith('.pdf')) {
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const response = await fetch('/api/extract-text', {
+          method: 'POST',
+          body: formData,
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to extract text from document')
+        }
+
+        const result = await response.json()
+        setExtractedText(result.text)
+        setInput(result.text)
+      }
       // For other document types, show a message
       else {
-        alert('Please upload an image or text file. Other document types are not yet supported.')
+        alert('Please upload a supported file type: images, text files, Word documents, PowerPoint presentations, or PDF files.')
         setUploadedFile(null)
       }
     } catch (error) {
@@ -102,7 +122,7 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
       case "paste":
         return "Paste your event details here..."
       case "import":
-        return extractedText ? "Edit the extracted text above..." : "Enter event details..."
+        return extractedText ? "Edit the extracted text above..." : ""
       default:
         return "Enter details..."
     }
@@ -146,7 +166,7 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*,.txt"
+                accept="image/*,.txt,.doc,.docx,.ppt,.pptx,.pdf"
                 onChange={handleFileUpload}
                 className="hidden"
               />
@@ -160,7 +180,7 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
                   </div>
                   <h3 className="font-medium mb-2 text-text-primary">Upload File</h3>
                   <p className="text-sm text-text-secondary mb-4">
-                    Upload an image or text file to extract event details
+                    Upload a file to extract event details
                   </p>
                   <button
                     onClick={() => fileInputRef.current?.click()}
@@ -169,7 +189,7 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
                     Choose File
                   </button>
                   <p className="text-xs text-text-light mt-2">
-                    Supports: Images (JPG, PNG, etc.) and Text files (.txt)
+                    Supports: Images, Text files, Word documents, PowerPoint presentations, PDF files
                   </p>
                 </div>
               ) : (
