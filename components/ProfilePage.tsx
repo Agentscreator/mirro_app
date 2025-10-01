@@ -123,22 +123,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     time: event.time,
                     location: event.location,
                     createdBy: event.createdBy,
-                    icon: event.mediaUrl ? (
-                        event.mediaType === 'video' ? (
-                            <video
-                                src={event.mediaUrl}
-                                className="w-full h-full object-cover rounded-lg"
-                                muted
-                                playsInline
-                            />
-                        ) : (
-                            <img
-                                src={event.mediaUrl}
-                                alt={event.title}
-                                className="w-full h-full object-cover rounded-lg"
-                            />
-                        )
-                    ) : getEventPlaceholder(),
+                    icon: getEventPlaceholder(), // EventCard will handle media display based on mediaUrl/mediaType
                     gradient: event.gradient || "bg-gray-50",
                     mediaUrl: event.mediaUrl,
                     mediaType: event.mediaType,
@@ -218,22 +203,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     time: event.time,
                     location: event.location,
                     createdBy: event.createdBy,
-                    icon: event.mediaUrl ? (
-                        event.mediaType === 'video' ? (
-                            <video
-                                src={event.mediaUrl}
-                                className="w-full h-full object-cover rounded-lg"
-                                muted
-                                playsInline
-                            />
-                        ) : (
-                            <img
-                                src={event.mediaUrl}
-                                alt={event.title}
-                                className="w-full h-full object-cover rounded-lg"
-                            />
-                        )
-                    ) : getEventPlaceholder(),
+                    icon: getEventPlaceholder(), // EventCard will handle media display based on mediaUrl/mediaType
                     gradient: event.gradient || "bg-gray-50",
                     mediaUrl: event.mediaUrl,
                     mediaType: event.mediaType,

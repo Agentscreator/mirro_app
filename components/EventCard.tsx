@@ -49,7 +49,15 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
                 src={event.mediaUrl}
                 className="w-full h-full object-cover"
                 muted
-                poster=""
+                playsInline
+                preload="metadata"
+                onMouseEnter={(e) => e.currentTarget.play()}
+                onMouseLeave={(e) => e.currentTarget.pause()}
+                onError={(e) => {
+                  console.error('Video failed to load:', event.mediaUrl);
+                  // Hide the video element and show fallback
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             ) : (
               <div
