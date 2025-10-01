@@ -16,17 +16,32 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
     if (!input.trim()) return
 
     setIsGenerating(true)
-    // Simulate AI generation
-    await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    // Generate mock event data based on input
-    const mockEventData = {
-      title: input.length > 30 ? input.substring(0, 30) + "..." : input,
-      description: `An exciting event about ${input}. Join us for an unforgettable experience filled with great moments and wonderful memories.`,
+    try {
+      const response = await fetch('/api/generate-event', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          input: input.trim(),
+          method: method,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate event')
+      }
+
+      const eventData = await response.json()
+      onGenerate(JSON.stringify(eventData), input)
+    } catch (error) {
+      console.error('Error generating event:', error)
+      alert(error instanceof Error ? error.message : 'Failed to generate event. Please try again.')
+    } finally {
+      setIsGenerating(false)
     }
-
-    onGenerate(JSON.stringify(mockEventData), input)
-    setIsGenerating(false)
   }
 
   const getPlaceholder = () => {

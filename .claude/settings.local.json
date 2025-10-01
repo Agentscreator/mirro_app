@@ -11,7 +11,9 @@
       "Bash(npm run mobile:build:*)",
       "Bash(git push:*)",
       "Bash(mv:*)",
-      "Bash(rmdir:*)"
+      "Bash(rmdir:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nImplement AI-powered event generation\n\n- Add OpenAI integration for generating event details\n- Create /api/generate-event endpoint using GPT-4o-mini\n- Update AIPromptInput to use real AI API instead of mock data\n- Support three generation methods: generate, paste, and import\n- Add proper error handling and user feedback\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []
