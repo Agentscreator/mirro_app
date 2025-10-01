@@ -33,12 +33,27 @@ const getRandomColor = () => {
     return colors[Math.floor(Math.random() * colors.length)];
 };
 
-// Simple calendar icon with random colors
+// Rounded calendar icon with spiral binding rings
 const getEventIcon = () => {
     const randomColor = getRandomColor();
     return (
         <svg className="w-6 h-6" fill={randomColor} viewBox="0 0 24 24">
-            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
+            {/* Calendar body with rounded corners */}
+            <path d="M19 4H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" />
+            {/* Spiral binding rings */}
+            <rect x="7" y="1" width="2" height="4" rx="1" />
+            <rect x="15" y="1" width="2" height="4" rx="1" />
+            {/* Calendar grid */}
+            <rect x="6" y="9" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
+            <rect x="9" y="9" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
+            <rect x="12" y="9" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
+            <rect x="15" y="9" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
+            <rect x="6" y="12" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
+            <rect x="9" y="12" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
+            <rect x="12" y="12" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
+            <rect x="15" y="12" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
+            <rect x="6" y="15" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
+            <rect x="9" y="15" width="2" height="2" rx="0.5" fill="rgba(255,255,255,0.3)" />
         </svg>
     );
 };
