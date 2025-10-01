@@ -14,45 +14,27 @@ interface EventWithCreator extends Omit<Event, 'icon'> {
     icon?: React.ReactNode | string
 }
 
-// Icon components for different event types with bright, attractive colors
+// Icon components for different event types with dark beige aesthetic
 const getEventIcon = (iconType?: string, eventTitle?: string) => {
     // If iconType is explicitly set, use it
     if (iconType) {
         switch (iconType) {
             case 'music':
                 return (
-                    <svg className="w-7 h-7" fill="none" viewBox="0 0 20 20">
-                        <defs>
-                            <linearGradient id="music-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#FF6B6B" />
-                                <stop offset="100%" stopColor="#FF8E53" />
-                            </linearGradient>
-                        </defs>
-                        <path fill="url(#music-gradient)" d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"></path>
+                    <svg className="w-7 h-7" fill="#8B7355" viewBox="0 0 24 24">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
                     </svg>
                 );
             case 'photography':
                 return (
-                    <svg className="w-7 h-7" fill="none" viewBox="0 0 20 20">
-                        <defs>
-                            <linearGradient id="photo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#4ECDC4" />
-                                <stop offset="100%" stopColor="#44A08D" />
-                            </linearGradient>
-                        </defs>
-                        <path fill="url(#photo-gradient)" fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd"></path>
+                    <svg className="w-7 h-7" fill="#8B7355" viewBox="0 0 24 24">
+                        <path d="M9 2l1.17 1H16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.83L11 2h2m3 15a4 4 0 1 0-4-4 4 4 0 0 0 4 4z"/>
                     </svg>
                 );
             case 'community':
                 return (
-                    <svg className="w-7 h-7" fill="none" viewBox="0 0 20 20">
-                        <defs>
-                            <linearGradient id="community-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#667EEA" />
-                                <stop offset="100%" stopColor="#764BA2" />
-                            </linearGradient>
-                        </defs>
-                        <path fill="url(#community-gradient)" d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                    <svg className="w-7 h-7" fill="#8B7355" viewBox="0 0 24 24">
+                        <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2m4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2 1l-3 4v6h2v7h3v-7h2M12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5M5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2M7.5 22v-7H9V9c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v6h1.5v7h4z"/>
                     </svg>
                 );
         }
@@ -62,7 +44,7 @@ const getEventIcon = (iconType?: string, eventTitle?: string) => {
     if (eventTitle) {
         const title = eventTitle.toLowerCase();
 
-        // Music-related keywords - Vibrant Red/Orange
+        // Music-related keywords
         if (title.includes('concert') || title.includes('music') || title.includes('band') ||
             title.includes('song') || title.includes('album') || title.includes('guitar') ||
             title.includes('piano') || title.includes('jazz') || title.includes('rock') ||
@@ -70,37 +52,25 @@ const getEventIcon = (iconType?: string, eventTitle?: string) => {
             title.includes('choir') || title.includes('singing') || title.includes('karaoke') ||
             title.includes('dj') || title.includes('festival') && title.includes('music')) {
             return (
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 20 20">
-                    <defs>
-                        <linearGradient id="music-auto-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#FF6B6B" />
-                            <stop offset="100%" stopColor="#FF8E53" />
-                        </linearGradient>
-                    </defs>
-                    <path fill="url(#music-auto-gradient)" d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"></path>
+                <svg className="w-7 h-7" fill="#8B7355" viewBox="0 0 24 24">
+                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
                 </svg>
             );
         }
 
-        // Photography-related keywords - Teal/Green
+        // Photography-related keywords
         if (title.includes('photo') || title.includes('camera') || title.includes('picture') ||
             title.includes('shoot') || title.includes('portrait') || title.includes('wedding') ||
             title.includes('graduation') || title.includes('gallery') || title.includes('exhibition') ||
             title.includes('art show') || title.includes('visual')) {
             return (
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 20 20">
-                    <defs>
-                        <linearGradient id="photo-auto-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#4ECDC4" />
-                            <stop offset="100%" stopColor="#44A08D" />
-                        </linearGradient>
-                    </defs>
-                    <path fill="url(#photo-auto-gradient)" fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd"></path>
+                <svg className="w-7 h-7" fill="#8B7355" viewBox="0 0 24 24">
+                    <path d="M9 2l1.17 1H16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.83L11 2h2m3 15a4 4 0 1 0-4-4 4 4 0 0 0 4 4z"/>
                 </svg>
             );
         }
 
-        // Sports-related keywords - Electric Blue/Purple
+        // Sports-related keywords
         if (title.includes('game') || title.includes('match') || title.includes('tournament') ||
             title.includes('championship') || title.includes('soccer') || title.includes('football') ||
             title.includes('basketball') || title.includes('tennis') || title.includes('baseball') ||
@@ -108,19 +78,13 @@ const getEventIcon = (iconType?: string, eventTitle?: string) => {
             title.includes('race') || title.includes('marathon') || title.includes('gym') ||
             title.includes('fitness') || title.includes('workout')) {
             return (
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 20 20">
-                    <defs>
-                        <linearGradient id="sports-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#667EEA" />
-                            <stop offset="100%" stopColor="#764BA2" />
-                        </linearGradient>
-                    </defs>
-                    <path fill="url(#sports-gradient)" d="M10 2C8.89 2 8 2.89 8 4s.89 2 2 2 2-.89 2-2-.89-2-2-2zM21 9h-6l-2-4h-2L9 9H3c-.55 0-1 .45-1 1s.45 1 1 1h5.5l3.5 7 3.5-7H21c.55 0 1-.45 1-1s-.45-1-1-1z"></path>
+                <svg className="w-7 h-7" fill="#8B7355" viewBox="0 0 24 24">
+                    <path d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-5.2 2.2v4.7h2v-3.4l1.8-.7-1.6 8.1-4.9-1-.4 2 7 1.4z"/>
                 </svg>
             );
         }
 
-        // Food-related keywords - Warm Orange/Yellow
+        // Food-related keywords
         if (title.includes('dinner') || title.includes('lunch') || title.includes('breakfast') ||
             title.includes('food') || title.includes('restaurant') || title.includes('cooking') ||
             title.includes('recipe') || title.includes('chef') || title.includes('kitchen') ||
@@ -128,126 +92,78 @@ const getEventIcon = (iconType?: string, eventTitle?: string) => {
             title.includes('wine') || title.includes('tasting') || title.includes('bbq') ||
             title.includes('barbecue') || title.includes('potluck')) {
             return (
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 20 20">
-                    <defs>
-                        <linearGradient id="food-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#FFD93D" />
-                            <stop offset="100%" stopColor="#FF8C42" />
-                        </linearGradient>
-                    </defs>
-                    <path fill="url(#food-gradient)" d="M8.5 8.5c1.84 0 3.5.5 3.5 2.5v1h2v-1c0-2.5-2.91-4-6-4s-6 1.5-6 4v1h2v-1c0-2 1.66-2.5 3.5-2.5zm0-1C6.57 7.5 5 6.43 5 5s1.57-2.5 3.5-2.5S12 3.57 12 5s-1.57 2.5-3.5 2.5z"></path>
-                    <path fill="url(#food-gradient)" d="M2 13h16v2H2z"></path>
+                <svg className="w-7 h-7" fill="#8B7355" viewBox="0 0 24 24">
+                    <path d="M8.1 13.34l2.83-2.83L3.91 3.5a4.008 4.008 0 0 0 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.20-1.10-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z"/>
                 </svg>
             );
         }
 
-        // Education/Learning keywords - Bright Green/Blue
+        // Education/Learning keywords
         if (title.includes('class') || title.includes('workshop') || title.includes('seminar') ||
             title.includes('lecture') || title.includes('course') || title.includes('training') ||
             title.includes('tutorial') || title.includes('lesson') || title.includes('study') ||
             title.includes('school') || title.includes('university') || title.includes('college') ||
             title.includes('learn') || title.includes('teach') || title.includes('education')) {
             return (
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 20 20">
-                    <defs>
-                        <linearGradient id="education-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#56CCF2" />
-                            <stop offset="100%" stopColor="#2F80ED" />
-                        </linearGradient>
-                    </defs>
-                    <path fill="url(#education-gradient)" d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"></path>
+                <svg className="w-7 h-7" fill="#8B7355" viewBox="0 0 24 24">
+                    <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
                 </svg>
             );
         }
 
-        // Business/Work keywords - Professional Navy/Gold
+        // Business/Work keywords
         if (title.includes('meeting') || title.includes('conference') || title.includes('business') ||
             title.includes('work') || title.includes('office') || title.includes('presentation') ||
             title.includes('interview') || title.includes('networking') || title.includes('corporate') ||
             title.includes('professional') || title.includes('team') || title.includes('project')) {
             return (
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 20 20">
-                    <defs>
-                        <linearGradient id="business-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#F093FB" />
-                            <stop offset="100%" stopColor="#F5576C" />
-                        </linearGradient>
-                    </defs>
-                    <path fill="url(#business-gradient)" fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2zm4-3a1 1 0 00-1 1v1h2V4a1 1 0 00-1-1zM4 9a1 1 0 000 2v5a1 1 0 001 1h10a1 1 0 001-1v-5a1 1 0 100-2H4z" clipRule="evenodd"></path>
+                <svg className="w-7 h-7" fill="#8B7355" viewBox="0 0 24 24">
+                    <path d="M10 2h4a2 2 0 0 1 2 2v2h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4V4a2 2 0 0 1 2-2zm2 4V4h-4v2h4zm-6 4v8h12V10H6z"/>
                 </svg>
             );
         }
 
-        // Party/Celebration keywords - Bright Pink/Purple
+        // Party/Celebration keywords
         if (title.includes('party') || title.includes('birthday') || title.includes('celebration') ||
             title.includes('anniversary') || title.includes('holiday') || title.includes('festival') ||
             title.includes('carnival') || title.includes('dance') || title.includes('club') ||
             title.includes('nightlife') || title.includes('fun') || title.includes('social')) {
             return (
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 20 20">
-                    <defs>
-                        <linearGradient id="party-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#FF9A9E" />
-                            <stop offset="100%" stopColor="#FECFEF" />
-                        </linearGradient>
-                    </defs>
-                    <path fill="url(#party-gradient)" fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732L14.146 12.8l-1.179 4.456a1 1 0 01-1.934 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732L9.854 7.2l1.179-4.456A1 1 0 0112 2z" clipRule="evenodd"></path>
+                <svg className="w-7 h-7" fill="#8B7355" viewBox="0 0 24 24">
+                    <path d="M7 8a3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3m4.65-4.65l.7-.7a1 1 0 0 1 1.41 0 1 1 0 0 1 0 1.41l-.7.7C12.58 3.9 11.32 3.5 10 3.5c-.36 0-.71.04-1.06.11l.71-.26zm-2.3 2.3l-.7-.7a1 1 0 0 1 0-1.41 1 1 0 0 1 1.41 0l.7.7C10.1 3.42 9.68 2.16 9.68 1.84c0-.36.04-.71.11-1.06l-.26.71zm2.3 9.7l.7.7a1 1 0 0 1-1.41 0 1 1 0 0 1 0-1.41l.7-.7C11.42 14.1 12.68 14.5 14 14.5c.36 0 .71-.04 1.06-.11l-.71.26zm-2.3-2.3l-.7.7a1 1 0 0 1 0 1.41 1 1 0 0 1-1.41 0l-.7-.7C5.9 13.58 5.5 12.32 5.5 12c0-.36.04-.71.11-1.06l-.26.71z"/>
                 </svg>
             );
         }
 
-        // Community/Social keywords - Warm Purple/Blue
+        // Community/Social keywords
         if (title.includes('community') || title.includes('volunteer') || title.includes('charity') ||
             title.includes('fundraiser') || title.includes('social') || title.includes('group') ||
             title.includes('club') || title.includes('organization') || title.includes('nonprofit') ||
             title.includes('support') || title.includes('help') || title.includes('outreach')) {
             return (
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 20 20">
-                    <defs>
-                        <linearGradient id="community-auto-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#667EEA" />
-                            <stop offset="100%" stopColor="#764BA2" />
-                        </linearGradient>
-                    </defs>
-                    <path fill="url(#community-auto-gradient)" d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                <svg className="w-7 h-7" fill="#8B7355" viewBox="0 0 24 24">
+                    <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2m4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2 1l-3 4v6h2v7h3v-7h2M12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5M5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2M7.5 22v-7H9V9c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v6h1.5v7h4z"/>
                 </svg>
             );
         }
 
-        // Travel/Adventure keywords - Tropical Green/Blue
+        // Travel/Adventure keywords
         if (title.includes('trip') || title.includes('travel') || title.includes('vacation') ||
             title.includes('adventure') || title.includes('hiking') || title.includes('camping') ||
             title.includes('beach') || title.includes('mountain') || title.includes('explore') ||
             title.includes('journey') || title.includes('tour') || title.includes('visit')) {
             return (
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 20 20">
-                    <defs>
-                        <linearGradient id="travel-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#11998E" />
-                            <stop offset="100%" stopColor="#38EF7D" />
-                        </linearGradient>
-                    </defs>
-                    <path fill="url(#travel-gradient)" fillRule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clipRule="evenodd"></path>
+                <svg className="w-7 h-7" fill="#8B7355" viewBox="0 0 24 24">
+                    <path d="M14.12 4l1.83 2H20v2h-8.95l-1.83-2H4v6h8.05l1.83 2H20v2h-4.05L14.12 12H4V8h5.88L11.71 6H20V4h-5.88zM2 20v-8h2v6h16v2H2z"/>
                 </svg>
             );
         }
     }
 
-    // Default calendar icon with gradient
+    // Default calendar icon
     return (
-        <svg className="w-7 h-7" fill="none" viewBox="0 0 20 20">
-            <defs>
-                <linearGradient id="default-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#A8EDEA" />
-                    <stop offset="100%" stopColor="#FED6E3" />
-                </linearGradient>
-            </defs>
-            <path
-                fill="url(#default-gradient)"
-                fillRule="evenodd"
-                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                clipRule="evenodd"
-            ></path>
+        <svg className="w-7 h-7" fill="#8B7355" viewBox="0 0 24 24">
+            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
         </svg>
     );
 };
@@ -349,7 +265,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     location: event.location,
                     createdBy: event.createdBy,
                     icon: getEventIcon(event.icon || undefined, event.title),
-                    gradient: event.gradient || "from-taupe-400 to-taupe-500",
+                    gradient: event.gradient || "from-amber-100 to-amber-200",
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
                     createdAt: new Date(event.createdAt),
@@ -427,7 +343,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     location: event.location,
                     createdBy: event.createdBy,
                     icon: getEventIcon(event.icon || undefined, event.title),
-                    gradient: event.gradient || "from-taupe-400 to-taupe-500",
+                    gradient: event.gradient || "from-amber-100 to-amber-200",
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
                     createdAt: new Date(event.createdAt),
