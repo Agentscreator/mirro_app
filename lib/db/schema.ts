@@ -33,18 +33,28 @@ export const follows = pgTable('follows', {
   pk: primaryKey({ columns: [table.followerId, table.followingId] }),
 }));
 
+export const eventParticipants = pgTable('event_participants', {
+  eventId: uuid('event_id').notNull().references(() => events.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => users.id),
+  joinedAt: timestamp('joined_at').defaultNow().notNull(),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.eventId, table.userId] }),
+}));
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   events: many(events),
   followers: many(follows, { relationName: 'UserFollowers' }),
   following: many(follows, { relationName: 'UserFollowing' }),
+  eventParticipations: many(eventParticipants),
 }));
 
-export const eventsRelations = relations(events, ({ one }) => ({
+export const eventsRelations = relations(events, ({ one, many }) => ({
   creator: one(users, {
     fields: [events.createdBy],
     references: [users.id],
   }),
+  participants: many(eventParticipants),
 }));
 
 export const followsRelations = relations(follows, ({ one }) => ({
@@ -60,9 +70,22 @@ export const followsRelations = relations(follows, ({ one }) => ({
   }),
 }));
 
+export const eventParticipantsRelations = relations(eventParticipants, ({ one }) => ({
+  event: one(events, {
+    fields: [eventParticipants.eventId],
+    references: [events.id],
+  }),
+  user: one(users, {
+    fields: [eventParticipants.userId],
+    references: [users.id],
+  }),
+}));
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Event = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;
 export type Follow = typeof follows.$inferSelect;
 export type NewFollow = typeof follows.$inferInsert;
+export type EventParticipant = typeof eventParticipants.$inferSelect;
+export type NewEventParticipant = typeof eventParticipants.$inferInsert;

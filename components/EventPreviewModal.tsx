@@ -55,6 +55,73 @@ const getEventIcon = (iconType?: string) => {
 
 export default function EventPreviewModal({ event, isOpen, onClose, currentUserId }: EventPreviewModalProps) {
   const [isJoining, setIsJoining] = useState(false)
+  const [isParticipating, setIsParticipating] = useState(false)
+  const [isCheckingParticipation, setIsCheckingParticipation] = useState(false)
+  const [participantCount, setParticipantCount] = useState(0)
+
+  // Check if user is already participating and get participant count when modal opens
+  useEffect(() => {
+    if (isOpen && event) {
+      // Get participant count
+      fetch(`/api/events/${event.id}/participants`)
+        .then(res => res.json())
+        .then(data => {
+          setParticipantCount(data.count || 0)
+        })
+        .catch(error => {
+          console.error('Error fetching participant count:', error)
+        })
+
+      // Check if current user is participating
+      if (currentUserId && currentUserId !== event.createdBy) {
+        setIsCheckingParticipation(true)
+        fetch(`/api/events/join?eventId=${event.id}&userId=${currentUserId}`)
+          .then(res => res.json())
+          .then(data => {
+            setIsParticipating(data.participating)
+          })
+          .catch(error => {
+            console.error('Error checking participation:', error)
+          })
+          .finally(() => {
+            setIsCheckingParticipation(false)
+          })
+      }
+    }
+  }, [isOpen, event, currentUserId])
+
+  const handleJoinToggle = async () => {
+    if (!event || !currentUserId) return
+
+    setIsJoining(true)
+    try {
+      const method = isParticipating ? 'DELETE' : 'POST'
+      const response = await fetch('/api/events/join', {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventId: event.id,
+          userId: currentUserId,
+        }),
+      })
+
+      if (response.ok) {
+        setIsParticipating(!isParticipating)
+        // Update participant count
+        setParticipantCount(prev => isParticipating ? prev - 1 : prev + 1)
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to update event participation')
+      }
+    } catch (error) {
+      console.error('Error updating participation:', error)
+      alert('Failed to update event participation')
+    } finally {
+      setIsJoining(false)
+    }
+  }
 
   if (!isOpen || !event) return null
 
@@ -111,6 +178,9 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
               {event.creatorName && (
                 <div className="text-xs text-text-muted">By: {event.creatorName}</div>
               )}
+              <div className="text-xs text-text-muted">
+                {participantCount} {participantCount === 1 ? 'person' : 'people'} joined
+              </div>
             </div>
 
             {/* Creator Avatar */}
@@ -134,11 +204,20 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
           <div className="space-y-4">
             {currentUserId !== event.createdBy && (
               <button
-                onClick={() => setIsJoining(!isJoining)}
-                disabled={isJoining}
-                className="w-full bg-gradient-to-r from-sand-500 to-sand-600 text-white py-4 rounded-2xl font-semibold text-base modal-button disabled:opacity-50"
+                onClick={handleJoinToggle}
+                disabled={isJoining || isCheckingParticipation}
+                className={`w-full py-4 rounded-2xl font-semibold text-base modal-button disabled:opacity-50 ${
+                  isParticipating 
+                    ? "bg-gradient-to-r from-red-500 to-red-600 text-white" 
+                    : "bg-gradient-to-r from-sand-500 to-sand-600 text-white"
+                }`}
               >
-                {isJoining ? "Joining..." : "Join Event"}
+                {isCheckingParticipation 
+                  ? "Loading..." 
+                  : isJoining 
+                    ? (isParticipating ? "Leaving..." : "Joining...") 
+                    : (isParticipating ? "Leave Event" : "Join Event")
+                }
               </button>
             )}
 

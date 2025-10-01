@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { db } from './db';
-import { users, events, follows } from './db/schema';
+import { users, events, follows, eventParticipants } from './db/schema';
 import { eq, count, sql } from 'drizzle-orm';
 
 export async function hashPassword(password: string): Promise<string> {
@@ -266,4 +266,89 @@ export async function getFollowing(userId: string) {
     .from(follows)
     .innerJoin(users, eq(follows.followingId, users.id))
     .where(eq(follows.followerId, userId));
+}
+
+export async function joinEvent(eventId: string, userId: string) {
+  // Check if event exists
+  const [event] = await db.select().from(events).where(eq(events.id, eventId));
+  if (!event) {
+    throw new Error('Event not found');
+  }
+
+  // Check if user is already joined
+  const [existingParticipation] = await db
+    .select()
+    .from(eventParticipants)
+    .where(
+      sql`${eventParticipants.eventId} = ${eventId} AND ${eventParticipants.userId} = ${userId}`
+    );
+
+  if (existingParticipation) {
+    throw new Error('Already joined this event');
+  }
+
+  // Add user to event participants
+  await db.insert(eventParticipants).values({
+    eventId,
+    userId,
+  });
+
+  return true;
+}
+
+export async function leaveEvent(eventId: string, userId: string) {
+  await db.delete(eventParticipants)
+    .where(
+      sql`${eventParticipants.eventId} = ${eventId} AND ${eventParticipants.userId} = ${userId}`
+    );
+  return true;
+}
+
+export async function isParticipating(eventId: string, userId: string) {
+  const [result] = await db
+    .select()
+    .from(eventParticipants)
+    .where(
+      sql`${eventParticipants.eventId} = ${eventId} AND ${eventParticipants.userId} = ${userId}`
+    );
+  
+  return !!result;
+}
+
+export async function getEventParticipants(eventId: string) {
+  return await db
+    .select({
+      id: users.id,
+      name: users.name,
+      username: users.username,
+      profilePicture: users.profilePicture,
+      joinedAt: eventParticipants.joinedAt,
+    })
+    .from(eventParticipants)
+    .innerJoin(users, eq(eventParticipants.userId, users.id))
+    .where(eq(eventParticipants.eventId, eventId));
+}
+
+export async function getUserParticipatingEvents(userId: string) {
+  return await db
+    .select({
+      id: events.id,
+      title: events.title,
+      description: events.description,
+      date: events.date,
+      time: events.time,
+      location: events.location,
+      icon: events.icon,
+      gradient: events.gradient,
+      createdBy: events.createdBy,
+      createdAt: events.createdAt,
+      updatedAt: events.updatedAt,
+      creatorName: users.name,
+      creatorUsername: users.username,
+      joinedAt: eventParticipants.joinedAt,
+    })
+    .from(eventParticipants)
+    .innerJoin(events, eq(eventParticipants.eventId, events.id))
+    .leftJoin(users, eq(events.createdBy, users.id))
+    .where(eq(eventParticipants.userId, userId));
 }

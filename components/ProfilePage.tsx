@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import EventCard from "./EventCard"
-import ManageEventsToggle from "./ManageEventsToggle"
+import EventViewToggle from "./EventViewToggle"
 import FollowersModal from "./FollowersModal"
 import EditEventModal from "./EditEventModal"
 import EventPreviewModal from "./EventPreviewModal"
@@ -105,7 +105,9 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
   const [profilePicture, setProfilePicture] = useState<string | null>(initialUser.profilePicture || null)
   const [allEvents, setAllEvents] = useState<EventCardData[]>([])
   const [userEvents, setUserEvents] = useState<EventCardData[]>([])
+  const [joinedEvents, setJoinedEvents] = useState<EventCardData[]>([])
   const [loading, setLoading] = useState(true)
+  const [viewMode, setViewMode] = useState<'all' | 'created' | 'joined'>('all')
 
   // Editing states
   const [isEditingName, setIsEditingName] = useState(false)
@@ -159,6 +161,16 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
           createdAt: new Date(event.createdAt),
           updatedAt: new Date(event.createdAt) // Using createdAt as fallback since updatedAt might not be in DatabaseEvent
         })
+
+        // Fetch user's joined events
+        try {
+          const joinedEventsResponse = await fetch(`/api/events/joined/${user.id}`)
+          const joinedEventsData: DatabaseEvent[] = await joinedEventsResponse.json()
+          setJoinedEvents(joinedEventsData.map(transformEvent))
+        } catch (joinedError) {
+          console.error('Error fetching joined events:', joinedError)
+          setJoinedEvents([])
+        }
 
         setAllEvents(allEventsData.map(transformEvent))
         setUserEvents(userEventsData.map(transformEvent))
@@ -235,6 +247,16 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
           createdAt: new Date(event.createdAt),
           updatedAt: new Date(event.createdAt) // Using createdAt as fallback since updatedAt might not be in DatabaseEvent
         })
+
+        // Fetch user's joined events
+        try {
+          const joinedEventsResponse = await fetch(`/api/events/joined/${user.id}`)
+          const joinedEventsData: DatabaseEvent[] = await joinedEventsResponse.json()
+          setJoinedEvents(joinedEventsData.map(transformEvent))
+        } catch (joinedError) {
+          console.error('Error fetching joined events:', joinedError)
+          setJoinedEvents([])
+        }
 
         setAllEvents(allEventsData.map(transformEvent))
         setUserEvents(userEventsData.map(transformEvent))
@@ -458,7 +480,13 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
     }
   }
 
-  const eventsToShow = isManageMode ? userEvents : allEvents
+  const eventsToShow = isManageMode 
+    ? userEvents 
+    : viewMode === 'joined' 
+      ? joinedEvents 
+      : viewMode === 'created'
+        ? userEvents
+        : allEvents
 
   return (
     <div className="px-6 py-4 pb-24">
@@ -640,8 +668,27 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
       {/* Events Section with Manage Toggle */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-medium text-text-secondary">{isManageMode ? "My Events" : "Upcoming Events"}</h3>
-          <ManageEventsToggle isManageMode={isManageMode} onToggle={setIsManageMode} />
+          <h3 className="text-lg font-medium text-text-secondary">
+            {isManageMode 
+              ? "Manage Events" 
+              : viewMode === 'joined' 
+                ? "Joined Events" 
+                : viewMode === 'created'
+                  ? "My Events"
+                  : "All Events"
+            }
+          </h3>
+          <EventViewToggle 
+            viewMode={viewMode}
+            isManageMode={isManageMode}
+            onViewModeChange={(mode) => {
+              setViewMode(mode)
+              if (mode !== 'created') {
+                setIsManageMode(false)
+              }
+            }}
+            onManageModeToggle={setIsManageMode}
+          />
         </div>
 
         {loading ? (
@@ -664,15 +711,16 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
           </div>
         )}
 
-        {!loading && isManageMode && userEvents.length === 0 && (
+        {!loading && eventsToShow.length === 0 && (
           <div className="glass-card rounded-3xl p-8 text-center soft-shadow">
-            <p className="text-text-muted">You haven't created any events yet.</p>
-          </div>
-        )}
-
-        {!loading && !isManageMode && allEvents.length === 0 && (
-          <div className="glass-card rounded-3xl p-8 text-center soft-shadow">
-            <p className="text-text-muted">No events available.</p>
+            <p className="text-text-muted">
+              {isManageMode || viewMode === 'created' 
+                ? "You haven't created any events yet."
+                : viewMode === 'joined'
+                  ? "You haven't joined any events yet."
+                  : "No events available."
+              }
+            </p>
           </div>
         )}
       </div>
