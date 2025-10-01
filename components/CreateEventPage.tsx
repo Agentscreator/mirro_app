@@ -231,20 +231,17 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
               { 
                 step: 1, 
                 title: "Add Media", 
-                isClickable: getMaxReachableStep() >= 1,
-                status: selectedMedia ? `${selectedMedia.type} selected` : null
+                isClickable: getMaxReachableStep() >= 1
               },
               { 
                 step: 2, 
                 title: "AI Generation", 
-                isClickable: getMaxReachableStep() >= 2,
-                status: aiGeneratedContent ? `Generated with ${aiMethod}` : null
+                isClickable: getMaxReachableStep() >= 2
               },
               { 
                 step: 3, 
                 title: "Preview & Edit", 
-                isClickable: getMaxReachableStep() >= 3,
-                status: eventData.title ? "Details filled" : null
+                isClickable: getMaxReachableStep() >= 3
               }
             ].map((item, index) => (
               <div key={item.step} className="flex items-center">
@@ -262,11 +259,6 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
                   >
                     {item.title}
                   </button>
-                  {item.status && (
-                    <span className="text-xs text-taupe-500 mt-1 capitalize">
-                      {item.status}
-                    </span>
-                  )}
                 </div>
                 {index < 2 && (
                   <svg className="w-4 h-4 mx-2 text-text-light" fill="currentColor" viewBox="0 0 20 20">
@@ -278,20 +270,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
           </div>
         </div>
 
-        {/* Navigation Helper */}
-        {currentStep > 1 && (
-          <div className="mb-6">
-            <button
-              onClick={() => handleStepClick(currentStep - 1)}
-              className="flex items-center text-text-secondary hover:text-text-primary transition-colors duration-200"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to {currentStep === 2 ? "Media" : "AI Generation"}
-            </button>
-          </div>
-        )}
+
 
         {/* Step 1: Media Upload */}
         {currentStep === 1 && (

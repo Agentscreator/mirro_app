@@ -55,7 +55,7 @@ const getEventIcon = (iconType?: string) => {
 
 export default function EventPreviewModal({ event, isOpen, onClose, currentUserId }: EventPreviewModalProps) {
   const [isJoining, setIsJoining] = useState(false)
-  
+
   if (!isOpen || !event) return null
 
   const formatDate = (dateStr: string) => {
@@ -133,7 +133,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
           {/* Action Buttons */}
           <div className="space-y-4">
             {currentUserId !== event.createdBy && (
-              <button 
+              <button
                 onClick={() => setIsJoining(!isJoining)}
                 disabled={isJoining}
                 className="w-full bg-gradient-to-r from-sand-500 to-sand-600 text-white py-4 rounded-2xl font-semibold text-base modal-button disabled:opacity-50"
@@ -142,7 +142,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
               </button>
             )}
 
-            <button 
+            <button
               onClick={() => {
                 if (navigator.share) {
                   navigator.share({
