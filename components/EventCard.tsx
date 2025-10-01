@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
 interface Event {
   id: string
@@ -29,6 +29,7 @@ interface EventCardProps {
 
 export default function EventCard({ event, isManageMode, currentUserId, onEdit, onDelete, onPreview }: EventCardProps) {
   const canEdit = event.createdBy === currentUserId
+  const [videoError, setVideoError] = React.useState(false)
 
   return (
     <div
@@ -44,19 +45,24 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
                 alt={event.title}
                 className="w-full h-full object-cover"
               />
-            ) : event.mediaType === 'video' ? (
+            ) : event.mediaType === 'video' && !videoError ? (
               <video
                 src={event.mediaUrl}
                 className="w-full h-full object-cover"
                 muted
                 playsInline
                 preload="metadata"
-                onMouseEnter={(e) => e.currentTarget.play()}
-                onMouseLeave={(e) => e.currentTarget.pause()}
-                onError={(e) => {
+                onMouseEnter={(e) => {
+                  e.currentTarget.play().catch(() => {
+                    // Silently handle play failures
+                  });
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.pause();
+                }}
+                onError={() => {
                   console.error('Video failed to load:', event.mediaUrl);
-                  // Hide the video element and show fallback
-                  e.currentTarget.style.display = 'none';
+                  setVideoError(true);
                 }}
               />
             ) : (

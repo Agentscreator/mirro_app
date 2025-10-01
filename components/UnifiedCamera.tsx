@@ -118,9 +118,15 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: "video/webm" })
-        const url = URL.createObjectURL(blob)
-        onCapture(url, "video")
-        stopCamera()
+        
+        // Convert blob to data URL for persistent storage
+        const reader = new FileReader()
+        reader.onload = () => {
+          const dataUrl = reader.result as string
+          onCapture(dataUrl, "video")
+          stopCamera()
+        }
+        reader.readAsDataURL(blob)
       }
 
       mediaRecorder.start()

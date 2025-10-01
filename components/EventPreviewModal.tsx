@@ -156,6 +156,11 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                 className="w-full h-full object-cover"
                 controls
                 poster=""
+                onError={(e) => {
+                  console.error('Video failed to load in preview:', event.mediaUrl);
+                  // Hide video and show fallback
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             ) : (
               // Fallback to icon if media type is unknown
