@@ -3,10 +3,10 @@ import { getEventById } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { eventId: string } }
 ) {
   try {
-    const eventId = params.id;
+    const { eventId } = params;
     
     if (!eventId) {
       return NextResponse.json({ error: 'Event ID is required' }, { status: 400 });

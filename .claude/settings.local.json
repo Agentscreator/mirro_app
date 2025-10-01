@@ -9,7 +9,9 @@
       "Bash(npx cap:*)",
       "Bash(npm run export:*)",
       "Bash(npm run mobile:build:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(mv:*)",
+      "Bash(rmdir:*)"
     ],
     "deny": [],
     "ask": []
