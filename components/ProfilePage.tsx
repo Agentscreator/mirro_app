@@ -45,6 +45,8 @@ interface DatabaseEvent {
     location: string
     icon?: string | null
     gradient?: string | null
+    mediaUrl?: string | null
+    mediaType?: string | null
     createdBy: string
     createdAt: string
     creatorName?: string
@@ -121,8 +123,25 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     time: event.time,
                     location: event.location,
                     createdBy: event.createdBy,
-                    icon: getEventPlaceholder(),
-                    gradient: "bg-gray-50", // Simple neutral background
+                    icon: event.mediaUrl ? (
+                        event.mediaType === 'video' ? (
+                            <video
+                                src={event.mediaUrl}
+                                className="w-full h-full object-cover rounded-lg"
+                                muted
+                                playsInline
+                            />
+                        ) : (
+                            <img
+                                src={event.mediaUrl}
+                                alt={event.title}
+                                className="w-full h-full object-cover rounded-lg"
+                            />
+                        )
+                    ) : getEventPlaceholder(),
+                    gradient: event.gradient || "bg-gray-50",
+                    mediaUrl: event.mediaUrl,
+                    mediaType: event.mediaType,
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
                     createdAt: new Date(event.createdAt),
@@ -199,8 +218,25 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     time: event.time,
                     location: event.location,
                     createdBy: event.createdBy,
-                    icon: getEventPlaceholder(),
-                    gradient: "bg-gray-50", // Simple neutral background
+                    icon: event.mediaUrl ? (
+                        event.mediaType === 'video' ? (
+                            <video
+                                src={event.mediaUrl}
+                                className="w-full h-full object-cover rounded-lg"
+                                muted
+                                playsInline
+                            />
+                        ) : (
+                            <img
+                                src={event.mediaUrl}
+                                alt={event.title}
+                                className="w-full h-full object-cover rounded-lg"
+                            />
+                        )
+                    ) : getEventPlaceholder(),
+                    gradient: event.gradient || "bg-gray-50",
+                    mediaUrl: event.mediaUrl,
+                    mediaType: event.mediaType,
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
                     createdAt: new Date(event.createdAt),
