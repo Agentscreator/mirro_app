@@ -68,8 +68,14 @@ export default function VideoRecorder({ onComplete, onClose }: VideoRecorderProp
 
             mediaRecorder.onstop = () => {
                 const blob = new Blob(chunksRef.current, { type: "video/webm" })
-                const videoUrl = URL.createObjectURL(blob)
-                setRecordedVideo(videoUrl)
+                
+                // Convert blob to data URL for persistent storage
+                const reader = new FileReader()
+                reader.onload = () => {
+                    const dataUrl = reader.result as string
+                    setRecordedVideo(dataUrl)
+                }
+                reader.readAsDataURL(blob)
             }
 
             mediaRecorderRef.current = mediaRecorder

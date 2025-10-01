@@ -80,7 +80,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
     }
   }
 
-  const capturePhoto = () => {
+  const capturePhoto = async () => {
     if (videoRef.current) {
       const canvas = document.createElement("canvas")
       canvas.width = videoRef.current.videoWidth
@@ -88,8 +88,37 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       const ctx = canvas.getContext("2d")
       if (ctx) {
         ctx.drawImage(videoRef.current, 0, 0)
-        const dataUrl = canvas.toDataURL("image/jpeg")
-        onCapture(dataUrl, "photo")
+        
+        try {
+          // Convert canvas to blob and upload to R2
+          canvas.toBlob(async (blob) => {
+            if (blob) {
+              const formData = new FormData()
+              formData.append('file', blob, 'photo.jpg')
+              formData.append('type', 'image')
+              
+              const uploadResponse = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+              })
+              
+              if (uploadResponse.ok) {
+                const { url } = await uploadResponse.json()
+                onCapture(url, "photo")
+              } else {
+                // Fallback to data URL
+                const dataUrl = canvas.toDataURL("image/jpeg")
+                onCapture(dataUrl, "photo")
+              }
+            }
+          }, 'image/jpeg', 0.9)
+        } catch (error) {
+          console.error('Photo upload error:', error)
+          // Fallback to data URL
+          const dataUrl = canvas.toDataURL("image/jpeg")
+          onCapture(dataUrl, "photo")
+        }
+        
         stopCamera()
       }
     }
@@ -116,17 +145,45 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         }
       }
 
-      mediaRecorder.onstop = () => {
+      mediaRecorder.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: "video/webm" })
         
-        // Convert blob to data URL for persistent storage
-        const reader = new FileReader()
-        reader.onload = () => {
-          const dataUrl = reader.result as string
-          onCapture(dataUrl, "video")
-          stopCamera()
+        try {
+          // Upload video to R2 storage
+          const formData = new FormData()
+          formData.append('file', blob, 'video.webm')
+          formData.append('type', 'video')
+          
+          const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          })
+          
+          if (uploadResponse.ok) {
+            const { url } = await uploadResponse.json()
+            onCapture(url, "video")
+          } else {
+            console.error('Upload failed')
+            // Fallback to data URL if upload fails
+            const reader = new FileReader()
+            reader.onload = () => {
+              const dataUrl = reader.result as string
+              onCapture(dataUrl, "video")
+            }
+            reader.readAsDataURL(blob)
+          }
+        } catch (error) {
+          console.error('Upload error:', error)
+          // Fallback to data URL if upload fails
+          const reader = new FileReader()
+          reader.onload = () => {
+            const dataUrl = reader.result as string
+            onCapture(dataUrl, "video")
+          }
+          reader.readAsDataURL(blob)
         }
-        reader.readAsDataURL(blob)
+        
+        stopCamera()
       }
 
       mediaRecorder.start()
@@ -161,17 +218,46 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
     fileInputRef.current?.click()
   }
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const data = e.target?.result as string
-        const type = file.type.startsWith("video/") ? "video" : "photo"
-        onCapture(data, type)
-        stopCamera()
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('type', file.type.startsWith("video/") ? "video" : "image")
+        
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        })
+        
+        if (uploadResponse.ok) {
+          const { url } = await uploadResponse.json()
+          const type = file.type.startsWith("video/") ? "video" : "photo"
+          onCapture(url, type)
+        } else {
+          // Fallback to data URL
+          const reader = new FileReader()
+          reader.onload = (e) => {
+            const data = e.target?.result as string
+            const type = file.type.startsWith("video/") ? "video" : "photo"
+            onCapture(data, type)
+          }
+          reader.readAsDataURL(file)
+        }
+      } catch (error) {
+        console.error('File upload error:', error)
+        // Fallback to data URL
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const data = e.target?.result as string
+          const type = file.type.startsWith("video/") ? "video" : "photo"
+          onCapture(data, type)
+        }
+        reader.readAsDataURL(file)
       }
-      reader.readAsDataURL(file)
+      
+      stopCamera()
     }
   }
 
