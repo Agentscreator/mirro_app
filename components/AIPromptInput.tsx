@@ -28,7 +28,7 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
       if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
         const text = await file.text()
         setExtractedText(text)
-        setInput(text)
+        setInput("") // Clear input to show the new placeholder
       }
       // For images, use OCR API to extract text
       else if (file.type.startsWith('image/')) {
@@ -46,7 +46,7 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
 
         const result = await response.json()
         setExtractedText(result.text)
-        setInput(result.text)
+        setInput("") // Clear input to show the new placeholder
       }
       // For Word, PowerPoint, and PDF files, use document extraction API
       else if (file.type.includes('word') || file.type.includes('powerpoint') || file.type === 'application/pdf' ||
@@ -66,7 +66,7 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
 
         const result = await response.json()
         setExtractedText(result.text)
-        setInput(result.text)
+        setInput("") // Clear input to show the new placeholder
       }
       // For other document types, show a message
       else {
@@ -83,7 +83,18 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
   }
 
   const handleGenerate = async () => {
-    const textToUse = extractedText || input.trim()
+    let textToUse = ""
+    
+    if (method === "import" && extractedText) {
+      // For import method, combine extracted text with user input
+      textToUse = extractedText
+      if (input.trim()) {
+        textToUse += "\n\nAdditional context: " + input.trim()
+      }
+    } else {
+      textToUse = input.trim()
+    }
+    
     if (!textToUse) return
 
     setIsGenerating(true)
@@ -122,7 +133,7 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
       case "paste":
         return "Paste your event details here..."
       case "import":
-        return extractedText ? "Edit the extracted text above..." : ""
+        return extractedText ? "Anything else you want me to know? What event would you like me to do with this file?" : ""
       default:
         return "Enter details..."
     }
@@ -229,14 +240,6 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
               </div>
             )}
 
-            {/* Divider */}
-            {uploadedFile && extractedText && (
-              <div className="flex items-center">
-                <div className="flex-1 border-t border-cream-300"></div>
-                <span className="px-4 text-sm text-text-light">or edit extracted text</span>
-                <div className="flex-1 border-t border-cream-300"></div>
-              </div>
-            )}
           </div>
         )}
 
@@ -250,14 +253,14 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
           />
           {method === "import" && extractedText && (
             <p className="text-xs text-text-light mt-2">
-              Text extracted from file. You can edit it above before generating.
+              File content extracted successfully. Add any additional details above.
             </p>
           )}
         </div>
 
         <button
           onClick={handleGenerate}
-          disabled={(!input.trim() && !extractedText) || isGenerating || isExtracting}
+          disabled={(method === "import" ? !extractedText : !input.trim()) || isGenerating || isExtracting}
           className="w-full gradient-primary text-white py-4 rounded-2xl font-medium hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
           {isGenerating ? (
