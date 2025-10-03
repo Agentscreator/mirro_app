@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import type React from "react"
 
 interface Event {
   id: string
@@ -8,14 +8,12 @@ interface Event {
   description: string
   date: string
   time: string
-  location: string
+  location?: string
   createdBy: string
   icon: React.ReactNode
-  gradient: string
+  gradient: string | null
   mediaUrl?: string | null
   mediaType?: string | null
-  creatorName?: string
-  creatorUsername?: string
 }
 
 interface EventCardProps {
@@ -23,67 +21,90 @@ interface EventCardProps {
   isManageMode: boolean
   currentUserId: string
   onEdit: (eventId: string) => void
-  onDelete?: (eventId: string) => void
-  onPreview?: (event: Event) => void
+  onDelete: (eventId: string) => void
+  onPreview: (event: Event) => void
 }
 
 export default function EventCard({ event, isManageMode, currentUserId, onEdit, onDelete, onPreview }: EventCardProps) {
   const canEdit = event.createdBy === currentUserId
-  const [videoError, setVideoError] = React.useState(false)
 
   return (
     <div
-      className="glass-card rounded-3xl p-5 soft-shadow hover-lift transition-all duration-300 cursor-pointer"
-      onClick={() => onPreview && onPreview(event)}
+      className="relative rounded-3xl overflow-hidden soft-shadow hover-lift transition-all duration-300 cursor-pointer h-80"
+      onClick={() => onPreview(event)}
     >
-      <div className="flex items-start space-x-4">
-        <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-md flex-shrink-0">
-          {event.mediaUrl && event.mediaType ? (
-            event.mediaType === 'image' ? (
-              <img
-                src={event.mediaUrl}
-                alt={event.title}
-                className="w-full h-full object-cover"
-              />
-            ) : event.mediaType === 'video' && !videoError ? (
-              <video
-                src={event.mediaUrl}
-                className="w-full h-full object-cover"
-                muted
-                playsInline
-                preload="metadata"
-                onMouseEnter={(e) => {
-                  e.currentTarget.play().catch(() => {
-                    // Silently handle play failures
-                  });
+      <div className="absolute inset-0">
+        {event.mediaUrl && event.mediaType === "image" ? (
+          <img
+            src={event.mediaUrl}
+            alt={event.title}
+            className="w-full h-full object-cover"
+          />
+        ) : event.mediaUrl && event.mediaType === "video" ? (
+          <video
+            src={event.mediaUrl}
+            className="w-full h-full object-cover"
+            muted
+            loop
+            autoPlay
+          />
+        ) : (
+          <div className={`w-full h-full bg-gradient-to-br ${event.gradient || 'from-gray-400 to-gray-600'}`} />
+        )}
+        {/* Dark gradient overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+      </div>
+
+      <div className="relative h-full flex flex-col justify-between p-5 text-white">
+        {/* Top section with action buttons */}
+        <div className="flex justify-end space-x-2">
+          {isManageMode && canEdit ? (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onEdit(event.id)
                 }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.pause();
-                }}
-                onError={() => {
-                  console.error('Video failed to load:', event.mediaUrl);
-                  setVideoError(true);
-                }}
-              />
-            ) : (
-              <div
-                className={`w-full h-full ${event.gradient} flex items-center justify-center`}
+                className="p-2 rounded-xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all duration-200"
               >
-                {event.icon}
-              </div>
-            )
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                </svg>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (confirm('Are you sure you want to delete this event?')) {
+                    onDelete(event.id)
+                  }
+                }}
+                className="p-2 rounded-xl bg-red-500/20 backdrop-blur-sm text-white hover:bg-red-500/30 transition-all duration-200"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clipRule="evenodd" />
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 012 0v4a1 1 0 11-2 0V7zM12 7a1 1 0 012 0v4a1 1 0 11-2 0V7z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </>
           ) : (
-            <div
-              className={`w-full h-full ${event.gradient} flex items-center justify-center`}
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="p-2 rounded-xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all duration-200"
             >
-              {event.icon}
-            </div>
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path>
+              </svg>
+            </button>
           )}
         </div>
-        <div className="flex-1">
-          <h4 className="font-medium mb-1 text-text-primary">{event.title}</h4>
-          <p className="text-sm text-text-secondary mb-3 font-normal leading-relaxed">{event.description}</p>
-          <div className="flex items-center text-xs text-text-muted">
+
+        {/* Bottom section with event details */}
+        <div>
+          <h4 className="font-semibold text-xl mb-2 drop-shadow-lg">{event.title}</h4>
+          <p className="text-sm text-white/90 mb-3 font-normal leading-relaxed drop-shadow-md line-clamp-2">
+            {event.description}
+          </p>
+          <div className="flex items-center text-xs text-white/80 drop-shadow-md">
             <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path
                 fillRule="evenodd"
@@ -94,7 +115,7 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
             {event.date} • {event.time}
           </div>
           {event.location && (
-            <div className="flex items-center text-xs text-text-muted mt-1">
+            <div className="flex items-center text-xs text-white/80 mt-1 drop-shadow-md">
               <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
@@ -106,62 +127,6 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
             </div>
           )}
         </div>
-
-        {/* Action Buttons */}
-        {isManageMode && canEdit ? (
-          <div className="flex space-x-2 ml-2" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onEdit(event.id)
-              }}
-              className="p-2 rounded-xl gradient-primary text-white hover:shadow-lg transition-all duration-200"
-              title="Edit event"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
-              </svg>
-            </button>
-            {onDelete && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  if (confirm('Are you sure you want to delete this event?')) {
-                    onDelete(event.id)
-                  }
-                }}
-                className="p-2 rounded-xl bg-gradient-to-br from-red-400 to-red-500 text-white hover:shadow-lg transition-all duration-200"
-                title="Delete event"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-              </button>
-            )}
-          </div>
-        ) : (
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              if (navigator.share) {
-                navigator.share({
-                  title: event.title,
-                  text: event.description,
-                  url: window.location.href,
-                });
-              } else {
-                navigator.clipboard.writeText(`${event.title} - ${event.description} on ${event.date} at ${event.time}`);
-                alert('Event details copied to clipboard!');
-              }
-            }}
-            className="p-2 rounded-xl glass-card hover:bg-white/60 transition-all duration-200 ml-2"
-            title="Share event"
-          >
-            <svg className="w-5 h-5 text-text-muted" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path>
-            </svg>
-          </button>
-        )}
       </div>
     </div>
   )

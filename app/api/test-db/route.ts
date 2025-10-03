@@ -8,7 +8,7 @@ export async function GET() {
     
     return NextResponse.json({
       message: 'Database connection successful',
-      timestamp: result.rows[0],
+      timestamp: Array.isArray(result) ? result[0] : result,
     });
   } catch (error) {
     console.error('Database connection error:', error);

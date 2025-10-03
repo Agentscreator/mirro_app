@@ -12,6 +12,7 @@ interface EventWithCreator extends Omit<Event, 'icon'> {
     creatorName?: string
     creatorUsername?: string
     icon?: React.ReactNode | string
+    gradient: string | null
 }
 
 // Simple placeholder for events without media
@@ -62,7 +63,7 @@ interface EventCardData {
     location: string
     createdBy: string
     icon: React.ReactNode
-    gradient: string
+    gradient: string | null
     mediaUrl?: string | null
     mediaType?: string | null
     creatorName?: string
@@ -124,7 +125,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     location: event.location,
                     createdBy: event.createdBy,
                     icon: getEventPlaceholder(), // EventCard will handle media display based on mediaUrl/mediaType
-                    gradient: event.gradient || "bg-gray-50",
+                    gradient: event.gradient || "from-gray-400 to-gray-600",
                     mediaUrl: event.mediaUrl,
                     mediaType: event.mediaType,
                     creatorName: event.creatorName,
@@ -167,7 +168,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
             createdAt: event.createdAt,
             updatedAt: event.updatedAt,
             icon: event.icon,
-            gradient: event.gradient,
+            gradient: event.gradient || 'from-gray-400 to-gray-600',
             mediaUrl: event.mediaUrl || null,
             mediaType: event.mediaType || null,
             creatorName: event.creatorName,
@@ -178,7 +179,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
     }
 
     // Create a wrapper function that matches EventCard's expected signature
-    const handleEventCardPreview = (event: { id: string; title: string; description: string; date: string; time: string; location: string; createdBy: string; icon: React.ReactNode; gradient: string; creatorName?: string; creatorUsername?: string }) => {
+    const handleEventCardPreview = (event: { id: string; title: string; description: string; date: string; time: string; location?: string; createdBy: string; icon: React.ReactNode; gradient: string | null; mediaUrl?: string | null; mediaType?: string | null }) => {
         // Find the full EventCardData from our state
         const fullEvent = userEvents.find(e => e.id === event.id)
         if (fullEvent) {
@@ -204,7 +205,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     location: event.location,
                     createdBy: event.createdBy,
                     icon: getEventPlaceholder(), // EventCard will handle media display based on mediaUrl/mediaType
-                    gradient: event.gradient || "bg-gray-50",
+                    gradient: event.gradient || "from-gray-400 to-gray-600",
                     mediaUrl: event.mediaUrl,
                     mediaType: event.mediaType,
                     creatorName: event.creatorName,
