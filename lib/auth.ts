@@ -75,6 +75,7 @@ export async function getUserEvents(userId: string) {
     createdAt: events.createdAt,
     creatorName: users.name,
     creatorUsername: users.username,
+    creatorProfilePicture: users.profilePicture,
   }).from(events).leftJoin(users, eq(events.createdBy, users.id)).where(eq(events.createdBy, userId));
 
   // Get attendees for each event
@@ -87,7 +88,7 @@ export async function getUserEvents(userId: string) {
         id: event.createdBy,
         name: event.creatorName || 'Unknown',
         username: event.creatorUsername || 'unknown',
-        profilePicture: null, // We'd need to fetch this separately if needed
+        profilePicture: event.creatorProfilePicture || null,
         joinedAt: event.createdAt,
       };
 
@@ -128,6 +129,7 @@ export async function getAllEvents() {
     updatedAt: events.updatedAt,
     creatorName: users.name,
     creatorUsername: users.username,
+    creatorProfilePicture: users.profilePicture,
   }).from(events).leftJoin(users, eq(events.createdBy, users.id));
 
   // Get attendees for each event
@@ -140,7 +142,7 @@ export async function getAllEvents() {
         id: event.createdBy,
         name: event.creatorName || 'Unknown',
         username: event.creatorUsername || 'unknown',
-        profilePicture: null, // We'd need to fetch this separately if needed
+        profilePicture: event.creatorProfilePicture || null,
         joinedAt: event.createdAt,
       };
 
