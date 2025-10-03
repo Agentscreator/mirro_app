@@ -45,7 +45,43 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   const [currentTime, setCurrentTime] = useState(0)
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  if (!isOpen || !event) return null
+  // Helper functions
+  const updateVideoProgress = () => {
+    if (videoRef.current) {
+      const progress = (videoRef.current.currentTime / videoRef.current.duration) * 100
+      setVideoProgress(progress || 0)
+      setCurrentTime(videoRef.current.currentTime)
+      setVideoDuration(videoRef.current.duration)
+    }
+  }
+
+  // Reset video state when modal closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      setIsVideoPlaying(false)
+      setVideoProgress(0)
+      setShowVideoControls(false)
+      setIsVideoLoading(true)
+      setVideoError(false)
+      setVideoDuration(0)
+      setCurrentTime(0)
+      if (videoRef.current) {
+        videoRef.current.pause()
+        videoRef.current.currentTime = 0
+      }
+    }
+  }, [isOpen])
+
+  // Update progress while video is playing
+  React.useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (isVideoPlaying && videoRef.current) {
+      interval = setInterval(updateVideoProgress, 100)
+    }
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [isVideoPlaying])
 
   // Helper function to format time with AM/PM
   const formatTimeWithAMPM = (timeString: string) => {
@@ -105,35 +141,9 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
     }
   }
 
-  // Reset video state when modal closes
-  React.useEffect(() => {
-    if (!isOpen) {
-      setIsVideoPlaying(false)
-      setVideoProgress(0)
-      setShowVideoControls(false)
-      setIsVideoLoading(true)
-      setVideoError(false)
-      setVideoDuration(0)
-      setCurrentTime(0)
-      if (videoRef.current) {
-        videoRef.current.pause()
-        videoRef.current.currentTime = 0
-      }
-    }
-  }, [isOpen])
-
   const handleVideoEnded = () => {
     setIsVideoPlaying(false)
     setVideoProgress(0)
-  }
-
-  const updateVideoProgress = () => {
-    if (videoRef.current) {
-      const progress = (videoRef.current.currentTime / videoRef.current.duration) * 100
-      setVideoProgress(progress || 0)
-      setCurrentTime(videoRef.current.currentTime)
-      setVideoDuration(videoRef.current.duration)
-    }
   }
 
   const formatTime = (seconds: number) => {
@@ -142,16 +152,8 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  // Update progress while video is playing
-  React.useEffect(() => {
-    let interval: NodeJS.Timeout
-    if (isVideoPlaying && videoRef.current) {
-      interval = setInterval(updateVideoProgress, 100)
-    }
-    return () => {
-      if (interval) clearInterval(interval)
-    }
-  }, [isVideoPlaying])
+  // Early return after all hooks
+  if (!isOpen || !event) return null
 
   const { day, month } = formatDate(event.date)
   const attendeesToShow = event.attendees || []
