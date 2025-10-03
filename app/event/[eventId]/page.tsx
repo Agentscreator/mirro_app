@@ -95,16 +95,21 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
 
 export default async function EventPage({ params }: EventPageProps) {
   try {
+    console.log('Loading event with ID:', params.eventId)
     const event = await getEventById(params.eventId)
     
     if (!event) {
-      notFound()
+      console.log('Event not found:', params.eventId)
+      // Instead of showing 404, redirect to main page with a message
+      redirect(`/?eventNotFound=${params.eventId}`)
     }
 
+    console.log('Event found, redirecting to main page with event modal')
     // Redirect to the main app with the event modal open
     redirect(`/?event=${params.eventId}`)
   } catch (error) {
     console.error('Error loading event:', error)
-    notFound()
+    // Redirect to main page instead of showing 404
+    redirect(`/?error=event-load-failed`)
   }
 }

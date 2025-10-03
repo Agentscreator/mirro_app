@@ -69,8 +69,18 @@ function EventsAppContent() {
   // Handle event parameter from URL
   useEffect(() => {
     const eventId = searchParams.get('event')
+    const eventNotFound = searchParams.get('eventNotFound')
+    const error = searchParams.get('error')
+
     if (eventId) {
       setSelectedEventId(eventId)
+    } else if (eventNotFound) {
+      // Show a toast or alert that the event wasn't found
+      console.log('Event not found:', eventNotFound)
+      // You could add a toast notification here
+    } else if (error) {
+      console.log('Error loading event:', error)
+      // You could add a toast notification here
     }
   }, [searchParams])
 
