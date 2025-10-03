@@ -145,6 +145,25 @@ export async function POST(request: NextRequest) {
 
     const eventData = await extractEventData(input, method);
 
+    // Generate visual styling based on the event content
+    try {
+      const visualResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/analyze-visual-style`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventData),
+      });
+
+      if (visualResponse.ok) {
+        const visualAnalysis = await visualResponse.json();
+        eventData.visualStyling = visualAnalysis;
+      }
+    } catch (visualError) {
+      console.error('Error getting visual styling:', visualError);
+      // Continue without visual styling if it fails
+    }
+
     return NextResponse.json(eventData);
   } catch (error) {
     console.error('Error generating event:', error);

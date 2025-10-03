@@ -21,6 +21,7 @@ interface Event {
   gradient: string | null
   mediaUrl?: string | null
   mediaType?: string | null
+  visualStyling?: string | null
   attendees?: Attendee[]
   attendeeCount?: number
 }
@@ -36,6 +37,19 @@ interface EventCardProps {
 
 export default function EventCard({ event, isManageMode, currentUserId, onEdit, onDelete, onPreview }: EventCardProps) {
   const canEdit = event.createdBy === currentUserId
+
+  // Parse visual styling if available
+  let visualStyling = null
+  try {
+    if (event.visualStyling) {
+      visualStyling = JSON.parse(event.visualStyling)
+    }
+  } catch (error) {
+    console.error('Error parsing visual styling:', error)
+  }
+
+  // Use AI-generated gradient if available, otherwise fall back to default
+  const displayGradient = visualStyling?.styling?.gradient || event.gradient || 'from-gray-400 to-gray-600'
 
   // Helper function to format time with AM/PM
   const formatTimeWithAMPM = (timeString: string) => {
@@ -80,15 +94,28 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
             autoPlay
           />
         ) : (
-          <div className={`w-full h-full bg-gradient-to-br ${event.gradient || 'from-gray-400 to-gray-600'}`} />
+          <div className={`w-full h-full ${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-br ${displayGradient}`}`} />
         )}
         {/* Dark gradient overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
       </div>
 
       <div className="relative h-full flex flex-col justify-between p-5 text-white">
-        {/* Top section with action buttons */}
-        <div className="flex justify-end space-x-2">
+        {/* Top section with AI indicator and action buttons */}
+        <div className="flex justify-between items-start">
+          {/* AI Styling Indicator */}
+          {visualStyling && (
+            <div className="bg-white/20 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-medium text-white shadow-lg">
+              <div className="flex items-center space-x-1">
+                <svg className="w-3 h-3 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"/>
+                </svg>
+                <span>AI</span>
+              </div>
+            </div>
+          )}
+          
+          <div className="flex space-x-2">
           {isManageMode && canEdit ? (
             <>
               <button
@@ -127,6 +154,7 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
               </svg>
             </button>
           )}
+          </div>
         </div>
 
         {/* Bottom section with event details */}

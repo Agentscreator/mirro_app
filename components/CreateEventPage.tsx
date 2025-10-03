@@ -3,6 +3,7 @@ import { useState } from "react"
 import UnifiedCamera from "./UnifiedCamera"
 import AIGenerationStep from "./AIGenerationStep"
 import AIPromptInput from "./AIPromptInput"
+import AIStyledEventPreview from "./AIStyledEventPreview"
 
 interface CreateEventPageProps {
   onEventCreated?: () => void
@@ -21,7 +22,9 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     date: "",
     time: "",
     location: "",
+    visualStyling: null as any,
   })
+  const [showAIPreview, setShowAIPreview] = useState(false)
 
   // State preservation for step navigation
   const [stepStates, setStepStates] = useState({
@@ -123,13 +126,14 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     setAiPromptInput(input)
     const parsed = JSON.parse(content)
     
-    // Set all extracted data including date, time, and location
+    // Set all extracted data including date, time, location, and visual styling
     setEventData({
       title: parsed.title || "",
       description: parsed.description || "",
       date: parsed.date || "",
       time: parsed.time || "",
       location: parsed.location || "",
+      visualStyling: parsed.visualStyling || null,
     })
     
     // Update step state
@@ -138,7 +142,12 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
       step2: { ...prev.step2, completed: true, input }
     }))
     
-    setCurrentStep(3)
+    // Show AI preview first if visual styling is available
+    if (parsed.visualStyling) {
+      setShowAIPreview(true)
+    } else {
+      setCurrentStep(3)
+    }
   }
 
   const handlePublish = async () => {
@@ -169,10 +178,11 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
           time: eventData.time,
           location: eventData.location,
           icon: null, // No default icon
-          gradient: 'bg-gray-50', // Simple neutral background
+          gradient: eventData.visualStyling?.styling?.gradient || 'bg-gray-50',
           mediaUrl: selectedMedia?.data,
           mediaType: selectedMedia?.type,
           createdBy: user.id,
+          visualStyling: eventData.visualStyling,
         }),
       })
 
@@ -183,7 +193,8 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         setSelectedMedia(null)
         setAiMethod(null)
         setAiGeneratedContent(null)
-        setEventData({ title: "", description: "", date: "", time: "", location: "" })
+        setShowAIPreview(false)
+        setEventData({ title: "", description: "", date: "", time: "", location: "", visualStyling: null })
         
         // Notify parent component to refresh events
         if (onEventCreated) {
@@ -451,6 +462,35 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
       </div>
 
       {showCamera && <UnifiedCamera onCapture={handleCameraCapture} onClose={() => setShowCamera(false)} />}
+      
+      {/* AI Styled Preview Modal */}
+      <AIStyledEventPreview
+        event={showAIPreview ? {
+          title: eventData.title,
+          description: eventData.description,
+          date: eventData.date,
+          time: eventData.time,
+          location: eventData.location,
+          mediaUrl: selectedMedia?.data,
+          mediaType: selectedMedia?.type,
+          visualStyling: eventData.visualStyling
+        } : null}
+        isOpen={showAIPreview}
+        onClose={() => setShowAIPreview(false)}
+        onEdit={() => {
+          setShowAIPreview(false)
+          setCurrentStep(3)
+        }}
+        onCustomize={(styling) => {
+          setEventData(prev => ({
+            ...prev,
+            visualStyling: {
+              ...prev.visualStyling,
+              styling
+            }
+          }))
+        }}
+      />
     </>
   )
 }

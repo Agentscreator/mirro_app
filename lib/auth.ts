@@ -70,6 +70,7 @@ export async function getUserEvents(userId: string) {
     gradient: events.gradient,
     mediaUrl: events.mediaUrl,
     mediaType: events.mediaType,
+    visualStyling: events.visualStyling,
     createdBy: events.createdBy,
     createdAt: events.createdAt,
     creatorName: users.name,
@@ -89,6 +90,7 @@ export async function getAllEvents() {
     gradient: events.gradient,
     mediaUrl: events.mediaUrl,
     mediaType: events.mediaType,
+    visualStyling: events.visualStyling,
     createdBy: events.createdBy,
     createdAt: events.createdAt,
     updatedAt: events.updatedAt,
@@ -107,6 +109,7 @@ export async function createEvent(eventData: {
   gradient?: string;
   mediaUrl?: string;
   mediaType?: string;
+  visualStyling?: any;
   createdBy: string;
 }) {
   const [event] = await db.insert(events).values({
@@ -119,6 +122,7 @@ export async function createEvent(eventData: {
     gradient: eventData.gradient || 'bg-gray-50',
     mediaUrl: eventData.mediaUrl,
     mediaType: eventData.mediaType,
+    visualStyling: eventData.visualStyling ? JSON.stringify(eventData.visualStyling) : null,
     createdBy: eventData.createdBy,
   }).returning();
   

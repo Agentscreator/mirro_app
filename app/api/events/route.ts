@@ -13,7 +13,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { title, description, date, time, location, icon, gradient, mediaUrl, mediaType, createdBy } = await request.json();
+    const { title, description, date, time, location, icon, gradient, mediaUrl, mediaType, createdBy, visualStyling } = await request.json();
 
     if (!title || !description || !date || !time || !location || !createdBy) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
       mediaUrl,
       mediaType,
       createdBy,
+      visualStyling,
     });
 
     return NextResponse.json({
