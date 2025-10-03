@@ -2,6 +2,13 @@
 
 import type React from "react"
 
+interface Attendee {
+  id: string
+  name: string
+  username: string
+  profilePicture?: string | null
+}
+
 interface Event {
   id: string
   title: string
@@ -16,11 +23,8 @@ interface Event {
   mediaType?: string | null
   creatorName?: string
   creatorUsername?: string
-  attendees?: Array<{
-    id: number
-    name: string
-    avatar: string
-  }>
+  attendees?: Attendee[]
+  attendeeCount?: number
 }
 
 interface EventPreviewModalProps {
@@ -33,11 +37,27 @@ interface EventPreviewModalProps {
 export default function EventPreviewModal({ event, isOpen, onClose, currentUserId }: EventPreviewModalProps) {
   if (!isOpen || !event) return null
 
-  const sampleAttendees = [
-    { id: 1, name: "Sarah", avatar: "/diverse-woman-smiling.png" },
-    { id: 2, name: "Mike", avatar: "/casual-man.png" },
-    { id: 3, name: "Emma", avatar: "/professional-woman.png" },
-  ]
+  // Helper function to format time with AM/PM
+  const formatTimeWithAMPM = (timeString: string) => {
+    try {
+      // Parse the time string (assuming format like "14:30" or "2:30 PM")
+      if (timeString.includes('AM') || timeString.includes('PM')) {
+        return timeString // Already formatted
+      }
+      
+      const [hours, minutes] = timeString.split(':').map(Number)
+      const date = new Date()
+      date.setHours(hours, minutes)
+      
+      return date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      })
+    } catch (error) {
+      return timeString // Return original if parsing fails
+    }
+  }
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -47,6 +67,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   }
 
   const { day, month } = formatDate(event.date)
+  const attendeesToShow = event.attendees || []
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -108,24 +129,39 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                 <div className="text-xs text-white/80 drop-shadow-md">
                   Venue: {event.location?.split(",")[0] || "TBD"}
                 </div>
-                <div className="text-xs text-white/80 drop-shadow-md">{event.time}</div>
+                <div className="text-xs text-white/80 drop-shadow-md">{formatTimeWithAMPM(event.time)}</div>
               </div>
 
               {/* Attendees */}
-              <div className="flex -space-x-2">
-                {sampleAttendees.slice(0, 3).map((attendee, index) => (
-                  <div
-                    key={attendee.id}
-                    className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-lg"
-                    style={{ zIndex: 10 - index }}
-                  >
-                    <img
-                      src={attendee.avatar || "/placeholder.svg"}
-                      alt={attendee.name}
-                      className="w-full h-full object-cover"
-                    />
+              <div className="flex flex-col items-end">
+                <div className="flex -space-x-2 mb-1">
+                  {attendeesToShow.slice(0, 3).map((attendee, index) => (
+                    <div
+                      key={attendee.id}
+                      className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-lg"
+                      style={{ zIndex: 10 - index }}
+                    >
+                      {attendee.profilePicture ? (
+                        <img
+                          src={attendee.profilePicture}
+                          alt={attendee.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-400 flex items-center justify-center">
+                          <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {event.attendeeCount && event.attendeeCount > 0 && (
+                  <div className="text-xs text-white/80 drop-shadow-md">
+                    {event.attendeeCount} attending
                   </div>
-                ))}
+                )}
               </div>
             </div>
 

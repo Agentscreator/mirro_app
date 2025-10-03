@@ -13,6 +13,8 @@ interface EventWithCreator extends Omit<Event, 'icon'> {
     creatorUsername?: string
     icon?: React.ReactNode | string
     gradient: string | null
+    attendees?: Attendee[]
+    attendeeCount?: number
 }
 
 // Simple placeholder for events without media
@@ -54,6 +56,13 @@ interface DatabaseEvent {
     creatorUsername?: string
 }
 
+interface Attendee {
+    id: string
+    name: string
+    username: string
+    profilePicture?: string | null
+}
+
 interface EventCardData {
     id: string
     title: string
@@ -68,6 +77,8 @@ interface EventCardData {
     mediaType?: string | null
     creatorName?: string
     creatorUsername?: string
+    attendees?: Attendee[]
+    attendeeCount?: number
     createdAt: Date
     updatedAt: Date
 }
@@ -115,8 +126,22 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                 const userEventsResponse = await fetch(`/api/events/user/${user.id}`)
                 const userEventsData: DatabaseEvent[] = await userEventsResponse.json()
 
+                // Fetch attendees for each event
+                const eventsWithAttendees = await Promise.all(
+                    userEventsData.map(async (event) => {
+                        try {
+                            const attendeesResponse = await fetch(`/api/events/${event.id}/participants`)
+                            const attendees = await attendeesResponse.json()
+                            return { ...event, attendees, attendeeCount: attendees.length }
+                        } catch (error) {
+                            console.error(`Error fetching attendees for event ${event.id}:`, error)
+                            return { ...event, attendees: [], attendeeCount: 0 }
+                        }
+                    })
+                )
+
                 // Transform database events to component format and sort by newest first
-                const transformEvent = (event: DatabaseEvent): EventCardData => ({
+                const transformEvent = (event: DatabaseEvent & { attendees: any[], attendeeCount: number }): EventCardData => ({
                     id: event.id,
                     title: event.title,
                     description: event.description,
@@ -130,12 +155,14 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     mediaType: event.mediaType,
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
+                    attendees: event.attendees,
+                    attendeeCount: event.attendeeCount,
                     createdAt: new Date(event.createdAt),
                     updatedAt: new Date(event.createdAt) // Using createdAt as fallback since updatedAt might not be in DatabaseEvent
                 })
 
                 // Sort events by newest first (createdAt descending)
-                const sortedUserEvents = userEventsData
+                const sortedUserEvents = eventsWithAttendees
                     .map(transformEvent)
                     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 
@@ -172,14 +199,16 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
             mediaUrl: event.mediaUrl || null,
             mediaType: event.mediaType || null,
             creatorName: event.creatorName,
-            creatorUsername: event.creatorUsername
+            creatorUsername: event.creatorUsername,
+            attendees: event.attendees,
+            attendeeCount: event.attendeeCount
         }
         setPreviewEvent(eventWithCreator)
         setIsEventPreviewModalOpen(true)
     }
 
     // Create a wrapper function that matches EventCard's expected signature
-    const handleEventCardPreview = (event: { id: string; title: string; description: string; date: string; time: string; location?: string; createdBy: string; icon: React.ReactNode; gradient: string | null; mediaUrl?: string | null; mediaType?: string | null }) => {
+    const handleEventCardPreview = (event: { id: string; title: string; description: string; date: string; time: string; location?: string; createdBy: string; icon: React.ReactNode; gradient: string | null; mediaUrl?: string | null; mediaType?: string | null; attendees?: Attendee[]; attendeeCount?: number }) => {
         // Find the full EventCardData from our state
         const fullEvent = userEvents.find(e => e.id === event.id)
         if (fullEvent) {
@@ -195,8 +224,22 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                 const userEventsResponse = await fetch(`/api/events/user/${user.id}`)
                 const userEventsData: DatabaseEvent[] = await userEventsResponse.json()
 
+                // Fetch attendees for each event
+                const eventsWithAttendees = await Promise.all(
+                    userEventsData.map(async (event) => {
+                        try {
+                            const attendeesResponse = await fetch(`/api/events/${event.id}/participants`)
+                            const attendees = await attendeesResponse.json()
+                            return { ...event, attendees, attendeeCount: attendees.length }
+                        } catch (error) {
+                            console.error(`Error fetching attendees for event ${event.id}:`, error)
+                            return { ...event, attendees: [], attendeeCount: 0 }
+                        }
+                    })
+                )
+
                 // Transform database events to component format
-                const transformEvent = (event: DatabaseEvent): EventCardData => ({
+                const transformEvent = (event: DatabaseEvent & { attendees: any[], attendeeCount: number }): EventCardData => ({
                     id: event.id,
                     title: event.title,
                     description: event.description,
@@ -210,12 +253,14 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     mediaType: event.mediaType,
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
+                    attendees: event.attendees,
+                    attendeeCount: event.attendeeCount,
                     createdAt: new Date(event.createdAt),
                     updatedAt: new Date(event.createdAt) // Using createdAt as fallback since updatedAt might not be in DatabaseEvent
                 })
 
                 // Sort events by newest first (createdAt descending)
-                const sortedUserEvents = userEventsData
+                const sortedUserEvents = eventsWithAttendees
                     .map(transformEvent)
                     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 
