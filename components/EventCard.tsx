@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { shareEvent } from "@/lib/utils"
 
 interface Attendee {
   id: string
@@ -146,7 +147,10 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
             </>
           ) : (
             <button
-              onClick={(e) => e.stopPropagation()}
+              onClick={async (e) => {
+                e.stopPropagation();
+                await shareEvent(event.id, event.title);
+              }}
               className="p-2 rounded-xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all duration-200"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -176,37 +180,36 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
             </div>
             
             {/* Attendees */}
-            {event.attendees && event.attendees.length > 0 && (
+            {event.attendeeCount && event.attendeeCount > 0 && (
               <div className="flex items-center space-x-1">
-                <div className="flex -space-x-1">
-                  {event.attendees.slice(0, 3).map((attendee, index) => (
-                    <div
-                      key={attendee.id}
-                      className="w-6 h-6 rounded-full border border-white overflow-hidden shadow-sm"
-                      style={{ zIndex: 10 - index }}
-                    >
-                      {attendee.profilePicture ? (
-                        <img
-                          src={attendee.profilePicture}
-                          alt={attendee.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-400 flex items-center justify-center">
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                {event.attendeeCount && event.attendeeCount > 3 && (
-                  <span className="text-xs text-white/80 ml-1">+{event.attendeeCount - 3}</span>
+                {event.attendees && event.attendees.length > 0 && (
+                  <div className="flex -space-x-1">
+                    {event.attendees.slice(0, 3).map((attendee, index) => (
+                      <div
+                        key={attendee.id}
+                        className="w-6 h-6 rounded-full border border-white overflow-hidden shadow-sm"
+                        style={{ zIndex: 10 - index }}
+                      >
+                        {attendee.profilePicture ? (
+                          <img
+                            src={attendee.profilePicture}
+                            alt={attendee.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-400 flex items-center justify-center">
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
-                {event.attendeeCount && (
-                  <span className="text-xs text-white/60 ml-1">({event.attendeeCount})</span>
-                )}
+                <span className="text-xs text-white/80">
+                  {event.attendeeCount} attending
+                </span>
               </div>
             )}
           </div>

@@ -79,7 +79,7 @@ export async function getUserEvents(userId: string) {
 }
 
 export async function getAllEvents() {
-  return await db.select({
+  const eventsData = await db.select({
     id: events.id,
     title: events.title,
     description: events.description,
@@ -97,6 +97,38 @@ export async function getAllEvents() {
     creatorName: users.name,
     creatorUsername: users.username,
   }).from(events).leftJoin(users, eq(events.createdBy, users.id));
+
+  // Get attendees for each event
+  const eventsWithAttendees = await Promise.all(
+    eventsData.map(async (event) => {
+      const participants = await getEventParticipants(event.id);
+      
+      // Include creator as an attendee if they're not already in participants
+      const creatorAsAttendee = {
+        id: event.createdBy,
+        name: event.creatorName || 'Unknown',
+        username: event.creatorUsername || 'unknown',
+        profilePicture: null, // We'd need to fetch this separately if needed
+        joinedAt: event.createdAt,
+      };
+
+      // Check if creator is already in participants list
+      const isCreatorInParticipants = participants.some(p => p.id === event.createdBy);
+      
+      // Combine creator and participants, ensuring creator is first
+      const allAttendees = isCreatorInParticipants 
+        ? participants 
+        : [creatorAsAttendee, ...participants];
+
+      return {
+        ...event,
+        attendees: allAttendees,
+        attendeeCount: allAttendees.length,
+      };
+    })
+  );
+
+  return eventsWithAttendees;
 }
 
 export async function createEvent(eventData: {
@@ -125,6 +157,17 @@ export async function createEvent(eventData: {
     visualStyling: eventData.visualStyling ? JSON.stringify(eventData.visualStyling) : null,
     createdBy: eventData.createdBy,
   }).returning();
+  
+  // Automatically add the creator as a participant
+  try {
+    await db.insert(eventParticipants).values({
+      eventId: event.id,
+      userId: eventData.createdBy,
+    });
+  } catch (error) {
+    // If there's an error adding the creator as participant, log it but don't fail the event creation
+    console.error('Error adding creator as participant:', error);
+  }
   
   return event;
 }

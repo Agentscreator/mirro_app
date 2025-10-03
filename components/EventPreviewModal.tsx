@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useRef } from "react"
+import { shareEvent } from "@/lib/utils"
 
 interface Attendee {
   id: string
@@ -44,6 +45,8 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   const [videoError, setVideoError] = useState(false)
   const [videoDuration, setVideoDuration] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
+  const [isJoined, setIsJoined] = useState(false)
+  const [isJoining, setIsJoining] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   // Parse visual styling if available
@@ -68,6 +71,16 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
       setVideoDuration(videoRef.current.duration)
     }
   }
+
+  // Check if user is joined when modal opens
+  React.useEffect(() => {
+    if (isOpen && event && currentUserId) {
+      fetch(`/api/events/${event.id}/join?userId=${currentUserId}`)
+        .then(res => res.json())
+        .then(data => setIsJoined(data.joined))
+        .catch(console.error);
+    }
+  }, [isOpen, event, currentUserId]);
 
   // Reset video state when modal closes
   React.useEffect(() => {
@@ -165,6 +178,41 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
     const secs = Math.floor(seconds % 60)
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
+
+  const handleJoinEvent = async () => {
+    if (!currentUserId || !event) return;
+
+    setIsJoining(true);
+    try {
+      const method = isJoined ? 'DELETE' : 'POST';
+      const response = await fetch(`/api/events/${event.id}/join`, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: currentUserId }),
+      });
+
+      if (response.ok) {
+        setIsJoined(!isJoined);
+        // Optionally refresh event data to update attendee count
+        window.location.reload();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to update event participation');
+      }
+    } catch (error) {
+      console.error('Error updating event participation:', error);
+      alert('Failed to update event participation');
+    } finally {
+      setIsJoining(false);
+    }
+  };
+
+  const handleShareEvent = async () => {
+    if (!event) return;
+    await shareEvent(event.id, event.title);
+  };
 
   // Early return after all hooks
   if (!isOpen || !event) return null
@@ -438,11 +486,42 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
           {/* Action Buttons */}
           <div className="space-y-3 mt-auto">
-            <button className={`w-full ${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')}`} text-white py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}>
-              Join Event
-            </button>
+            {currentUserId ? (
+              <button
+                onClick={handleJoinEvent}
+                disabled={isJoining}
+                className={`w-full ${isJoined
+                  ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : displayGradient.includes('bg-gradient')
+                    ? displayGradient
+                    : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')}`
+                  } ${isJoined ? '' : 'text-white'} py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
+              >
+                {isJoining ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                    <span>{isJoined ? 'Leaving...' : 'Joining...'}</span>
+                  </div>
+                ) : (
+                  isJoined ? 'Leave Event' : 'Join Event'
+                )}
+              </button>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-600 mb-3">Sign in to join this event</p>
+                <a
+                  href="/"
+                  className={`inline-block px-6 py-3 ${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')}`} text-white rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}
+                >
+                  Sign In
+                </a>
+              </div>
+            )}
 
-            <button className="w-full bg-gray-100 py-3 rounded-2xl font-medium text-gray-700 hover:bg-gray-200 transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm">
+            <button
+              onClick={handleShareEvent}
+              className="w-full bg-gray-100 py-3 rounded-2xl font-medium text-gray-700 hover:bg-gray-200 transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm"
+            >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path>
               </svg>
