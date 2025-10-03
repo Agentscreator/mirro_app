@@ -238,8 +238,18 @@ export async function updateEvent(eventId: string, eventData: {
 }
 
 export async function getEventById(eventId: string) {
-  const [event] = await db.select().from(events).where(eq(events.id, eventId));
-  return event;
+  try {
+    console.log('getEventById: Attempting to fetch event with ID:', eventId);
+    console.log('getEventById: Database URL exists:', !!process.env.DATABASE_URL);
+    
+    const [event] = await db.select().from(events).where(eq(events.id, eventId));
+    console.log('getEventById: Query result:', event ? 'Event found' : 'Event not found');
+    
+    return event;
+  } catch (error) {
+    console.error('getEventById: Database query failed:', error);
+    throw error;
+  }
 }
 
 export async function deleteEvent(eventId: string, userId: string) {

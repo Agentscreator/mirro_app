@@ -1,20 +1,49 @@
-import { getEventById } from '@/lib/auth'
+'use client'
+
+import { useState, useEffect } from 'react'
 
 interface DebugEventPageProps {
   params: { eventId: string }
 }
 
-export default async function DebugEventPage({ params }: DebugEventPageProps) {
-  let event = null
-  let error = null
+export default function DebugEventPage({ params }: DebugEventPageProps) {
+  const [event, setEvent] = useState(null)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  try {
-    console.log('Debug: Loading event with ID:', params.eventId)
-    event = await getEventById(params.eventId)
-    console.log('Debug: Event result:', event)
-  } catch (e) {
-    console.error('Debug: Error loading event:', e)
-    error = e instanceof Error ? e.message : 'Unknown error'
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        console.log('Debug: Loading event with ID:', params.eventId)
+        const response = await fetch(`/api/events/${params.eventId}`)
+        
+        if (response.ok) {
+          const eventData = await response.json()
+          console.log('Debug: Event result:', eventData)
+          setEvent(eventData)
+        } else {
+          const errorData = await response.json()
+          console.log('Debug: API error:', errorData)
+          setError(errorData.error || 'Event not found')
+        }
+      } catch (e) {
+        console.error('Debug: Error loading event:', e)
+        setError(e instanceof Error ? e.message : 'Unknown error')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchEvent()
+  }, [params.eventId])
+
+  if (loading) {
+    return (
+      <div className="p-8 max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold mb-4">Event Debug Page</h1>
+        <div>Loading...</div>
+      </div>
+    )
   }
 
   return (

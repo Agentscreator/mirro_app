@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Event API</title>
+</head>
+<body>
+    <h1>Test Event API</h1>
+    <button onclick="testEventAPI()">Test Event API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testEventAPI() {
+            const eventId = 'b563cef0-438f-4f37-bfee-13dfbae43cb5';
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                resultDiv.innerHTML = 'Testing...';
+                const response = await fetch(`/api/events/${eventId}`);
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <h3>API Response:</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
