@@ -3,7 +3,7 @@ import { useState } from "react"
 import UnifiedCamera from "./UnifiedCamera"
 import AIGenerationStep from "./AIGenerationStep"
 import AIPromptInput from "./AIPromptInput"
-import AIStyledEventPreview from "./AIStyledEventPreview"
+
 
 interface CreateEventPageProps {
   onEventCreated?: () => void
@@ -24,7 +24,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     location: "",
     visualStyling: null as any,
   })
-  const [showAIPreview, setShowAIPreview] = useState(false)
+
 
   // State preservation for step navigation
   const [stepStates, setStepStates] = useState({
@@ -142,12 +142,8 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
       step2: { ...prev.step2, completed: true, input }
     }))
     
-    // Show AI preview first if visual styling is available
-    if (parsed.visualStyling) {
-      setShowAIPreview(true)
-    } else {
-      setCurrentStep(3)
-    }
+    // Go directly to step 3 (edit) after AI generation
+    setCurrentStep(3)
   }
 
   const handlePublish = async () => {
@@ -193,7 +189,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         setSelectedMedia(null)
         setAiMethod(null)
         setAiGeneratedContent(null)
-        setShowAIPreview(false)
+
         setEventData({ title: "", description: "", date: "", time: "", location: "", visualStyling: null })
         
         // Notify parent component to refresh events
@@ -462,35 +458,6 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
       </div>
 
       {showCamera && <UnifiedCamera onCapture={handleCameraCapture} onClose={() => setShowCamera(false)} />}
-      
-      {/* AI Styled Preview Modal */}
-      <AIStyledEventPreview
-        event={showAIPreview ? {
-          title: eventData.title,
-          description: eventData.description,
-          date: eventData.date,
-          time: eventData.time,
-          location: eventData.location,
-          mediaUrl: selectedMedia?.data,
-          mediaType: selectedMedia?.type,
-          visualStyling: eventData.visualStyling
-        } : null}
-        isOpen={showAIPreview}
-        onClose={() => setShowAIPreview(false)}
-        onEdit={() => {
-          setShowAIPreview(false)
-          setCurrentStep(3)
-        }}
-        onCustomize={(styling) => {
-          setEventData(prev => ({
-            ...prev,
-            visualStyling: {
-              ...prev.visualStyling,
-              styling
-            }
-          }))
-        }}
-      />
     </>
   )
 }

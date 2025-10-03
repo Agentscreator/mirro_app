@@ -234,17 +234,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="relative rounded-3xl max-w-sm w-full h-[85vh] overflow-hidden soft-shadow bg-white">
-        {/* AI Styling Indicator */}
-        {visualStyling && (
-          <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700 shadow-lg">
-            <div className="flex items-center space-x-1">
-              <svg className="w-3 h-3 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" />
-              </svg>
-              <span>AI Styled</span>
-            </div>
-          </div>
-        )}
+
 
         {/* Media Section - Upper portion */}
         <div className="relative h-[45%] overflow-hidden rounded-t-3xl">
@@ -411,31 +401,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
               {event.title}
             </h2>
 
-            {/* AI Styling Info */}
-            {visualStyling && (
-              <div className="mb-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-100">
-                <div className="flex items-center space-x-2 mb-1">
-                  <svg className="w-4 h-4 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" />
-                  </svg>
-                  <span className="text-sm font-medium text-purple-700">AI Enhanced Design</span>
-                </div>
-                <p className="text-xs text-purple-600 mb-2">{visualStyling.mood}</p>
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-purple-600">Theme:</span>
-                  <span className="text-xs font-medium text-purple-700 capitalize">{visualStyling.styling.theme}</span>
-                  <div className="flex space-x-1 ml-2">
-                    {visualStyling.colorPalette?.slice(0, 3).map((color: string, index: number) => (
-                      <div
-                        key={index}
-                        className={`w-3 h-3 rounded-full bg-${color}-500 border border-white shadow-sm`}
-                        title={color}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
+
 
             {/* Date, Location, and Attendees */}
             <div className="flex items-center justify-between mb-4">
