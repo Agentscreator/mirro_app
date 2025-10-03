@@ -393,140 +393,142 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
         </button>
 
         {/* Content Section - Lower portion */}
-        <div className="h-[55%] p-6 flex flex-col justify-between">
-          {/* Event Title with AI font styling */}
-          <h2 className={`text-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-gray-800 mb-4`}>
-            {event.title}
-          </h2>
+        <div className="h-[55%] overflow-y-auto">
+          <div className="p-6 flex flex-col min-h-full">
+            {/* Event Title with AI font styling */}
+            <h2 className={`text-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-gray-800 mb-4`}>
+              {event.title}
+            </h2>
 
-          {/* AI Styling Info */}
-          {visualStyling && (
-            <div className="mb-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-100">
-              <div className="flex items-center space-x-2 mb-1">
-                <svg className="w-4 h-4 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" />
-                </svg>
-                <span className="text-sm font-medium text-purple-700">AI Enhanced Design</span>
-              </div>
-              <p className="text-xs text-purple-600 mb-2">{visualStyling.mood}</p>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs text-purple-600">Theme:</span>
-                <span className="text-xs font-medium text-purple-700 capitalize">{visualStyling.styling.theme}</span>
-                <div className="flex space-x-1 ml-2">
-                  {visualStyling.colorPalette?.slice(0, 3).map((color: string, index: number) => (
-                    <div
-                      key={index}
-                      className={`w-3 h-3 rounded-full bg-${color}-500 border border-white shadow-sm`}
-                      title={color}
-                    />
-                  ))}
+            {/* AI Styling Info */}
+            {visualStyling && (
+              <div className="mb-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-100">
+                <div className="flex items-center space-x-2 mb-1">
+                  <svg className="w-4 h-4 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" />
+                  </svg>
+                  <span className="text-sm font-medium text-purple-700">AI Enhanced Design</span>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* Date, Location, and Attendees */}
-          <div className="flex items-center justify-between mb-4">
-            {/* Date Box with AI color theming */}
-            <div className={`${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-br ${displayGradient}`} rounded-2xl p-3 text-center text-white shadow-lg`}>
-              <div className="text-2xl font-bold">{day}</div>
-              <div className="text-xs font-medium">{month}</div>
-            </div>
-
-            {/* Event Details */}
-            <div className="flex-1 mx-4">
-              <div className="text-sm text-gray-800 font-medium mb-1">
-                {event.location || "Location TBD"}
-              </div>
-              <div className="text-xs text-gray-600">
-                Venue: {event.location?.split(",")[0] || "TBD"}
-              </div>
-              <div className="text-xs text-gray-600">{formatTimeWithAMPM(event.time)}</div>
-            </div>
-
-            {/* Attendees */}
-            <div className="flex flex-col items-end">
-              <div className="flex -space-x-2 mb-1">
-                {attendeesToShow.slice(0, 3).map((attendee, index) => (
-                  <div
-                    key={attendee.id}
-                    className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-lg"
-                    style={{ zIndex: 10 - index }}
-                  >
-                    {attendee.profilePicture ? (
-                      <img
-                        src={attendee.profilePicture}
-                        alt={attendee.name}
-                        className="w-full h-full object-cover"
+                <p className="text-xs text-purple-600 mb-2">{visualStyling.mood}</p>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-purple-600">Theme:</span>
+                  <span className="text-xs font-medium text-purple-700 capitalize">{visualStyling.styling.theme}</span>
+                  <div className="flex space-x-1 ml-2">
+                    {visualStyling.colorPalette?.slice(0, 3).map((color: string, index: number) => (
+                      <div
+                        key={index}
+                        className={`w-3 h-3 rounded-full bg-${color}-500 border border-white shadow-sm`}
+                        title={color}
                       />
-                    ) : (
-                      <div className="w-full h-full bg-gray-400 flex items-center justify-center">
-                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    )}
+                    ))}
                   </div>
-                ))}
-              </div>
-              {event.attendeeCount && event.attendeeCount > 0 && (
-                <div className="text-xs text-gray-600">
-                  {event.attendeeCount} attending
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Description */}
-          {event.description && (
-            <div className="mb-6 bg-gray-50 rounded-2xl p-4">
-              <p className="text-sm text-gray-700 leading-relaxed">{event.description}</p>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="space-y-3 mt-auto">
-            {currentUserId ? (
-              <button
-                onClick={handleJoinEvent}
-                disabled={isJoining}
-                className={`w-full ${isJoined
-                  ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  : displayGradient.includes('bg-gradient')
-                    ? displayGradient
-                    : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')}`
-                  } ${isJoined ? '' : 'text-white'} py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
-              >
-                {isJoining ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                    <span>{isJoined ? 'Leaving...' : 'Joining...'}</span>
-                  </div>
-                ) : (
-                  isJoined ? 'Leave Event' : 'Join Event'
-                )}
-              </button>
-            ) : (
-              <div className="text-center py-4">
-                <p className="text-sm text-gray-600 mb-3">Sign in to join this event</p>
-                <a
-                  href="/"
-                  className={`inline-block px-6 py-3 ${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')}`} text-white rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}
-                >
-                  Sign In
-                </a>
               </div>
             )}
 
-            <button
-              onClick={handleShareEvent}
-              className="w-full bg-gray-100 py-3 rounded-2xl font-medium text-gray-700 hover:bg-gray-200 transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path>
-              </svg>
-              <span>Share Event</span>
-            </button>
+            {/* Date, Location, and Attendees */}
+            <div className="flex items-center justify-between mb-4">
+              {/* Date Box with AI color theming */}
+              <div className={`${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-br ${displayGradient}`} rounded-2xl p-3 text-center text-white shadow-lg`}>
+                <div className="text-2xl font-bold">{day}</div>
+                <div className="text-xs font-medium">{month}</div>
+              </div>
+
+              {/* Event Details */}
+              <div className="flex-1 mx-4">
+                <div className="text-sm text-gray-800 font-medium mb-1">
+                  {event.location || "Location TBD"}
+                </div>
+                <div className="text-xs text-gray-600">
+                  Venue: {event.location?.split(",")[0] || "TBD"}
+                </div>
+                <div className="text-xs text-gray-600">{formatTimeWithAMPM(event.time)}</div>
+              </div>
+
+              {/* Attendees */}
+              <div className="flex flex-col items-end">
+                <div className="flex -space-x-2 mb-1">
+                  {attendeesToShow.slice(0, 3).map((attendee, index) => (
+                    <div
+                      key={attendee.id}
+                      className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-lg"
+                      style={{ zIndex: 10 - index }}
+                    >
+                      {attendee.profilePicture ? (
+                        <img
+                          src={attendee.profilePicture}
+                          alt={attendee.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-400 flex items-center justify-center">
+                          <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {event.attendeeCount && event.attendeeCount > 0 && (
+                  <div className="text-xs text-gray-600">
+                    {event.attendeeCount} attending
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Description */}
+            {event.description && (
+              <div className="mb-6 bg-gray-50 rounded-2xl p-4">
+                <p className="text-sm text-gray-700 leading-relaxed">{event.description}</p>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="space-y-3 mt-6 sticky bottom-0 bg-white pt-4 -mx-6 px-6">
+              {currentUserId ? (
+                <button
+                  onClick={handleJoinEvent}
+                  disabled={isJoining}
+                  className={`w-full ${isJoined
+                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : displayGradient.includes('bg-gradient')
+                      ? displayGradient
+                      : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')}`
+                    } ${isJoined ? '' : 'text-white'} py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
+                >
+                  {isJoining ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                      <span>{isJoined ? 'Leaving...' : 'Joining...'}</span>
+                    </div>
+                  ) : (
+                    isJoined ? 'Leave Event' : 'Join Event'
+                  )}
+                </button>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-sm text-gray-600 mb-3">Sign in to join this event</p>
+                  <a
+                    href="/"
+                    className={`inline-block px-6 py-3 ${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')}`} text-white rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}
+                  >
+                    Sign In
+                  </a>
+                </div>
+              )}
+
+              <button
+                onClick={handleShareEvent}
+                className="w-full bg-gray-100 py-3 rounded-2xl font-medium text-gray-700 hover:bg-gray-200 transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path>
+                </svg>
+                <span>Share Event</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
