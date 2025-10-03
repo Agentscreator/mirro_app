@@ -160,8 +160,9 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="relative rounded-3xl max-w-sm w-full h-[85vh] overflow-hidden soft-shadow">
-        <div className="absolute inset-0">
+      <div className="relative rounded-3xl max-w-sm w-full h-[85vh] overflow-hidden soft-shadow bg-white">
+        {/* Media Section - Upper portion */}
+        <div className="relative h-[45%] overflow-hidden rounded-t-3xl">
           {event.mediaUrl && event.mediaType === "image" ? (
             <img
               src={event.mediaUrl}
@@ -305,8 +306,6 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${event.gradient || 'from-gray-400 to-gray-600'}`} />
           )}
-          {/* Gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20 pointer-events-none" />
         </div>
 
         {/* Close Button */}
@@ -319,87 +318,82 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
           </svg>
         </button>
 
-        <div className="relative h-full flex flex-col justify-between p-6 text-white">
-          {/* Top spacing for close button */}
-          <div className="h-12" />
+        {/* Content Section - Lower portion */}
+        <div className="h-[55%] p-6 flex flex-col justify-between">
+          {/* Event Title */}
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">{event.title}</h2>
 
-          {/* Bottom content */}
-          <div>
-            {/* Event Title */}
-            <h2 className="text-2xl font-semibold text-white mb-4 drop-shadow-lg">{event.title}</h2>
+          {/* Date, Location, and Attendees */}
+          <div className="flex items-center justify-between mb-4">
+            {/* Date Box */}
+            <div className="bg-sand-500 rounded-2xl p-3 text-center text-white shadow-lg">
+              <div className="text-2xl font-bold">{day}</div>
+              <div className="text-xs font-medium">{month}</div>
+            </div>
 
-            {/* Date, Location, and Attendees */}
-            <div className="flex items-center justify-between mb-4">
-              {/* Date Box */}
-              <div className="bg-sand-500/90 backdrop-blur-sm rounded-2xl p-3 text-center text-white shadow-lg">
-                <div className="text-2xl font-bold">{day}</div>
-                <div className="text-xs font-medium">{month}</div>
+            {/* Event Details */}
+            <div className="flex-1 mx-4">
+              <div className="text-sm text-gray-800 font-medium mb-1">
+                {event.location || "Location TBD"}
               </div>
-
-              {/* Event Details */}
-              <div className="flex-1 mx-4">
-                <div className="text-sm text-white font-medium mb-1 drop-shadow-md">
-                  {event.location || "Location TBD"}
-                </div>
-                <div className="text-xs text-white/80 drop-shadow-md">
-                  Venue: {event.location?.split(",")[0] || "TBD"}
-                </div>
-                <div className="text-xs text-white/80 drop-shadow-md">{formatTimeWithAMPM(event.time)}</div>
+              <div className="text-xs text-gray-600">
+                Venue: {event.location?.split(",")[0] || "TBD"}
               </div>
+              <div className="text-xs text-gray-600">{formatTimeWithAMPM(event.time)}</div>
+            </div>
 
-              {/* Attendees */}
-              <div className="flex flex-col items-end">
-                <div className="flex -space-x-2 mb-1">
-                  {attendeesToShow.slice(0, 3).map((attendee, index) => (
-                    <div
-                      key={attendee.id}
-                      className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-lg"
-                      style={{ zIndex: 10 - index }}
-                    >
-                      {attendee.profilePicture ? (
-                        <img
-                          src={attendee.profilePicture}
-                          alt={attendee.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-400 flex items-center justify-center">
-                          <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                {event.attendeeCount && event.attendeeCount > 0 && (
-                  <div className="text-xs text-white/80 drop-shadow-md">
-                    {event.attendeeCount} attending
+            {/* Attendees */}
+            <div className="flex flex-col items-end">
+              <div className="flex -space-x-2 mb-1">
+                {attendeesToShow.slice(0, 3).map((attendee, index) => (
+                  <div
+                    key={attendee.id}
+                    className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-lg"
+                    style={{ zIndex: 10 - index }}
+                  >
+                    {attendee.profilePicture ? (
+                      <img
+                        src={attendee.profilePicture}
+                        alt={attendee.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-400 flex items-center justify-center">
+                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
+              {event.attendeeCount && event.attendeeCount > 0 && (
+                <div className="text-xs text-gray-600">
+                  {event.attendeeCount} attending
+                </div>
+              )}
             </div>
+          </div>
 
-            {/* Description */}
-            {event.description && (
-              <div className="mb-6 bg-black/20 backdrop-blur-sm rounded-2xl p-4">
-                <p className="text-sm text-white/90 leading-relaxed drop-shadow-md">{event.description}</p>
-              </div>
-            )}
-
-            {/* Action Buttons */}
-            <div className="space-y-3">
-              <button className="w-full bg-gradient-to-r from-sand-500 to-sand-600 text-white py-4 rounded-2xl font-semibold text-base hover:from-sand-600 hover:to-sand-700 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg">
-                Join Event
-              </button>
-
-              <button className="w-full bg-white/20 backdrop-blur-md py-3 rounded-2xl font-medium text-white hover:bg-white/30 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path>
-                </svg>
-                <span>Share Event</span>
-              </button>
+          {/* Description */}
+          {event.description && (
+            <div className="mb-6 bg-gray-50 rounded-2xl p-4">
+              <p className="text-sm text-gray-700 leading-relaxed">{event.description}</p>
             </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="space-y-3 mt-auto">
+            <button className="w-full bg-gradient-to-r from-sand-500 to-sand-600 text-white py-4 rounded-2xl font-semibold text-base hover:from-sand-600 hover:to-sand-700 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg">
+              Join Event
+            </button>
+
+            <button className="w-full bg-gray-100 py-3 rounded-2xl font-medium text-gray-700 hover:bg-gray-200 transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path>
+              </svg>
+              <span>Share Event</span>
+            </button>
           </div>
         </div>
       </div>
