@@ -50,10 +50,13 @@ interface DatabaseEvent {
     gradient?: string | null
     mediaUrl?: string | null
     mediaType?: string | null
+    visualStyling?: string | null
     createdBy: string
     createdAt: string
     creatorName?: string
     creatorUsername?: string
+    attendees?: Attendee[]
+    attendeeCount?: number
 }
 
 interface Attendee {
@@ -75,6 +78,7 @@ interface EventCardData {
     gradient: string | null
     mediaUrl?: string | null
     mediaType?: string | null
+    visualStyling?: string | null
     creatorName?: string
     creatorUsername?: string
     attendees?: Attendee[]
@@ -85,9 +89,11 @@ interface EventCardData {
 
 interface ProfilePageProps {
     user: User
+    initialEventId?: string | null
+    onEventModalClose?: () => void
 }
 
-export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
+export default function ProfilePage({ user: initialUser, initialEventId, onEventModalClose }: ProfilePageProps) {
     const [isManageMode, setIsManageMode] = useState(false)
     const [user, setUser] = useState<User>(initialUser)
     const [profilePicture, setProfilePicture] = useState<string | null>(initialUser.profilePicture || null)
@@ -122,26 +128,12 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                 setUser(userData)
                 setProfilePicture(userData.profilePicture || null)
 
-                // Fetch user's events
+                // Fetch user's events (now includes attendee data)
                 const userEventsResponse = await fetch(`/api/events/user/${user.id}`)
                 const userEventsData: DatabaseEvent[] = await userEventsResponse.json()
 
-                // Fetch attendees for each event
-                const eventsWithAttendees = await Promise.all(
-                    userEventsData.map(async (event) => {
-                        try {
-                            const attendeesResponse = await fetch(`/api/events/${event.id}/participants`)
-                            const attendees = await attendeesResponse.json()
-                            return { ...event, attendees, attendeeCount: attendees.length }
-                        } catch (error) {
-                            console.error(`Error fetching attendees for event ${event.id}:`, error)
-                            return { ...event, attendees: [], attendeeCount: 0 }
-                        }
-                    })
-                )
-
                 // Transform database events to component format and sort by newest first
-                const transformEvent = (event: DatabaseEvent & { attendees: any[], attendeeCount: number }): EventCardData => ({
+                const transformEvent = (event: DatabaseEvent): EventCardData => ({
                     id: event.id,
                     title: event.title,
                     description: event.description,
@@ -153,6 +145,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     gradient: event.gradient || "from-gray-400 to-gray-600",
                     mediaUrl: event.mediaUrl,
                     mediaType: event.mediaType,
+                    visualStyling: event.visualStyling,
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
                     attendees: event.attendees,
@@ -162,7 +155,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                 })
 
                 // Sort events by newest first (createdAt descending)
-                const sortedUserEvents = eventsWithAttendees
+                const sortedUserEvents = userEventsData
                     .map(transformEvent)
                     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 
@@ -176,6 +169,16 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
 
         fetchData()
     }, [user.id])
+
+    // Handle initial event ID from URL
+    useEffect(() => {
+        if (initialEventId && userEvents.length > 0) {
+            const event = userEvents.find(e => e.id === initialEventId)
+            if (event) {
+                handlePreviewEvent(event)
+            }
+        }
+    }, [initialEventId, userEvents])
 
     const handleEditEvent = (eventId: string) => {
         setEditingEventId(eventId)
@@ -198,6 +201,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
             gradient: event.gradient || 'from-gray-400 to-gray-600',
             mediaUrl: event.mediaUrl || null,
             mediaType: event.mediaType || null,
+            visualStyling: event.visualStyling || null,
             creatorName: event.creatorName,
             creatorUsername: event.creatorUsername,
             attendees: event.attendees,
@@ -220,26 +224,12 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
         // Refresh events data after update
         const fetchData = async () => {
             try {
-                // Fetch user's events
+                // Fetch user's events (now includes attendee data)
                 const userEventsResponse = await fetch(`/api/events/user/${user.id}`)
                 const userEventsData: DatabaseEvent[] = await userEventsResponse.json()
 
-                // Fetch attendees for each event
-                const eventsWithAttendees = await Promise.all(
-                    userEventsData.map(async (event) => {
-                        try {
-                            const attendeesResponse = await fetch(`/api/events/${event.id}/participants`)
-                            const attendees = await attendeesResponse.json()
-                            return { ...event, attendees, attendeeCount: attendees.length }
-                        } catch (error) {
-                            console.error(`Error fetching attendees for event ${event.id}:`, error)
-                            return { ...event, attendees: [], attendeeCount: 0 }
-                        }
-                    })
-                )
-
                 // Transform database events to component format
-                const transformEvent = (event: DatabaseEvent & { attendees: any[], attendeeCount: number }): EventCardData => ({
+                const transformEvent = (event: DatabaseEvent): EventCardData => ({
                     id: event.id,
                     title: event.title,
                     description: event.description,
@@ -251,6 +241,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                     gradient: event.gradient || "from-gray-400 to-gray-600",
                     mediaUrl: event.mediaUrl,
                     mediaType: event.mediaType,
+                    visualStyling: event.visualStyling,
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
                     attendees: event.attendees,
@@ -260,7 +251,7 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                 })
 
                 // Sort events by newest first (createdAt descending)
-                const sortedUserEvents = eventsWithAttendees
+                const sortedUserEvents = userEventsData
                     .map(transformEvent)
                     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 
@@ -737,6 +728,9 @@ export default function ProfilePage({ user: initialUser }: ProfilePageProps) {
                 onClose={() => {
                     setIsEventPreviewModalOpen(false)
                     setPreviewEvent(null)
+                    if (onEventModalClose) {
+                        onEventModalClose()
+                    }
                 }}
                 event={previewEvent}
                 currentUserId={user.id}

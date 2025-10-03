@@ -12,7 +12,7 @@ export async function GET(
     }
 
     // Generate shareable URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://mirro-app.vercel.app';
     const shareUrl = `${baseUrl}/event/${eventId}`;
 
     return NextResponse.json({
