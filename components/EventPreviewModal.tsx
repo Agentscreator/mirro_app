@@ -537,7 +537,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                   <p className="text-sm text-gray-600 mb-3">Sign in to join this event</p>
                   <a
                     href="/"
-                    className={`inline-block px-6 py-3 ${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')}`} text-white rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}
+                    className="inline-block px-6 py-3 bg-gray-800 text-white rounded-2xl font-semibold text-base hover:bg-gray-900 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
                   >
                     Sign In
                   </a>
