@@ -75,10 +75,15 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   // Check if user is joined when modal opens
   React.useEffect(() => {
     if (isOpen && event && currentUserId) {
-      fetch(`/api/events/${event.id}/join?userId=${currentUserId}`)
-        .then(res => res.json())
-        .then(data => setIsJoined(data.joined))
-        .catch(console.error);
+      // If current user is the host, they're automatically considered joined
+      if (event.createdBy === currentUserId) {
+        setIsJoined(true);
+      } else {
+        fetch(`/api/events/${event.id}/join?userId=${currentUserId}`)
+          .then(res => res.json())
+          .then(data => setIsJoined(data.joined))
+          .catch(console.error);
+      }
     }
   }, [isOpen, event, currentUserId]);
 
@@ -181,6 +186,12 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
   const handleJoinEvent = async () => {
     if (!currentUserId || !event) return;
+
+    // Prevent host from leaving their own event
+    if (event.createdBy === currentUserId && isJoined) {
+      alert("You can't leave your own event as the host!");
+      return;
+    }
 
     setIsJoining(true);
     try {
@@ -429,9 +440,13 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
             {/* Date, Location, and Attendees */}
             <div className="flex items-center justify-between mb-4">
               {/* Date Box with AI color theming */}
-              <div className={`${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-br ${displayGradient}`} rounded-2xl p-3 text-center text-white shadow-lg`}>
-                <div className="text-2xl font-bold">{day}</div>
-                <div className="text-xs font-medium">{month}</div>
+              <div className={`${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-br ${displayGradient}`} rounded-2xl p-3 text-center shadow-lg relative`}>
+                {/* Dark overlay for better text contrast */}
+                <div className="absolute inset-0 bg-black/20 rounded-2xl"></div>
+                <div className="relative z-10 text-white">
+                  <div className="text-2xl font-bold drop-shadow-sm">{day}</div>
+                  <div className="text-xs font-medium drop-shadow-sm">{month}</div>
+                </div>
               </div>
 
               {/* Event Details */}
@@ -490,18 +505,28 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
               {currentUserId ? (
                 <button
                   onClick={handleJoinEvent}
-                  disabled={isJoining}
-                  className={`w-full ${isJoined
-                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    : displayGradient.includes('bg-gradient')
-                      ? displayGradient
-                      : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')}`
-                    } ${isJoined ? '' : 'text-white'} py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
+                  disabled={isJoining || (event.createdBy === currentUserId && isJoined)}
+                  className={`w-full ${
+                    event.createdBy === currentUserId 
+                      ? 'bg-green-100 text-green-700 cursor-default'
+                      : isJoined
+                        ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : displayGradient.includes('bg-gradient')
+                          ? displayGradient
+                          : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')}`
+                    } ${isJoined && event.createdBy !== currentUserId ? '' : event.createdBy === currentUserId ? '' : 'text-white'} py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base ${event.createdBy === currentUserId ? '' : 'hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]'} shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
                 >
                   {isJoining ? (
                     <div className="flex items-center justify-center space-x-2">
                       <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                       <span>{isJoined ? 'Leaving...' : 'Joining...'}</span>
+                    </div>
+                  ) : event.createdBy === currentUserId ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span>Hosting Event</span>
                     </div>
                   ) : (
                     isJoined ? 'Leave Event' : 'Join Event'
