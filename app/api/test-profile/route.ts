@@ -3,14 +3,8 @@ import { getUserByUsername, getAllEvents, getUserEvents, getUserWithCounts } fro
 
 export async function GET() {
   try {
-    // First, let's seed the database if needed
-    const seedResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/seed`, {
-      method: 'POST',
-    });
-    
-    if (!seedResponse.ok) {
-      console.log('Seed may have already been run or failed');
-    }
+    // REMOVED: Automatic seeding that was deleting all users
+    // Only seed manually when needed for development
 
     // Get a test user
     const user = await getUserByUsername('johndoe');

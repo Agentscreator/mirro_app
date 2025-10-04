@@ -3,7 +3,20 @@ import { db } from '@/lib/db';
 import { users, events, follows } from '@/lib/db/schema';
 import { hashPassword } from '@/lib/auth';
 
-export async function POST() {
+export async function POST(request: Request) {
+  // SAFETY CHECK: Only allow seeding in development
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Seeding not allowed in production' }, { status: 403 });
+  }
+
+  // SAFETY CHECK: Require confirmation header to prevent accidental seeding
+  const confirmHeader = request.headers.get('x-confirm-seed');
+  if (confirmHeader !== 'yes-delete-all-data') {
+    return NextResponse.json({ 
+      error: 'Seeding requires confirmation header: x-confirm-seed: yes-delete-all-data' 
+    }, { status: 400 });
+  }
+
   try {
     console.log('Seeding database...');
 
