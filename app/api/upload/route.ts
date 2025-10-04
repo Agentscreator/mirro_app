@@ -31,14 +31,24 @@ export async function POST(request: NextRequest) {
     // Generate filename based on type and actual file type
     let extension = 'webm';
     if (type === 'video') {
-      // For videos, always use webm since that's what we record
-      extension = 'webm';
+      // Handle different video formats from different devices
+      if (file.type.includes('mp4')) {
+        extension = 'mp4';
+      } else if (file.type.includes('webm')) {
+        extension = 'webm';
+      } else if (file.type.includes('quicktime') || file.type.includes('mov')) {
+        extension = 'mov';
+      } else {
+        extension = 'webm'; // default
+      }
     } else if (type === 'image') {
       // For images, determine from file type
       if (file.type.includes('jpeg') || file.type.includes('jpg')) {
         extension = 'jpg';
       } else if (file.type.includes('png')) {
         extension = 'png';
+      } else if (file.type.includes('heic') || file.type.includes('heif')) {
+        extension = 'heic'; // iOS format
       } else {
         extension = 'jpg'; // default
       }
@@ -65,8 +75,8 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({ 
-      error: 'Upload failed', 
+    return NextResponse.json({
+      error: 'Upload failed',
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }

@@ -39,17 +39,45 @@ export default function VideoRecorder({ onComplete, onClose }: VideoRecorderProp
 
     const startCamera = async () => {
         try {
-            const mediaStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "user" },
-                audio: true,
-            })
+            const constraints = {
+                video: { 
+                    facingMode: "user",
+                    width: { ideal: 1280, max: 1920 },
+                    height: { ideal: 720, max: 1080 },
+                    frameRate: { ideal: 30, max: 30 }
+                },
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                },
+            }
+            
+            const mediaStream = await navigator.mediaDevices.getUserMedia(constraints)
             setStream(mediaStream)
             if (videoRef.current) {
                 videoRef.current.srcObject = mediaStream
+                videoRef.current.playsInline = true
+                videoRef.current.muted = true
             }
         } catch (err) {
             console.error("Error accessing camera:", err)
-            alert("Unable to access camera. Please check permissions.")
+            // Try fallback with basic constraints
+            try {
+                const fallbackStream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
+                })
+                setStream(fallbackStream)
+                if (videoRef.current) {
+                    videoRef.current.srcObject = fallbackStream
+                    videoRef.current.playsInline = true
+                    videoRef.current.muted = true
+                }
+            } catch (fallbackErr) {
+                console.error("Fallback camera access failed:", fallbackErr)
+                alert("Unable to access camera. Please check permissions and try again.")
+            }
         }
     }
 
@@ -57,14 +85,36 @@ export default function VideoRecorder({ onComplete, onClose }: VideoRecorderProp
         if (stream) {
             chunksRef.current = []
             
-            // Check for supported MIME types
+            // Enhanced MIME type detection for mobile compatibility
             let mimeType = 'video/webm'
-            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
-                mimeType = 'video/webm;codecs=vp9'
-            } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
-                mimeType = 'video/webm;codecs=vp8'
+            
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+            const isAndroid = /Android/.test(navigator.userAgent)
+            
+            if (isIOS) {
+                // iOS Safari preferences
+                if (MediaRecorder.isTypeSupported('video/mp4')) {
+                    mimeType = 'video/mp4'
+                } else if (MediaRecorder.isTypeSupported('video/webm')) {
+                    mimeType = 'video/webm'
+                }
+            } else if (isAndroid) {
+                // Android Chrome preferences
+                if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+                    mimeType = 'video/webm;codecs=vp8'
+                } else if (MediaRecorder.isTypeSupported('video/webm')) {
+                    mimeType = 'video/webm'
+                }
+            } else {
+                // Desktop preferences
+                if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+                    mimeType = 'video/webm;codecs=vp9'
+                } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+                    mimeType = 'video/webm;codecs=vp8'
+                }
             }
             
+            console.log('VideoRecord device type:', { isIOS, isAndroid })
             console.log('VideoRecord using MIME type:', mimeType)
             
             const mediaRecorder = new MediaRecorder(stream, { mimeType })
@@ -110,7 +160,9 @@ export default function VideoRecorder({ onComplete, onClose }: VideoRecorderProp
             }
 
             mediaRecorderRef.current = mediaRecorder
-            mediaRecorder.start(1000) // Record in chunks for better reliability
+            // Use different chunk sizes for different platforms
+            const chunkSize = isIOS ? 100 : 1000 // iOS works better with smaller chunks
+            mediaRecorder.start(chunkSize)
             setIsRecording(true)
             setIsPaused(false)
         }
@@ -177,7 +229,14 @@ export default function VideoRecorder({ onComplete, onClose }: VideoRecorderProp
             <div className="flex-1 relative bg-black">
                 {!recordedVideo ? (
                     <>
-                        <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                        <video 
+                            ref={videoRef} 
+                            autoPlay 
+                            playsInline 
+                            muted 
+                            webkit-playsinline="true"
+                            className="w-full h-full object-cover" 
+                        />
 
                         {/* Recording Timer Overlay */}
                         {isRecording && (

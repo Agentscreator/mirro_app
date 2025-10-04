@@ -1,0 +1,73 @@
+/* Mobile-specific styles for video recording */
+
+/* Prevent zoom on double tap for video controls */
+.video-container {
+  touch-action: manipulation;
+}
+
+/* Ensure video elements work properly on iOS */
+video {
+  -webkit-playsinline: true;
+  playsinline: true;
+}
+
+/* Mobile-friendly button sizes */
+@media (max-width: 768px) {
+  .camera-button {
+    min-height: 44px; /* iOS minimum touch target */
+    min-width: 44px;
+  }
+  
+  .record-button {
+    min-height: 60px;
+    min-width: 60px;
+  }
+}
+
+/* Prevent text selection on camera controls */
+.camera-controls {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Handle safe areas on iOS */
+@supports (padding: max(0px)) {
+  .camera-header {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .camera-footer {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Improve touch responsiveness */
+.touch-target {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Prevent overscroll on mobile */
+.camera-view {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Handle orientation changes */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .camera-controls {
+    flex-direction: row;
+    justify-content: space-around;
+  }
+}
+
+/* Android-specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .android-video-fix {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+}

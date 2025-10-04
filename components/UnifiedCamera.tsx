@@ -2,6 +2,15 @@
 
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
+import { 
+  detectDevice, 
+  getVideoConstraints, 
+  getOptimalVideoMimeType, 
+  getOptimalChunkSize,
+  requestCameraPermission,
+  setupVideoElement,
+  supportsVideoRecording
+} from "@/lib/mobile-utils"
 
 interface UnifiedCameraProps {
   onCapture: (data: string, type: "photo" | "video") => void
@@ -47,18 +56,22 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   }, [isRecording, isPaused])
 
   const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
-        audio: mode === "video",
-      })
-      streamRef.current = stream
+    // Check if video recording is supported
+    if (!supportsVideoRecording()) {
+      alert("Video recording is not supported on this device or browser.");
+      return;
+    }
+
+    const result = await requestCameraPermission(mode === "video");
+    
+    if (result.success && result.stream) {
+      streamRef.current = result.stream;
       if (videoRef.current) {
-        videoRef.current.srcObject = stream
+        videoRef.current.srcObject = result.stream;
+        setupVideoElement(videoRef.current);
       }
-    } catch (err) {
-      console.error("Error accessing camera:", err)
-      alert("Unable to access camera. Please check permissions.")
+    } else {
+      alert(result.error || "Unable to access camera.");
     }
   }
 
@@ -126,27 +139,28 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
-        audio: true,
-      })
-      streamRef.current = stream
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
+      // Use existing stream if available, otherwise start new one
+      let stream = streamRef.current
+      if (!stream) {
+        const result = await requestCameraPermission(true);
+        if (!result.success || !result.stream) {
+          alert(result.error || "Unable to access camera for recording.");
+          return;
+        }
+        stream = result.stream;
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          setupVideoElement(videoRef.current);
+        }
       }
 
-      // Check for supported MIME types and use the best available
-      // Note: Most browsers don't support recording directly to MP4
-      let mimeType = 'video/webm'
-      if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
-        mimeType = 'video/webm;codecs=vp9'
-      } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
-        mimeType = 'video/webm;codecs=vp8'
-      } else if (MediaRecorder.isTypeSupported('video/webm')) {
-        mimeType = 'video/webm'
-      }
+      // Get optimal MIME type for this device
+      const mimeType = getOptimalVideoMimeType();
+      const device = detectDevice();
       
-      console.log('Using MIME type:', mimeType)
+      console.log('Device type:', device);
+      console.log('Using MIME type:', mimeType);
 
       const mediaRecorder = new MediaRecorder(stream, { mimeType })
       mediaRecorderRef.current = mediaRecorder
@@ -221,7 +235,9 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         stopCamera()
       }
 
-      mediaRecorder.start(1000) // Record in 1-second chunks for better reliability
+      // Use optimal chunk size for this device
+      const chunkSize = getOptimalChunkSize();
+      mediaRecorder.start(chunkSize)
       setIsRecording(true)
       setRecordingTime(0)
     } catch (err) {
@@ -333,10 +349,17 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   ]
 
   return (
-    <div className="fixed inset-0 z-50 bg-cream-100">
+    <div className="fixed inset-0 z-50 bg-cream-100 camera-view">
       {/* Camera View */}
-      <div className="relative w-full h-full">
-        <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+      <div className="relative w-full h-full video-container">
+        <video 
+          ref={videoRef} 
+          autoPlay 
+          playsInline 
+          muted 
+          webkit-playsinline="true"
+          className="w-full h-full object-cover" 
+        />
 
         {/* Green Screen Effect Overlay */}
         {selectedEffect === "greenscreen" && (
@@ -349,7 +372,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         )}
 
         {/* Top Bar */}
-        <div className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between">
+        <div className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between camera-header camera-controls">
           <button
             onClick={onClose}
             className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/40 transition-all"
@@ -411,12 +434,12 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         </div>
 
         {/* Bottom Controls */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 pb-12">
+        <div className="absolute bottom-0 left-0 right-0 p-8 pb-12 camera-footer camera-controls">
           <div className="flex items-center justify-center space-x-8">
             {/* Upload Button */}
             <button
               onClick={handleUpload}
-              className="flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm hover:bg-white transition-all shadow-lg rounded-2xl px-4 py-3 min-w-[80px]"
+              className="flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm hover:bg-white transition-all shadow-lg rounded-2xl px-4 py-3 min-w-[80px] camera-button touch-target"
             >
               <svg className="w-6 h-6 text-text-primary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -432,7 +455,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
             {/* Record/Capture Button - Darker Beige/Red */}
             <button
               onClick={handleCapture}
-              className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all hover:scale-105"
+              className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all hover:scale-105 record-button touch-target"
               style={{ backgroundColor: "#A67C6D" }}
             >
               {mode === "photo" ? (
