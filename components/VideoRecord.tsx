@@ -56,9 +56,18 @@ export default function VideoRecorder({ onComplete, onClose }: VideoRecorderProp
     const startRecording = () => {
         if (stream) {
             chunksRef.current = []
-            const mediaRecorder = new MediaRecorder(stream, {
-                mimeType: "video/webm",
-            })
+            
+            // Check for supported MIME types
+            let mimeType = 'video/webm'
+            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+                mimeType = 'video/webm;codecs=vp9'
+            } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+                mimeType = 'video/webm;codecs=vp8'
+            }
+            
+            console.log('VideoRecord using MIME type:', mimeType)
+            
+            const mediaRecorder = new MediaRecorder(stream, { mimeType })
 
             mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
@@ -66,20 +75,42 @@ export default function VideoRecorder({ onComplete, onClose }: VideoRecorderProp
                 }
             }
 
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(chunksRef.current, { type: "video/webm" })
+            mediaRecorder.onstop = async () => {
+                const blob = new Blob(chunksRef.current, { type: mimeType })
+                console.log('VideoRecord blob created:', blob.size, 'bytes')
                 
-                // Convert blob to data URL for persistent storage
-                const reader = new FileReader()
-                reader.onload = () => {
-                    const dataUrl = reader.result as string
-                    setRecordedVideo(dataUrl)
+                try {
+                    // Try to upload to R2 first
+                    const formData = new FormData()
+                    formData.append('file', blob, 'video.webm')
+                    formData.append('type', 'video')
+                    
+                    const uploadResponse = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    
+                    if (uploadResponse.ok) {
+                        const result = await uploadResponse.json()
+                        console.log('VideoRecord upload successful:', result.url)
+                        setRecordedVideo(result.url)
+                    } else {
+                        throw new Error('Upload failed')
+                    }
+                } catch (error) {
+                    console.error('VideoRecord upload error, using fallback:', error)
+                    // Fallback to data URL
+                    const reader = new FileReader()
+                    reader.onload = () => {
+                        const dataUrl = reader.result as string
+                        setRecordedVideo(dataUrl)
+                    }
+                    reader.readAsDataURL(blob)
                 }
-                reader.readAsDataURL(blob)
             }
 
             mediaRecorderRef.current = mediaRecorder
-            mediaRecorder.start()
+            mediaRecorder.start(1000) // Record in chunks for better reliability
             setIsRecording(true)
             setIsPaused(false)
         }

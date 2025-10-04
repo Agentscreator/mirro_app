@@ -14,6 +14,14 @@ export async function uploadToR2(
   fileName: string,
   contentType: string
 ): Promise<string> {
+  console.log('R2 Upload attempt:', {
+    fileName,
+    contentType,
+    fileSize: file.length,
+    bucket: process.env.R2_BUCKET_NAME,
+    endpoint: process.env.R2_ENDPOINT
+  });
+
   const command = new PutObjectCommand({
     Bucket: process.env.R2_BUCKET_NAME!,
     Key: fileName,
@@ -21,10 +29,18 @@ export async function uploadToR2(
     ContentType: contentType,
   });
 
-  await s3Client.send(command);
-  
-  // Return the public URL
-  return `${process.env.R2_PUBLIC_URL}/${fileName}`;
+  try {
+    const result = await s3Client.send(command);
+    console.log('R2 Upload successful:', result);
+    
+    // Return the public URL
+    const publicUrl = `${process.env.R2_PUBLIC_URL}/${fileName}`;
+    console.log('Public URL:', publicUrl);
+    return publicUrl;
+  } catch (error) {
+    console.error('R2 Upload failed:', error);
+    throw error;
+  }
 }
 
 export function generateFileName(prefix: string, extension: string): string {

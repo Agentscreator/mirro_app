@@ -135,7 +135,20 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         videoRef.current.srcObject = stream
       }
 
-      const mediaRecorder = new MediaRecorder(stream)
+      // Check for supported MIME types and use the best available
+      // Note: Most browsers don't support recording directly to MP4
+      let mimeType = 'video/webm'
+      if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+        mimeType = 'video/webm;codecs=vp9'
+      } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+        mimeType = 'video/webm;codecs=vp8'
+      } else if (MediaRecorder.isTypeSupported('video/webm')) {
+        mimeType = 'video/webm'
+      }
+      
+      console.log('Using MIME type:', mimeType)
+
+      const mediaRecorder = new MediaRecorder(stream, { mimeType })
       mediaRecorderRef.current = mediaRecorder
       chunksRef.current = []
 
@@ -146,38 +159,60 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       }
 
       mediaRecorder.onstop = async () => {
-        const blob = new Blob(chunksRef.current, { type: "video/webm" })
+        const blob = new Blob(chunksRef.current, { type: mimeType })
+        
+        // Check file size (limit to 50MB for better upload reliability)
+        const maxSize = 50 * 1024 * 1024 // 50MB
+        if (blob.size > maxSize) {
+          alert('Video file is too large. Please record a shorter video.')
+          return
+        }
         
         try {
+          console.log('Video blob size:', blob.size, 'bytes')
+          console.log('Video blob type:', blob.type)
+          
           // Upload video to R2 storage
           const formData = new FormData()
+          // Always use webm extension since that's what we're recording
           formData.append('file', blob, 'video.webm')
           formData.append('type', 'video')
           
+          console.log('Uploading video to R2...')
           const uploadResponse = await fetch('/api/upload', {
             method: 'POST',
             body: formData
           })
           
+          console.log('Upload response status:', uploadResponse.status)
+          
           if (uploadResponse.ok) {
-            const { url } = await uploadResponse.json()
-            onCapture(url, "video")
+            const result = await uploadResponse.json()
+            console.log('Upload successful:', result)
+            onCapture(result.url, "video")
           } else {
-            console.error('Upload failed')
+            const errorText = await uploadResponse.text()
+            console.error('Upload failed with status:', uploadResponse.status, errorText)
+            alert(`Upload failed: ${errorText}`)
+            
             // Fallback to data URL if upload fails
             const reader = new FileReader()
             reader.onload = () => {
               const dataUrl = reader.result as string
+              console.log('Using fallback data URL for video')
               onCapture(dataUrl, "video")
             }
             reader.readAsDataURL(blob)
           }
         } catch (error) {
           console.error('Upload error:', error)
+          alert(`Upload error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+          
           // Fallback to data URL if upload fails
           const reader = new FileReader()
           reader.onload = () => {
             const dataUrl = reader.result as string
+            console.log('Using fallback data URL for video due to error')
             onCapture(dataUrl, "video")
           }
           reader.readAsDataURL(blob)
@@ -186,7 +221,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         stopCamera()
       }
 
-      mediaRecorder.start()
+      mediaRecorder.start(1000) // Record in 1-second chunks for better reliability
       setIsRecording(true)
       setRecordingTime(0)
     } catch (err) {
