@@ -186,30 +186,64 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           console.log('Video blob size:', blob.size, 'bytes')
           console.log('Video blob type:', blob.type)
           
-          // Upload video to R2 storage
+          // Upload video to R2 storage with retry logic
           const formData = new FormData()
           // Always use webm extension since that's what we're recording
           formData.append('file', blob, 'video.webm')
           formData.append('type', 'video')
           
           console.log('Uploading video to R2...')
-          const uploadResponse = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData
-          })
           
-          console.log('Upload response status:', uploadResponse.status)
+          // Retry upload up to 3 times
+          let uploadSuccess = false
+          let lastError = null
           
-          if (uploadResponse.ok) {
-            const result = await uploadResponse.json()
-            console.log('Upload successful:', result)
-            onCapture(result.url, "video")
-          } else {
-            const errorText = await uploadResponse.text()
-            console.error('Upload failed with status:', uploadResponse.status, errorText)
-            alert(`Upload failed: ${errorText}`)
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+              const uploadResponse = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+              })
+              
+              console.log(`Upload attempt ${attempt} response status:`, uploadResponse.status)
+              
+              if (uploadResponse.ok) {
+                const result = await uploadResponse.json()
+                console.log('Upload successful:', result)
+                onCapture(result.url, "video")
+                uploadSuccess = true
+                break
+              } else {
+                const errorText = await uploadResponse.text()
+                lastError = `Status ${uploadResponse.status}: ${errorText}`
+                console.error(`Upload attempt ${attempt} failed:`, lastError)
+                
+                if (uploadResponse.status === 413) {
+                  // Don't retry on 413 errors
+                  break
+                }
+                
+                // Wait before retry (except on last attempt)
+                if (attempt < 3) {
+                  await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
+                }
+              }
+            } catch (error) {
+              lastError = error instanceof Error ? error.message : 'Unknown error'
+              console.error(`Upload attempt ${attempt} error:`, lastError)
+              
+              // Wait before retry (except on last attempt)
+              if (attempt < 3) {
+                await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
+              }
+            }
+          }
+          
+          if (!uploadSuccess) {
+            console.error('All upload attempts failed, using fallback data URL')
+            alert(`Upload failed after 3 attempts. Using local video data. Error: ${lastError}`)
             
-            // Fallback to data URL if upload fails
+            // Fallback to data URL if all uploads fail
             const reader = new FileReader()
             reader.onload = () => {
               const dataUrl = reader.result as string
@@ -272,10 +306,19 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      // Check file size before upload
+      const maxSize = 50 * 1024 * 1024 // 50MB
+      if (file.size > maxSize) {
+        alert('File is too large. Please select a file smaller than 50MB.')
+        return
+      }
+      
       try {
         const formData = new FormData()
         formData.append('file', file)
         formData.append('type', file.type.startsWith("video/") ? "video" : "image")
+        
+        console.log('Uploading file:', file.name, 'Size:', file.size, 'bytes')
         
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
@@ -285,24 +328,38 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         if (uploadResponse.ok) {
           const { url } = await uploadResponse.json()
           const type = file.type.startsWith("video/") ? "video" : "photo"
+          console.log('File upload successful:', url)
           onCapture(url, type)
         } else {
+          const errorText = await uploadResponse.text()
+          console.error('File upload failed:', uploadResponse.status, errorText)
+          
+          if (uploadResponse.status === 413) {
+            alert('File is too large for upload. Please select a smaller file.')
+          } else {
+            alert(`Upload failed: ${errorText}`)
+          }
+          
           // Fallback to data URL
           const reader = new FileReader()
           reader.onload = (e) => {
             const data = e.target?.result as string
             const type = file.type.startsWith("video/") ? "video" : "photo"
+            console.log('Using fallback data URL for uploaded file')
             onCapture(data, type)
           }
           reader.readAsDataURL(file)
         }
       } catch (error) {
         console.error('File upload error:', error)
+        alert(`Upload error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        
         // Fallback to data URL
         const reader = new FileReader()
         reader.onload = (e) => {
           const data = e.target?.result as string
           const type = file.type.startsWith("video/") ? "video" : "photo"
+          console.log('Using fallback data URL for uploaded file due to error')
           onCapture(data, type)
         }
         reader.readAsDataURL(file)

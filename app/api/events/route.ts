@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllEvents, createEvent, updateEvent, getEventById, deleteEvent } from '@/lib/auth';
 
+// Configure body size limit for this route
+export const runtime = 'nodejs';
+export const maxDuration = 30; // 30 seconds timeout
+
 export async function GET() {
   try {
     const events = await getAllEvents();

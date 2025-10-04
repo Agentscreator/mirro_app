@@ -162,24 +162,65 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
 
       const user = JSON.parse(storedUser)
       
+      // Handle media upload if it's a data URL (fallback case)
+      let mediaUrl = selectedMedia?.data
+      let mediaType = selectedMedia?.type
+      
+      if (selectedMedia && selectedMedia.data.startsWith('data:')) {
+        console.log('Detected data URL, uploading to R2 first...')
+        
+        try {
+          // Convert data URL to blob
+          const response = await fetch(selectedMedia.data)
+          const blob = await response.blob()
+          
+          // Upload to R2
+          const formData = new FormData()
+          const extension = selectedMedia.type === 'video' ? 'webm' : 'jpg'
+          formData.append('file', blob, `media.${extension}`)
+          formData.append('type', selectedMedia.type)
+          
+          const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          })
+          
+          if (uploadResponse.ok) {
+            const uploadResult = await uploadResponse.json()
+            mediaUrl = uploadResult.url
+            console.log('Successfully uploaded media to R2:', mediaUrl)
+          } else {
+            console.error('Failed to upload media to R2, using data URL')
+            // Keep the data URL as fallback, but this might cause 413 error
+          }
+        } catch (uploadError) {
+          console.error('Error uploading media:', uploadError)
+          // Keep the data URL as fallback
+        }
+      }
+      
+      const eventPayload = {
+        title: eventData.title,
+        description: eventData.description,
+        date: eventData.date,
+        time: eventData.time,
+        location: eventData.location,
+        icon: null, // No default icon
+        gradient: eventData.visualStyling?.styling?.gradient || 'bg-gray-50',
+        mediaUrl: mediaUrl,
+        mediaType: mediaType,
+        createdBy: user.id,
+        visualStyling: eventData.visualStyling,
+      }
+      
+      console.log('Creating event with payload size:', JSON.stringify(eventPayload).length, 'characters')
+      
       const response = await fetch('/api/events', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          title: eventData.title,
-          description: eventData.description,
-          date: eventData.date,
-          time: eventData.time,
-          location: eventData.location,
-          icon: null, // No default icon
-          gradient: eventData.visualStyling?.styling?.gradient || 'bg-gray-50',
-          mediaUrl: selectedMedia?.data,
-          mediaType: selectedMedia?.type,
-          createdBy: user.id,
-          visualStyling: eventData.visualStyling,
-        }),
+        body: JSON.stringify(eventPayload),
       })
 
       if (response.ok) {
@@ -197,8 +238,20 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
           onEventCreated()
         }
       } else {
-        const errorData = await response.json()
-        alert(`Failed to create event: ${errorData.error}`)
+        const errorText = await response.text()
+        console.error('Event creation failed:', response.status, errorText)
+        
+        // Try to parse as JSON for better error message
+        try {
+          const errorData = JSON.parse(errorText)
+          alert(`Failed to create event: ${errorData.error}`)
+        } catch {
+          if (response.status === 413) {
+            alert("The video file is too large. Please try recording a shorter video or compressing the file.")
+          } else {
+            alert(`Failed to create event: ${errorText}`)
+          }
+        }
       }
     } catch (error) {
       console.error('Error creating event:', error)

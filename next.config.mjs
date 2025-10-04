@@ -17,6 +17,8 @@ const nextConfig = {
   }),
   experimental: {
     missingSuspenseWithCSRBailout: false,
+    // Increase body size limit for video uploads
+    bodySizeLimit: '100mb',
   },
 }
 

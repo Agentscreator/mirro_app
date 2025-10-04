@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadToR2, generateFileName } from '@/lib/storage';
 
+// Configure route for larger file uploads
+export const runtime = 'nodejs';
+export const maxDuration = 60; // 60 seconds timeout for uploads
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -21,7 +25,12 @@ export async function POST(request: NextRequest) {
     // Validate file size (50MB limit)
     const maxSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxSize) {
-      return NextResponse.json({ error: 'File too large. Maximum size is 50MB.' }, { status: 400 });
+      console.error('File too large:', file.size, 'bytes (max:', maxSize, 'bytes)');
+      return NextResponse.json({ 
+        error: 'File too large. Maximum size is 50MB.',
+        fileSize: file.size,
+        maxSize: maxSize
+      }, { status: 413 });
     }
 
     // Convert file to buffer
@@ -71,13 +80,36 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       url: publicUrl,
-      fileName: fileName
+      fileName: fileName,
+      fileSize: buffer.length,
+      contentType: file.type || `${type}/${extension}`
     });
   } catch (error) {
     console.error('Upload error:', error);
+    
+    // Provide more specific error messages
+    let errorMessage = 'Upload failed';
+    let statusCode = 500;
+    
+    if (error instanceof Error) {
+      if (error.message.includes('NetworkingError') || error.message.includes('timeout')) {
+        errorMessage = 'Network error during upload. Please check your connection and try again.';
+        statusCode = 503;
+      } else if (error.message.includes('AccessDenied')) {
+        errorMessage = 'Storage access denied. Please contact support.';
+        statusCode = 403;
+      } else if (error.message.includes('NoSuchBucket')) {
+        errorMessage = 'Storage configuration error. Please contact support.';
+        statusCode = 500;
+      } else {
+        errorMessage = error.message;
+      }
+    }
+    
     return NextResponse.json({
-      error: 'Upload failed',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+      error: errorMessage,
+      details: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    }, { status: statusCode });
   }
 }
