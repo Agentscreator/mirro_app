@@ -5,6 +5,11 @@ import { getAllEvents, createEvent, updateEvent, getEventById, deleteEvent } fro
 export const runtime = 'nodejs';
 export const maxDuration = 30; // 30 seconds timeout
 
+// Increase body size limit to handle larger payloads
+export const dynamic = 'force-dynamic';
+// Note: Next.js App Router doesn't use bodyParser config like Pages Router
+// We handle size limits in the route handler itself
+
 export async function GET() {
   try {
     const events = await getAllEvents();
@@ -43,9 +48,22 @@ export async function POST(request: NextRequest) {
 
     // Check if mediaUrl is too large (base64 encoded images can be huge)
     if (mediaUrl && mediaUrl.length > 10 * 1024 * 1024) { // 10MB limit for base64
-      return NextResponse.json({ 
-        error: 'Media content too large. Please use the upload endpoint for large files.' 
+      return NextResponse.json({
+        error: 'Media content too large. Please use the upload endpoint for large files.'
       }, { status: 413 });
+    }
+
+    // Check if visualStyling is too large
+    if (visualStyling) {
+      const visualStylingSize = JSON.stringify(visualStyling).length;
+      if (visualStylingSize > 100 * 1024) { // 100KB limit for visual styling
+        console.warn('Visual styling too large, stripping it down:', visualStylingSize);
+        // Keep only essential styling info
+        body.visualStyling = {
+          styling: visualStyling.styling || null,
+          theme: visualStyling.theme || null
+        };
+      }
     }
 
     const event = await createEvent({

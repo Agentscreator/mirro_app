@@ -6,6 +6,7 @@ import { existsSync } from 'fs';
 // Configure for file uploads
 export const runtime = 'nodejs';
 export const maxDuration = 60; // 60 seconds for large uploads
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {

@@ -255,6 +255,16 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         }
       }
       
+      // Optimize visualStyling to only include essential data (reduce payload size)
+      let optimizedVisualStyling = null
+      if (eventData.visualStyling) {
+        optimizedVisualStyling = {
+          theme: eventData.visualStyling.theme,
+          styling: eventData.visualStyling.styling,
+          // Only include compact fields, remove verbose fields like reasoning, visualElements, etc
+        }
+      }
+
       // Create event payload (without large data URLs)
       const eventPayload = {
         title: eventData.title,
@@ -267,15 +277,16 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         mediaUrl: mediaUrl,
         mediaType: mediaType,
         createdBy: user.id,
-        visualStyling: eventData.visualStyling,
+        visualStyling: optimizedVisualStyling,
       }
-      
-      // Check payload size before sending
+
+      // Check payload size before sending (Vercel has 4.5MB limit)
       const payloadSize = JSON.stringify(eventPayload).length
-      console.log('Creating event with payload size:', payloadSize, 'characters')
-      
-      if (payloadSize > 1024 * 1024) { // 1MB limit for JSON
-        alert("Event data is too large. Please reduce the description or visual styling.")
+      const payloadSizeKB = (payloadSize / 1024).toFixed(2)
+      console.log(`Creating event with payload size: ${payloadSizeKB} KB`)
+
+      if (payloadSize > 3 * 1024 * 1024) { // 3MB limit for safety (Vercel has 4.5MB hard limit)
+        alert(`Event data is too large (${payloadSizeKB} KB). Please reduce the description or try a smaller image/video.`)
         setIsPublishing(false)
         return
       }
