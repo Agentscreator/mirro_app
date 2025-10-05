@@ -33,11 +33,11 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Check file size (50MB limit)
-    const maxSize = 50 * 1024 * 1024; // 50MB
+    // Check file size (10MB limit for better compatibility)
+    const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
       return NextResponse.json({ 
-        error: 'File too large. Maximum size is 50MB.' 
+        error: 'File too large. Maximum size is 10MB.' 
       }, { status: 413 });
     }
 

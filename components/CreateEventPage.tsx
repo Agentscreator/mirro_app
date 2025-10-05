@@ -3,6 +3,7 @@ import { useState } from "react"
 import UnifiedCamera from "./UnifiedCamera"
 import AIGenerationStep from "./AIGenerationStep"
 import AIPromptInput from "./AIPromptInput"
+import { compressVideo, compressImage, formatFileSize } from "@/lib/media-utils"
 
 
 interface CreateEventPageProps {
@@ -173,27 +174,51 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
       
       if (selectedMedia && selectedMedia.data.startsWith('data:')) {
         setIsUploading(true)
-        console.log('Uploading media to server...')
+        console.log('Processing media for upload...')
         
         try {
           // Convert data URL to blob
           const response = await fetch(selectedMedia.data)
-          const blob = await response.blob()
+          let blob = await response.blob()
           
-          // Check file size before upload (50MB limit)
-          if (blob.size > 50 * 1024 * 1024) {
-            alert("Media file is too large (max 50MB). Please try a smaller file or shorter video.")
+          console.log(`Original ${selectedMedia.type} file size: ${formatFileSize(blob.size)}`)
+          
+          // Convert blob to File for compression
+          const originalFile = new File([blob], `media.${selectedMedia.type === 'video' ? 'webm' : 'jpg'}`, {
+            type: blob.type,
+            lastModified: Date.now()
+          })
+          
+          // Compress if needed
+          let finalFile = originalFile
+          if (blob.size > 5 * 1024 * 1024) { // 5MB threshold
+            console.log('File is large, compressing...')
+            try {
+              if (selectedMedia.type === 'video') {
+                finalFile = await compressVideo(originalFile, 4) // Target 4MB
+              } else {
+                finalFile = await compressImage(originalFile, 2, 0.7) // Target 2MB, 70% quality
+              }
+              console.log(`Compressed file size: ${formatFileSize(finalFile.size)}`)
+            } catch (compressionError) {
+              console.warn('Compression failed, using original:', compressionError)
+              // Continue with original file
+            }
+          }
+          
+          // Final size check
+          if (finalFile.size > 10 * 1024 * 1024) {
+            alert(`Media file is still too large (${formatFileSize(finalFile.size)}). Maximum size is 10MB. Please try a shorter video or smaller image.`)
             setIsUploading(false)
             setIsPublishing(false)
             return
           }
           
-          console.log(`Uploading ${selectedMedia.type} file (${(blob.size / 1024 / 1024).toFixed(2)} MB)...`)
+          console.log(`Uploading ${selectedMedia.type} file (${formatFileSize(finalFile.size)})...`)
           
           // Upload to server
           const formData = new FormData()
-          const extension = selectedMedia.type === 'video' ? 'webm' : 'jpg'
-          formData.append('file', blob, `media.${extension}`)
+          formData.append('file', finalFile)
           formData.append('type', selectedMedia.type)
           
           const uploadResponse = await fetch('/api/upload', {
