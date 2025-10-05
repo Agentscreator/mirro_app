@@ -26,19 +26,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    // Validate file type
+    // Validate file type (handle MIME types with codecs like video/webm;codecs=vp9)
+    const baseFileType = file.type.split(';')[0].trim();
+
     const allowedTypes = {
       image: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-      video: ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo']
+      video: ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo', 'video/avi']
     };
 
     const isValidType = type === 'image'
-      ? allowedTypes.image.includes(file.type)
-      : allowedTypes.video.includes(file.type);
+      ? allowedTypes.image.includes(baseFileType)
+      : allowedTypes.video.includes(baseFileType);
 
     if (!isValidType) {
       return NextResponse.json({
-        error: `Invalid file type. Expected ${type} file.`
+        error: `Invalid file type. Expected ${type} file. Got: ${baseFileType}`
       }, { status: 400 });
     }
 
