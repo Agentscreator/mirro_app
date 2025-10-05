@@ -22,21 +22,13 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    // Check content length before parsing
-    const contentLength = request.headers.get('content-length');
-    if (contentLength && parseInt(contentLength) > 50 * 1024 * 1024) { // 50MB limit
-      return NextResponse.json({ 
-        error: 'Request too large. Maximum size is 50MB.' 
-      }, { status: 413 });
-    }
-
     let body;
     try {
       body = await request.json();
     } catch (parseError) {
       console.error('JSON parse error:', parseError);
-      return NextResponse.json({ 
-        error: 'Invalid JSON format in request body' 
+      return NextResponse.json({
+        error: 'Invalid JSON format in request body'
       }, { status: 400 });
     }
 
@@ -46,24 +38,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Check if mediaUrl is too large (base64 encoded images can be huge)
-    if (mediaUrl && mediaUrl.length > 10 * 1024 * 1024) { // 10MB limit for base64
+    // Media should ALWAYS be uploaded to R2 first, not sent as base64
+    // If mediaUrl is a data URL, reject it
+    if (mediaUrl && mediaUrl.startsWith('data:')) {
       return NextResponse.json({
-        error: 'Media content too large. Please use the upload endpoint for large files.'
-      }, { status: 413 });
+        error: 'Media must be uploaded to R2 first. Use /api/upload endpoint.'
+      }, { status: 400 });
     }
 
-    // Check if visualStyling is too large
+    // Optimize visualStyling to only store essential data
+    let optimizedVisualStyling = null;
     if (visualStyling) {
-      const visualStylingSize = JSON.stringify(visualStyling).length;
-      if (visualStylingSize > 100 * 1024) { // 100KB limit for visual styling
-        console.warn('Visual styling too large, stripping it down:', visualStylingSize);
-        // Keep only essential styling info
-        body.visualStyling = {
-          styling: visualStyling.styling || null,
-          theme: visualStyling.theme || null
-        };
-      }
+      // Only keep the essential styling information
+      optimizedVisualStyling = {
+        styling: {
+          gradient: visualStyling.styling?.gradient || null,
+          font: visualStyling.styling?.font || null,
+        },
+        theme: visualStyling.theme || null,
+      };
+
+      const visualStylingSize = JSON.stringify(optimizedVisualStyling).length;
+      console.log('Visual styling size:', visualStylingSize, 'bytes');
     }
 
     const event = await createEvent({
@@ -77,7 +73,7 @@ export async function POST(request: NextRequest) {
       mediaUrl,
       mediaType,
       createdBy,
-      visualStyling,
+      visualStyling: optimizedVisualStyling,
     });
 
     return NextResponse.json({
@@ -86,16 +82,16 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error creating event:', error);
-    
+
     // Handle specific error types
     if (error instanceof Error) {
       if (error.message.includes('PayloadTooLargeError') || error.message.includes('request entity too large')) {
-        return NextResponse.json({ 
-          error: 'Request too large. Please reduce the size of your content.' 
+        return NextResponse.json({
+          error: 'Request too large. Media must be uploaded to R2 separately.'
         }, { status: 413 });
       }
     }
-    
+
     return NextResponse.json({ error: 'Failed to create event' }, { status: 500 });
   }
 }
