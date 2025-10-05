@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { shareEvent } from "@/lib/utils"
+import { getVisualStylingAsync } from "@/lib/visual-styling-utils"
 
 interface Attendee {
   id: string
@@ -23,6 +24,7 @@ interface Event {
   mediaUrl?: string | null
   mediaType?: string | null
   visualStyling?: string | null
+  visualStylingUrl?: string | null
   creatorName?: string
   creatorUsername?: string
   attendees?: Attendee[]
@@ -47,17 +49,30 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   const [currentTime, setCurrentTime] = useState(0)
   const [isJoined, setIsJoined] = useState(false)
   const [isJoining, setIsJoining] = useState(false)
+  const [visualStyling, setVisualStyling] = useState<any>(null)
+  const [isLoadingVisualStyling, setIsLoadingVisualStyling] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  // Parse visual styling if available
-  let visualStyling = null
-  try {
-    if (event?.visualStyling) {
-      visualStyling = JSON.parse(event.visualStyling)
+  // Load visual styling data (from R2 or inline)
+  useEffect(() => {
+    const loadVisualStyling = async () => {
+      if (event && (event.visualStylingUrl || event.visualStyling)) {
+        setIsLoadingVisualStyling(true)
+        try {
+          const styling = await getVisualStylingAsync(event)
+          setVisualStyling(styling)
+        } catch (error) {
+          console.error('Error loading visual styling:', error)
+        } finally {
+          setIsLoadingVisualStyling(false)
+        }
+      }
     }
-  } catch (error) {
-    console.error('Error parsing visual styling:', error)
-  }
+
+    if (isOpen) {
+      loadVisualStyling()
+    }
+  }, [event, isOpen])
 
   // Use AI-generated gradient if available, otherwise fall back to default
   const displayGradient = visualStyling?.styling?.gradient || event?.gradient || 'from-gray-400 to-gray-600'

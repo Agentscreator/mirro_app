@@ -4,6 +4,7 @@ import UnifiedCamera from "./UnifiedCamera"
 import AIGenerationStep from "./AIGenerationStep"
 import AIPromptInput from "./AIPromptInput"
 import { compressVideo, compressImage, formatFileSize } from "@/lib/media-utils"
+import { prepareEventData } from "@/lib/event-upload-utils"
 
 
 interface CreateEventPageProps {
@@ -255,33 +256,23 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         }
       }
       
-      // Optimize visualStyling to only include essential data (reduce payload size)
-      // Only keep gradient and font, remove all verbose AI-generated content
-      let optimizedVisualStyling = null
-      if (eventData.visualStyling) {
-        optimizedVisualStyling = {
-          styling: {
-            gradient: eventData.visualStyling.styling?.gradient || null,
-            font: eventData.visualStyling.styling?.font || null,
-          },
-          theme: eventData.visualStyling.theme || null,
-        }
-      }
-
-      // Create event payload
-      const eventPayload = {
+      // Prepare event data with R2 storage for large content
+      const rawEventPayload = {
         title: eventData.title,
         description: eventData.description,
         date: eventData.date,
         time: eventData.time,
         location: eventData.location,
-        icon: null,
+        icon: undefined,
         gradient: eventData.visualStyling?.styling?.gradient || 'bg-gray-50',
         mediaUrl: mediaUrl, // Now using R2 URLs instead of data URLs
         mediaType: mediaType,
         createdBy: user.id,
-        visualStyling: optimizedVisualStyling,
+        visualStyling: eventData.visualStyling,
       }
+
+      // Use the new utility to handle large data automatically
+      const eventPayload = await prepareEventData(rawEventPayload)
 
       // Log payload size for debugging
       const payloadSize = JSON.stringify(eventPayload).length

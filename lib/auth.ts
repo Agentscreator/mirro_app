@@ -71,6 +71,7 @@ export async function getUserEvents(userId: string) {
     mediaUrl: events.mediaUrl,
     mediaType: events.mediaType,
     visualStyling: events.visualStyling,
+    visualStylingUrl: events.visualStylingUrl,
     createdBy: events.createdBy,
     createdAt: events.createdAt,
     creatorName: users.name,
@@ -124,6 +125,7 @@ export async function getAllEvents() {
     mediaUrl: events.mediaUrl,
     mediaType: events.mediaType,
     visualStyling: events.visualStyling,
+    visualStylingUrl: events.visualStylingUrl,
     createdBy: events.createdBy,
     createdAt: events.createdAt,
     updatedAt: events.updatedAt,
@@ -176,6 +178,7 @@ export async function createEvent(eventData: {
   mediaUrl?: string;
   mediaType?: string;
   visualStyling?: any;
+  visualStylingUrl?: string;
   createdBy: string;
 }) {
   const [event] = await db.insert(events).values({
@@ -189,6 +192,7 @@ export async function createEvent(eventData: {
     mediaUrl: eventData.mediaUrl,
     mediaType: eventData.mediaType,
     visualStyling: eventData.visualStyling ? JSON.stringify(eventData.visualStyling) : null,
+    visualStylingUrl: eventData.visualStylingUrl || null,
     createdBy: eventData.createdBy,
   }).returning();
   

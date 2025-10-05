@@ -22,7 +22,8 @@ export const events = pgTable('events', {
   gradient: text('gradient'), // Store gradient class
   mediaUrl: text('media_url'), // Store media file URL
   mediaType: text('media_type'), // Store media type (image/video)
-  visualStyling: text('visual_styling'), // Store AI-generated visual styling as JSON
+  visualStyling: text('visual_styling'), // Store AI-generated visual styling as JSON (for small data)
+  visualStylingUrl: text('visual_styling_url'), // Store R2 URL for large visual styling data
   createdBy: uuid('created_by').notNull().references(() => users.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

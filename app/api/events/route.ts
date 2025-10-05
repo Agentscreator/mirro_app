@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllEvents, createEvent, updateEvent, getEventById, deleteEvent } from '@/lib/auth';
+import { uploadToR2, generateFileName } from '@/lib/storage';
 
 // Configure runtime for this route
 export const runtime = 'nodejs';
@@ -46,20 +47,36 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Optimize visualStyling to only store essential data
+    // Store large visualStyling data in R2 if it exceeds size limit
+    let visualStylingUrl = null;
     let optimizedVisualStyling = null;
+    
     if (visualStyling) {
-      // Only keep the essential styling information
-      optimizedVisualStyling = {
-        styling: {
-          gradient: visualStyling.styling?.gradient || null,
-          font: visualStyling.styling?.font || null,
-        },
-        theme: visualStyling.theme || null,
-      };
-
-      const visualStylingSize = JSON.stringify(optimizedVisualStyling).length;
+      const visualStylingSize = JSON.stringify(visualStyling).length;
       console.log('Visual styling size:', visualStylingSize, 'bytes');
+      
+      // If visualStyling is large (>50KB), store it in R2
+      if (visualStylingSize > 50000) {
+        try {
+          const fileName = generateFileName('event-styling', 'json');
+          const visualStylingBuffer = Buffer.from(JSON.stringify(visualStyling), 'utf-8');
+          visualStylingUrl = await uploadToR2(visualStylingBuffer, fileName, 'application/json');
+          console.log('Large visual styling stored in R2:', visualStylingUrl);
+        } catch (uploadError) {
+          console.error('Failed to upload visual styling to R2:', uploadError);
+          // Fall back to optimized version
+          optimizedVisualStyling = {
+            styling: {
+              gradient: visualStyling.styling?.gradient || null,
+              font: visualStyling.styling?.font || null,
+            },
+            theme: visualStyling.theme || null,
+          };
+        }
+      } else {
+        // Keep smaller styling data inline
+        optimizedVisualStyling = visualStyling;
+      }
     }
 
     const event = await createEvent({
@@ -74,6 +91,7 @@ export async function POST(request: NextRequest) {
       mediaType,
       createdBy,
       visualStyling: optimizedVisualStyling,
+      visualStylingUrl: visualStylingUrl ?? undefined, // Store R2 URL for large styling data
     });
 
     return NextResponse.json({
@@ -87,7 +105,7 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error) {
       if (error.message.includes('PayloadTooLargeError') || error.message.includes('request entity too large')) {
         return NextResponse.json({
-          error: 'Request too large. Media must be uploaded to R2 separately.'
+          error: 'Request too large. All large data must be uploaded to R2 separately.'
         }, { status: 413 });
       }
     }
