@@ -16,6 +16,8 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
   const [aiMethod, setAiMethod] = useState<string | null>(null)
   const [aiGeneratedContent, setAiGeneratedContent] = useState<string | null>(null)
   const [aiPromptInput, setAiPromptInput] = useState<string>("")
+  const [isUploading, setIsUploading] = useState(false)
+  const [isPublishing, setIsPublishing] = useState(false)
   const [eventData, setEventData] = useState({
     title: "",
     description: "",
@@ -152,29 +154,43 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
       return
     }
 
+    setIsPublishing(true)
+
     try {
       // Get user from localStorage
       const storedUser = localStorage.getItem('user')
       if (!storedUser) {
         alert("Please log in to create events")
+        setIsPublishing(false)
         return
       }
 
       const user = JSON.parse(storedUser)
       
-      // Handle media upload if it's a data URL (fallback case)
+      // Handle media upload - ALWAYS upload data URLs to avoid 413 errors
       let mediaUrl = selectedMedia?.data
       let mediaType = selectedMedia?.type
       
       if (selectedMedia && selectedMedia.data.startsWith('data:')) {
-        console.log('Detected data URL, uploading to R2 first...')
+        setIsUploading(true)
+        console.log('Uploading media to server...')
         
         try {
           // Convert data URL to blob
           const response = await fetch(selectedMedia.data)
           const blob = await response.blob()
           
-          // Upload to R2
+          // Check file size before upload (50MB limit)
+          if (blob.size > 50 * 1024 * 1024) {
+            alert("Media file is too large (max 50MB). Please try a smaller file or shorter video.")
+            setIsUploading(false)
+            setIsPublishing(false)
+            return
+          }
+          
+          console.log(`Uploading ${selectedMedia.type} file (${(blob.size / 1024 / 1024).toFixed(2)} MB)...`)
+          
+          // Upload to server
           const formData = new FormData()
           const extension = selectedMedia.type === 'video' ? 'webm' : 'jpg'
           formData.append('file', blob, `media.${extension}`)
@@ -185,27 +201,43 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
             body: formData
           })
           
+          setIsUploading(false)
+          
           if (uploadResponse.ok) {
             const uploadResult = await uploadResponse.json()
             mediaUrl = uploadResult.url
-            console.log('Successfully uploaded media to R2:', mediaUrl)
+            console.log('Successfully uploaded media:', mediaUrl)
           } else {
-            console.error('Failed to upload media to R2, using data URL')
-            // Keep the data URL as fallback, but this might cause 413 error
+            const errorText = await uploadResponse.text()
+            console.error('Upload failed:', uploadResponse.status, errorText)
+            
+            if (uploadResponse.status === 413) {
+              alert("Media file is too large. Please try a smaller file or shorter video.")
+            } else if (uploadResponse.status === 404) {
+              alert("Upload service is not available. Please try again later.")
+            } else {
+              alert("Failed to upload media. Please try again.")
+            }
+            setIsPublishing(false)
+            return
           }
         } catch (uploadError) {
           console.error('Error uploading media:', uploadError)
-          // Keep the data URL as fallback
+          alert("Failed to upload media. Please check your connection and try again.")
+          setIsUploading(false)
+          setIsPublishing(false)
+          return
         }
       }
       
+      // Create event payload (without large data URLs)
       const eventPayload = {
         title: eventData.title,
         description: eventData.description,
         date: eventData.date,
         time: eventData.time,
         location: eventData.location,
-        icon: null, // No default icon
+        icon: null,
         gradient: eventData.visualStyling?.styling?.gradient || 'bg-gray-50',
         mediaUrl: mediaUrl,
         mediaType: mediaType,
@@ -213,7 +245,15 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         visualStyling: eventData.visualStyling,
       }
       
-      console.log('Creating event with payload size:', JSON.stringify(eventPayload).length, 'characters')
+      // Check payload size before sending
+      const payloadSize = JSON.stringify(eventPayload).length
+      console.log('Creating event with payload size:', payloadSize, 'characters')
+      
+      if (payloadSize > 1024 * 1024) { // 1MB limit for JSON
+        alert("Event data is too large. Please reduce the description or visual styling.")
+        setIsPublishing(false)
+        return
+      }
       
       const response = await fetch('/api/events', {
         method: 'POST',
@@ -230,7 +270,6 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         setSelectedMedia(null)
         setAiMethod(null)
         setAiGeneratedContent(null)
-
         setEventData({ title: "", description: "", date: "", time: "", location: "", visualStyling: null })
         
         // Notify parent component to refresh events
@@ -247,15 +286,20 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
           alert(`Failed to create event: ${errorData.error}`)
         } catch {
           if (response.status === 413) {
-            alert("The video file is too large. Please try recording a shorter video or compressing the file.")
+            alert("Event data is too large. Please reduce the content size.")
+          } else if (response.status === 404) {
+            alert("Event service is not available. Please try again later.")
           } else {
-            alert(`Failed to create event: ${errorText}`)
+            alert(`Failed to create event. Server returned: ${response.status}`)
           }
         }
       }
     } catch (error) {
       console.error('Error creating event:', error)
-      alert("Failed to create event. Please try again.")
+      alert("Failed to create event. Please check your connection and try again.")
+    } finally {
+      setIsPublishing(false)
+      setIsUploading(false)
     }
   }
 
@@ -501,9 +545,10 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
 
               <button
                 type="submit"
-                className="w-full gradient-primary text-white py-4 rounded-2xl font-medium hover:shadow-lg transition-all duration-200 mt-8"
+                disabled={isPublishing || isUploading}
+                className="w-full gradient-primary text-white py-4 rounded-2xl font-medium hover:shadow-lg transition-all duration-200 mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Publish Event
+                {isUploading ? "Uploading Media..." : isPublishing ? "Publishing Event..." : "Publish Event"}
               </button>
             </form>
           </div>

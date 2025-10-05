@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Endpoint Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .result { margin-top: 10px; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input[type="file"] { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Upload Endpoint Test</h1>
+    
+    <div class="test-section">
+        <h2>Test File Upload</h2>
+        <input type="file" id="fileInput" accept="image/*,video/*">
+        <br>
+        <button onclick="testUpload()">Upload File</button>
+        <div id="uploadResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Events API</h2>
+        <button onclick="testCreateEvent()">Create Test Event</button>
+        <div id="eventResult" class="result"></div>
+    </div>
+
+    <script>
+        async function testUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const resultDiv = document.getElementById('uploadResult');
+            
+            if (!fileInput.files[0]) {
+                resultDiv.innerHTML = '<div class="error">Please select a file first</div>';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('type', fileInput.files[0].type.startsWith('image/') ? 'image' : 'video');
+
+            try {
+                resultDiv.innerHTML = '<div>Uploading...</div>';
+                
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>Upload successful!</strong><br>
+                            URL: ${result.url}<br>
+                            Size: ${(result.size / 1024 / 1024).toFixed(2)} MB<br>
+                            Type: ${result.type}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">Error ${response.status}: ${result.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+            }
+        }
+
+        async function testCreateEvent() {
+            const resultDiv = document.getElementById('eventResult');
+            
+            const testEvent = {
+                title: "Test Event",
+                description: "This is a test event",
+                date: "2024-12-25",
+                time: "14:00",
+                location: "Test Location",
+                createdBy: "test-user-id",
+                icon: "🎉",
+                gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+            };
+
+            try {
+                resultDiv.innerHTML = '<div>Creating event...</div>';
+                
+                const response = await fetch('/api/events', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testEvent)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>Event created successfully!</strong><br>
+                            Event ID: ${result.event?.id || 'N/A'}<br>
+                            Message: ${result.message}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">Error ${response.status}: ${result.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+            }
+        }
+
+        // Test endpoints on page load
+        window.onload = function() {
+            // Test if endpoints exist
+            fetch('/api/upload', { method: 'OPTIONS' })
+                .then(response => {
+                    console.log('Upload endpoint status:', response.status);
+                })
+                .catch(error => {
+                    console.error('Upload endpoint not accessible:', error);
+                });
+                
+            fetch('/api/events', { method: 'GET' })
+                .then(response => {
+                    console.log('Events endpoint status:', response.status);
+                })
+                .catch(error => {
+                    console.error('Events endpoint not accessible:', error);
+                });
+        };
+    </script>
+</body>
+</html>

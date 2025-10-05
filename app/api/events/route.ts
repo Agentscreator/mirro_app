@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllEvents, createEvent, updateEvent, getEventById, deleteEvent } from '@/lib/auth';
 
-// Configure body size limit for this route
+// Configure runtime for this route
 export const runtime = 'nodejs';
 export const maxDuration = 30; // 30 seconds timeout
 
@@ -17,10 +17,35 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { title, description, date, time, location, icon, gradient, mediaUrl, mediaType, createdBy, visualStyling } = await request.json();
+    // Check content length before parsing
+    const contentLength = request.headers.get('content-length');
+    if (contentLength && parseInt(contentLength) > 50 * 1024 * 1024) { // 50MB limit
+      return NextResponse.json({ 
+        error: 'Request too large. Maximum size is 50MB.' 
+      }, { status: 413 });
+    }
+
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      return NextResponse.json({ 
+        error: 'Invalid JSON format in request body' 
+      }, { status: 400 });
+    }
+
+    const { title, description, date, time, location, icon, gradient, mediaUrl, mediaType, createdBy, visualStyling } = body;
 
     if (!title || !description || !date || !time || !location || !createdBy) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Check if mediaUrl is too large (base64 encoded images can be huge)
+    if (mediaUrl && mediaUrl.length > 10 * 1024 * 1024) { // 10MB limit for base64
+      return NextResponse.json({ 
+        error: 'Media content too large. Please use the upload endpoint for large files.' 
+      }, { status: 413 });
     }
 
     const event = await createEvent({
@@ -43,6 +68,16 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error creating event:', error);
+    
+    // Handle specific error types
+    if (error instanceof Error) {
+      if (error.message.includes('PayloadTooLargeError') || error.message.includes('request entity too large')) {
+        return NextResponse.json({ 
+          error: 'Request too large. Please reduce the size of your content.' 
+        }, { status: 413 });
+      }
+    }
+    
     return NextResponse.json({ error: 'Failed to create event' }, { status: 500 });
   }
 }

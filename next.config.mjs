@@ -17,8 +17,8 @@ const nextConfig = {
   }),
   experimental: {
     missingSuspenseWithCSRBailout: false,
-    // Increase body size limit for video uploads
-    bodySizeLimit: '100mb',
+    // Increase body size limit for App Router
+    serverComponentsExternalPackages: [],
   },
 }
 

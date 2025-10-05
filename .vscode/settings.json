@@ -15,5 +15,6 @@
     "class",
     "className",
     "ngClass"
-  ]
+  ],
+  "html.autoClosingTags": false
 }
