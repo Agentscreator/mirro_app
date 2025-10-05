@@ -265,7 +265,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         }
       }
 
-      // Create event payload (without large data URLs)
+      // Create event payload
       const eventPayload = {
         title: eventData.title,
         description: eventData.description,
@@ -274,7 +274,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         location: eventData.location,
         icon: null,
         gradient: eventData.visualStyling?.styling?.gradient || 'bg-gray-50',
-        mediaUrl: mediaUrl,
+        mediaUrl: mediaUrl, // Now using Vercel Blob URLs instead of data URLs
         mediaType: mediaType,
         createdBy: user.id,
         visualStyling: optimizedVisualStyling,
