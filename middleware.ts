@@ -22,7 +22,7 @@ export function middleware(request: NextRequest) {
         if (contentLength && parseInt(contentLength) > 15 * 1024 * 1024) { // 15MB limit
             return NextResponse.json(
                 { error: 'Request too large. Maximum size is 15MB.' },
-                { 
+                {
                     status: 413,
                     headers: {
                         'Access-Control-Allow-Origin': '*',

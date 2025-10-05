@@ -51,6 +51,7 @@ interface DatabaseEvent {
     mediaUrl?: string | null
     mediaType?: string | null
     visualStyling?: string | null
+    visualStylingUrl?: string | null
     createdBy: string
     createdAt: string
     creatorName?: string
@@ -79,6 +80,7 @@ interface EventCardData {
     mediaUrl?: string | null
     mediaType?: string | null
     visualStyling?: string | null
+    visualStylingUrl?: string | null
     creatorName?: string
     creatorUsername?: string
     attendees?: Attendee[]
@@ -146,6 +148,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                     mediaUrl: event.mediaUrl,
                     mediaType: event.mediaType,
                     visualStyling: event.visualStyling,
+                    visualStylingUrl: event.visualStylingUrl,
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
                     attendees: event.attendees,
@@ -202,6 +205,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
             mediaUrl: event.mediaUrl || null,
             mediaType: event.mediaType || null,
             visualStyling: event.visualStyling || null,
+            visualStylingUrl: event.visualStylingUrl || null,
             creatorName: event.creatorName,
             creatorUsername: event.creatorUsername,
             attendees: event.attendees,
@@ -242,6 +246,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                     mediaUrl: event.mediaUrl,
                     mediaType: event.mediaType,
                     visualStyling: event.visualStyling,
+                    visualStylingUrl: event.visualStylingUrl,
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
                     attendees: event.attendees,

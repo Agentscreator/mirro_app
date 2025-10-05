@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Shared Event</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%);
+            min-height: 100vh;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background: #f8f9fa;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>Shared Event Functionality Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Create a Test Event</h2>
+        <p>First, let's create a test event to share:</p>
+        <button class="button" onclick="createTestEvent()">Create Test Event</button>
+        <div id="createResult" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Generate Share URL</h2>
+        <p>Generate a shareable URL for the test event:</p>
+        <input type="text" id="eventIdInput" placeholder="Enter Event ID" style="padding: 8px; margin-right: 10px;">
+        <button class="button" onclick="generateShareUrl()">Generate Share URL</button>
+        <div id="shareResult" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Test Event Fetching (Public Access)</h2>
+        <p>Test if events can be fetched without authentication:</p>
+        <input type="text" id="fetchEventIdInput" placeholder="Enter Event ID" style="padding: 8px; margin-right: 10px;">
+        <button class="button" onclick="testEventFetch()">Fetch Event</button>
+        <div id="fetchResult" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Manual Share URL Test</h2>
+        <p>Copy and paste this URL in a new incognito window to test shared event viewing:</p>
+        <div id="manualTestUrl" style="font-family: monospace; background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0;"></div>
+        <button class="button" onclick="copyToClipboard()">Copy URL</button>
+    </div>
+
+    <script>
+        let testEventId = null;
+
+        async function createTestEvent() {
+            const resultDiv = document.getElementById('createResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Creating test event...';
+
+            try {
+                // First, check if we have a user session
+                const storedUser = localStorage.getItem('user');
+                if (!storedUser) {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = 'Error: No user session found. Please log in to the main app first.';
+                    return;
+                }
+
+                const user = JSON.parse(storedUser);
+
+                const testEvent = {
+                    title: 'Test Shared Event',
+                    description: 'This is a test event created to verify shared event functionality.',
+                    date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 days from now
+                    time: '18:00',
+                    location: 'Test Location, Test City',
+                    gradient: 'from-blue-400 to-purple-600',
+                    createdBy: user.id
+                };
+
+                const response = await fetch('/api/events', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testEvent)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    testEventId = data.event.id;
+                    document.getElementById('eventIdInput').value = testEventId;
+                    document.getElementById('fetchEventIdInput').value = testEventId;
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `✅ Test event created successfully!<br>Event ID: ${testEventId}`;
+                    
+                    // Update manual test URL
+                    updateManualTestUrl(testEventId);
+                } else {
+                    const errorData = await response.json();
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ Failed to create event: ${errorData.error}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+
+        function generateShareUrl() {
+            const eventId = document.getElementById('eventIdInput').value;
+            const resultDiv = document.getElementById('shareResult');
+            
+            if (!eventId) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ Please enter an Event ID';
+                return;
+            }
+
+            const shareUrl = `${window.location.origin}/?event=${eventId}`;
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result success';
+            resultDiv.innerHTML = `✅ Share URL generated:<br><a href="${shareUrl}" target="_blank">${shareUrl}</a>`;
+            
+            updateManualTestUrl(eventId);
+        }
+
+        async function testEventFetch() {
+            const eventId = document.getElementById('fetchEventIdInput').value;
+            const resultDiv = document.getElementById('fetchResult');
+            
+            if (!eventId) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ Please enter an Event ID';
+                return;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Fetching event...';
+
+            try {
+                const response = await fetch(`/api/events/${eventId}`);
+                
+                if (response.ok) {
+                    const eventData = await response.json();
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `✅ Event fetched successfully!<br>
+                        <strong>Title:</strong> ${eventData.title}<br>
+                        <strong>Description:</strong> ${eventData.description}<br>
+                        <strong>Date:</strong> ${eventData.date}<br>
+                        <strong>Time:</strong> ${eventData.time}<br>
+                        <strong>Location:</strong> ${eventData.location}`;
+                } else if (response.status === 404) {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '❌ Event not found (404)';
+                } else {
+                    const errorData = await response.json();
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ Failed to fetch event: ${errorData.error}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+
+        function updateManualTestUrl(eventId) {
+            const url = `${window.location.origin}/?event=${eventId}`;
+            document.getElementById('manualTestUrl').textContent = url;
+        }
+
+        async function copyToClipboard() {
+            const url = document.getElementById('manualTestUrl').textContent;
+            if (url) {
+                try {
+                    await navigator.clipboard.writeText(url);
+                    alert('URL copied to clipboard!');
+                } catch (error) {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = url;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    alert('URL copied to clipboard!');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
