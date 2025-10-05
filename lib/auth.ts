@@ -71,7 +71,7 @@ export async function getUserEvents(userId: string) {
     mediaUrl: events.mediaUrl,
     mediaType: events.mediaType,
     visualStyling: events.visualStyling,
-    visualStylingUrl: events.visualStylingUrl,
+    // visualStylingUrl: events.visualStylingUrl, // Commented out for backward compatibility
     createdBy: events.createdBy,
     createdAt: events.createdAt,
     creatorName: users.name,
@@ -125,7 +125,7 @@ export async function getAllEvents() {
     mediaUrl: events.mediaUrl,
     mediaType: events.mediaType,
     visualStyling: events.visualStyling,
-    visualStylingUrl: events.visualStylingUrl,
+    // visualStylingUrl: events.visualStylingUrl, // Commented out for backward compatibility
     createdBy: events.createdBy,
     createdAt: events.createdAt,
     updatedAt: events.updatedAt,
@@ -181,7 +181,7 @@ export async function createEvent(eventData: {
   visualStylingUrl?: string;
   createdBy: string;
 }) {
-  const [event] = await db.insert(events).values({
+  const insertData: any = {
     title: eventData.title,
     description: eventData.description,
     date: eventData.date,
@@ -192,9 +192,15 @@ export async function createEvent(eventData: {
     mediaUrl: eventData.mediaUrl,
     mediaType: eventData.mediaType,
     visualStyling: eventData.visualStyling ? JSON.stringify(eventData.visualStyling) : null,
-    visualStylingUrl: eventData.visualStylingUrl || null,
     createdBy: eventData.createdBy,
-  }).returning();
+  };
+
+  // Only add visualStylingUrl if it's provided (for backward compatibility)
+  if (eventData.visualStylingUrl) {
+    insertData.visualStylingUrl = eventData.visualStylingUrl;
+  }
+
+  const [event] = await db.insert(events).values(insertData).returning();
   
   // Automatically add the creator as a participant
   try {

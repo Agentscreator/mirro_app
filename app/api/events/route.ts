@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const event = await createEvent({
+    const eventData: any = {
       title,
       description,
       date,
@@ -91,8 +91,14 @@ export async function POST(request: NextRequest) {
       mediaType,
       createdBy,
       visualStyling: optimizedVisualStyling,
-      visualStylingUrl: visualStylingUrl ?? undefined, // Store R2 URL for large styling data
-    });
+    };
+
+    // Only add visualStylingUrl if it exists (for backward compatibility)
+    if (visualStylingUrl) {
+      eventData.visualStylingUrl = visualStylingUrl;
+    }
+
+    const event = await createEvent(eventData);
 
     return NextResponse.json({
       message: 'Event created successfully',

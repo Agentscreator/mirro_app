@@ -40,7 +40,12 @@ export function getVisualStyling(event: any): any {
 export async function getVisualStylingAsync(event: any): Promise<any> {
   // If there's a visualStylingUrl, fetch from R2
   if (event.visualStylingUrl) {
-    return await fetchVisualStylingFromR2(event.visualStylingUrl);
+    try {
+      return await fetchVisualStylingFromR2(event.visualStylingUrl);
+    } catch (error) {
+      console.error('Failed to fetch from R2, falling back to inline:', error);
+      // Fall through to inline parsing
+    }
   }
   
   // Fall back to inline visualStyling

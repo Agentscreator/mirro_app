@@ -63,6 +63,17 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
           setVisualStyling(styling)
         } catch (error) {
           console.error('Error loading visual styling:', error)
+          // Fall back to parsing inline visual styling
+          if (event.visualStyling) {
+            try {
+              const parsed = typeof event.visualStyling === 'string' 
+                ? JSON.parse(event.visualStyling) 
+                : event.visualStyling;
+              setVisualStyling(parsed);
+            } catch (parseError) {
+              console.error('Error parsing inline visual styling:', parseError);
+            }
+          }
         } finally {
           setIsLoadingVisualStyling(false)
         }
