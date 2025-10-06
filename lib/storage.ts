@@ -1,44 +1,27 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { put } from '@vercel/blob';
 
-const s3Client = new S3Client({
-  region: 'auto',
-  endpoint: process.env.R2_ENDPOINT,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-  },
-});
-
-export async function uploadToR2(
+export async function uploadToBlob(
   file: Buffer,
   fileName: string,
   contentType: string
 ): Promise<string> {
-  console.log('R2 Upload attempt:', {
+  console.log('Vercel Blob Upload attempt:', {
     fileName,
     contentType,
-    fileSize: file.length,
-    bucket: process.env.R2_BUCKET_NAME,
-    endpoint: process.env.R2_ENDPOINT
-  });
-
-  const command = new PutObjectCommand({
-    Bucket: process.env.R2_BUCKET_NAME!,
-    Key: fileName,
-    Body: file,
-    ContentType: contentType,
+    fileSize: file.length
   });
 
   try {
-    const result = await s3Client.send(command);
-    console.log('R2 Upload successful:', result);
+    const blob = await put(fileName, file, {
+      access: 'public',
+      contentType,
+    });
     
-    // Return the public URL
-    const publicUrl = `${process.env.R2_PUBLIC_URL}/${fileName}`;
-    console.log('Public URL:', publicUrl);
-    return publicUrl;
+    console.log('Vercel Blob Upload successful:', blob);
+    console.log('Public URL:', blob.url);
+    return blob.url;
   } catch (error) {
-    console.error('R2 Upload failed:', error);
+    console.error('Vercel Blob Upload failed:', error);
     throw error;
   }
 }

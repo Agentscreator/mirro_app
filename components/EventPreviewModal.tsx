@@ -55,7 +55,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   const [isLoadingVisualStyling, setIsLoadingVisualStyling] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  // Load visual styling data (from R2 or inline)
+  // Load visual styling data (from Vercel Blob or inline)
   useEffect(() => {
     const loadVisualStyling = async () => {
       if (event && (event.visualStylingUrl || event.visualStyling)) {

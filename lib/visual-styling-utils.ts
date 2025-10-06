@@ -1,8 +1,8 @@
 /**
- * Utility functions for handling visual styling data stored in R2
+ * Utility functions for handling visual styling data stored in Vercel Blob
  */
 
-export async function fetchVisualStylingFromR2(url: string): Promise<any> {
+export async function fetchVisualStylingFromBlob(url: string): Promise<any> {
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -10,7 +10,7 @@ export async function fetchVisualStylingFromR2(url: string): Promise<any> {
     }
     return await response.json();
   } catch (error) {
-    console.error('Error fetching visual styling from R2:', error);
+    console.error('Error fetching visual styling from Vercel Blob:', error);
     return null;
   }
 }
@@ -18,8 +18,8 @@ export async function fetchVisualStylingFromR2(url: string): Promise<any> {
 export function getVisualStyling(event: any): any {
   // If there's a visualStylingUrl, prioritize that over inline visualStyling
   if (event.visualStylingUrl) {
-    // Return a promise that resolves to the R2 data
-    return fetchVisualStylingFromR2(event.visualStylingUrl);
+    // Return a promise that resolves to the Blob data
+    return fetchVisualStylingFromBlob(event.visualStylingUrl);
   }
   
   // Fall back to inline visualStyling
@@ -38,12 +38,12 @@ export function getVisualStyling(event: any): any {
 }
 
 export async function getVisualStylingAsync(event: any): Promise<any> {
-  // If there's a visualStylingUrl, fetch from R2
+  // If there's a visualStylingUrl, fetch from Vercel Blob
   if (event.visualStylingUrl) {
     try {
-      return await fetchVisualStylingFromR2(event.visualStylingUrl);
+      return await fetchVisualStylingFromBlob(event.visualStylingUrl);
     } catch (error) {
-      console.error('Failed to fetch from R2, falling back to inline:', error);
+      console.error('Failed to fetch from Vercel Blob, falling back to inline:', error);
       // Fall through to inline parsing
     }
   }

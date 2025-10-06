@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Vercel Blob Storage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #e9ecef;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Vercel Blob Storage System</h1>
+        <p>This page tests the new Vercel Blob storage system for handling video and image uploads.</p>
+
+        <!-- Video Upload Test -->
+        <div class="test-section">
+            <h3>1. Test Video Upload to Vercel Blob</h3>
+            <p>Upload a video file to test Vercel Blob storage.</p>
+            <input type="file" id="videoFile" accept="video/*">
+            <button onclick="testVideoUpload()">Upload Video</button>
+            <div id="video-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Image Upload Test -->
+        <div class="test-section">
+            <h3>2. Test Image Upload to Vercel Blob</h3>
+            <p>Upload an image file to test Vercel Blob storage.</p>
+            <input type="file" id="imageFile" accept="image/*">
+            <button onclick="testImageUpload()">Upload Image</button>
+            <div id="image-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Event Data Upload Test -->
+        <div class="test-section">
+            <h3>3. Test Event Data Upload to Vercel Blob</h3>
+            <p>Upload large event data to test Vercel Blob storage.</p>
+            <button onclick="testEventDataUpload()">Upload Event Data</button>
+            <div id="event-data-result" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Event Creation Test -->
+        <div class="test-section">
+            <h3>4. Test Event Creation with Vercel Blob Storage</h3>
+            <p>Create an event that uses Vercel Blob storage for large data.</p>
+            <button onclick="testEventCreation()">Create Test Event</button>
+            <div id="event-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testVideoUpload() {
+            const fileInput = document.getElementById('videoFile');
+            const resultDiv = document.getElementById('video-result');
+            
+            if (!fileInput.files[0]) {
+                showResult(resultDiv, 'Please select a video file first', 'error');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            showResult(resultDiv, `Uploading ${file.name} (${formatFileSize(file.size)})...`, '');
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('type', 'video');
+
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showResult(resultDiv, `✅ Video uploaded successfully!<br>
+                        URL: <a href="${result.url}" target="_blank">${result.url}</a><br>
+                        Size: ${formatFileSize(result.size)}<br>
+                        Type: ${result.type}`, 'success');
+                } else {
+                    showResult(resultDiv, `❌ Upload failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showResult(resultDiv, `❌ Upload error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testImageUpload() {
+            const fileInput = document.getElementById('imageFile');
+            const resultDiv = document.getElementById('image-result');
+            
+            if (!fileInput.files[0]) {
+                showResult(resultDiv, 'Please select an image file first', 'error');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            showResult(resultDiv, `Uploading ${file.name} (${formatFileSize(file.size)})...`, '');
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('type', 'image');
+
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showResult(resultDiv, `✅ Image uploaded successfully!<br>
+                        URL: <a href="${result.url}" target="_blank">${result.url}</a><br>
+                        Size: ${formatFileSize(result.size)}<br>
+                        Type: ${result.type}`, 'success');
+                } else {
+                    showResult(resultDiv, `❌ Upload failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showResult(resultDiv, `❌ Upload error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testEventDataUpload() {
+            const resultDiv = document.getElementById('event-data-result');
+            
+            // Create large test data
+            const largeData = {
+                styling: {
+                    background: 'gradient',
+                    colors: ['#ff0000', '#00ff00', '#0000ff'],
+                    animations: Array(1000).fill().map((_, i) => ({
+                        id: i,
+                        type: 'fade',
+                        duration: 1000,
+                        delay: i * 100,
+                        properties: {
+                            opacity: [0, 1, 0],
+                            transform: `translateX(${i * 10}px)`
+                        }
+                    }))
+                }
+            };
+
+            showResult(resultDiv, `Uploading large event data (${formatFileSize(JSON.stringify(largeData).length)})...`, '');
+
+            try {
+                const response = await fetch('/api/upload-event-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data: largeData,
+                        type: 'visual-styling'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showResult(resultDiv, `✅ Event data uploaded successfully!<br>
+                        URL: <a href="${result.url}" target="_blank">${result.url}</a><br>
+                        Size: ${formatFileSize(result.size)}<br>
+                        Type: ${result.type}`, 'success');
+                } else {
+                    showResult(resultDiv, `❌ Upload failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showResult(resultDiv, `❌ Upload error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testEventCreation() {
+            const resultDiv = document.getElementById('event-result');
+            
+            showResult(resultDiv, 'Creating test event with Vercel Blob storage...', '');
+
+            try {
+                // Create large visual styling data
+                const largeVisualStyling = {
+                    styling: {
+                        background: 'gradient',
+                        gradient: 'from-purple-400 to-pink-500',
+                        animations: Array(500).fill().map((_, i) => ({
+                            id: i,
+                            type: 'bounce',
+                            duration: 2000,
+                            delay: i * 50
+                        }))
+                    }
+                };
+
+                const eventData = {
+                    title: "Test Event with Vercel Blob Storage",
+                    description: "This event tests the new Vercel Blob storage system for large visual styling data.",
+                    location: "Test Location",
+                    date: "2024-02-15",
+                    time: "14:30",
+                    icon: "calendar",
+                    gradient: "from-purple-400 to-pink-500",
+                    visualStyling: largeVisualStyling
+                };
+
+                const response = await fetch('/api/events', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(eventData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showResult(resultDiv, `✅ Event created successfully!<br>
+                        Event ID: ${result.event.id}<br>
+                        Visual Styling URL: ${result.event.visualStylingUrl || 'Stored inline'}<br>
+                        Title: ${result.event.title}`, 'success');
+                } else {
+                    showResult(resultDiv, `❌ Event creation failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showResult(resultDiv, `❌ Event creation error: ${error.message}`, 'error');
+            }
+        }
+
+        function showResult(element, message, type) {
+            element.innerHTML = message;
+            element.className = `result ${type}`;
+            element.style.display = 'block';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

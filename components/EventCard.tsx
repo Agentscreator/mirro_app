@@ -44,7 +44,7 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
   const [visualStyling, setVisualStyling] = useState<any>(null)
   const [isLoadingVisualStyling, setIsLoadingVisualStyling] = useState(false)
 
-  // Load visual styling data (from R2 or inline)
+  // Load visual styling data (from Vercel Blob or inline)
   useEffect(() => {
     const loadVisualStyling = async () => {
       if (event.visualStylingUrl || event.visualStyling) {

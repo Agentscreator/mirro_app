@@ -130,7 +130,7 @@ export default function VideoRecorder({ onComplete, onClose }: VideoRecorderProp
                 console.log('VideoRecord blob created:', blob.size, 'bytes')
                 
                 try {
-                    // Try to upload to R2 first
+                    // Try to upload to Vercel Blob first
                     const formData = new FormData()
                     formData.append('file', blob, 'video.webm')
                     formData.append('type', 'video')

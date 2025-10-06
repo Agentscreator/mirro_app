@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { uploadToR2, generateFileName } from '@/lib/storage';
+import { uploadToBlob, generateFileName } from '@/lib/storage';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -36,8 +36,8 @@ export async function POST(request: NextRequest) {
     // Convert data to buffer
     const buffer = Buffer.from(dataString, 'utf-8');
 
-    // Upload to R2
-    const url = await uploadToR2(buffer, fileName, 'application/json');
+    // Upload to Vercel Blob
+    const url = await uploadToBlob(buffer, fileName, 'application/json');
 
     return NextResponse.json({
       success: true,
