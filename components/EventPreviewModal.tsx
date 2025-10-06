@@ -531,14 +531,9 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                   )}
                 </button>
               ) : (
-                <div className="text-center py-4">
-                  <p className="text-sm text-gray-600 mb-3">Sign in to join this event</p>
-                  <a
-                    href="/"
-                    className="inline-block px-6 py-3 bg-gray-800 text-white rounded-2xl font-semibold text-base hover:bg-gray-900 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
-                  >
-                    Sign In
-                  </a>
+                <div className="text-center py-4 space-y-3">
+                  <p className="text-sm text-gray-600">You must be signed in to join this event</p>
+                  <p className="text-xs text-gray-500">Close this preview to access the sign-in form</p>
                 </div>
               )}
 
