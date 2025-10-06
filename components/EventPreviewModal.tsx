@@ -289,6 +289,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                 src={event.mediaUrl}
                 className="w-full h-full object-cover"
                 muted={isMuted}
+                autoPlay
                 loop
                 playsInline
                 onEnded={handleVideoEnded}
