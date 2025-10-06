@@ -71,7 +71,7 @@ export async function getUserEvents(userId: string) {
     mediaUrl: events.mediaUrl,
     mediaType: events.mediaType,
     visualStyling: events.visualStyling,
-    // visualStylingUrl: events.visualStylingUrl, // Commented out for backward compatibility
+    visualStylingUrl: events.visualStylingUrl,
     createdBy: events.createdBy,
     createdAt: events.createdAt,
     creatorName: users.name,
@@ -125,7 +125,7 @@ export async function getAllEvents() {
     mediaUrl: events.mediaUrl,
     mediaType: events.mediaType,
     visualStyling: events.visualStyling,
-    // visualStylingUrl: events.visualStylingUrl, // Commented out for backward compatibility
+    visualStylingUrl: events.visualStylingUrl,
     createdBy: events.createdBy,
     createdAt: events.createdAt,
     updatedAt: events.updatedAt,
@@ -264,7 +264,7 @@ export async function getEventById(eventId: string) {
       mediaUrl: events.mediaUrl,
       mediaType: events.mediaType,
       visualStyling: events.visualStyling,
-      // visualStylingUrl: events.visualStylingUrl, // Commented out for backward compatibility
+      visualStylingUrl: events.visualStylingUrl,
       createdBy: events.createdBy,
       createdAt: events.createdAt,
       updatedAt: events.updatedAt,
