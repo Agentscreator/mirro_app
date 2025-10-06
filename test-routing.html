@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Event Routing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .url-test {
+            background: #e3f2fd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #1976d2;
+        }
+        .url-test a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .url-test a:hover {
+            text-decoration: underline;
+        }
+        .instructions {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #f57c00;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Event Routing Test</h1>
+    
+    <div class="instructions">
+        <h3>📋 Instructions:</h3>
+        <ol>
+            <li>Click each link below in a <strong>new tab</strong></li>
+            <li>Check what page loads and what appears in the browser console</li>
+            <li>Look for debug messages starting with 🎯, 🔍, or ❌</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>1. Test Main Page</h2>
+        <div class="url-test">
+            <strong>Main App Page:</strong><br>
+            <a href="/" target="_blank">http://localhost:3000/</a>
+        </div>
+        <p><strong>Expected:</strong> Should show your main app with "My Events" and login/profile</p>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test Event Page (Your Friend's Event)</h2>
+        <div class="url-test">
+            <strong>Event Page:</strong><br>
+            <a href="/event/f1cdf3e-928b-473b-8bf4-ee79908fb49" target="_blank">
+                http://localhost:3000/event/f1cdf3e-928b-473b-8bf4-ee79908fb49
+            </a>
+        </div>
+        <p><strong>Expected:</strong> Should show the event page with debug messages in console</p>
+        <p><strong>Look for:</strong> Console messages starting with 🎯, 🔍, 📡, ✅, or ❌</p>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Event Page (Fake ID)</h2>
+        <div class="url-test">
+            <strong>Event Page (Fake ID):</strong><br>
+            <a href="/event/fake-event-id-123" target="_blank">
+                http://localhost:3000/event/fake-event-id-123
+            </a>
+        </div>
+        <p><strong>Expected:</strong> Should show "Event Not Found" error page</p>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Debug Checklist</h2>
+        <h3>✅ What to Check:</h3>
+        <ul>
+            <li><strong>URL in address bar:</strong> Does it stay on /event/[id] or redirect to /?</li>
+            <li><strong>Page content:</strong> Do you see "Shared Event" header or "My Events"?</li>
+            <li><strong>Console messages:</strong> Look for the 🎯 and 🔍 debug messages</li>
+            <li><strong>Network tab:</strong> Check if API calls to /api/events/[id] are made</li>
+        </ul>
+        
+        <h3>🚨 Common Issues:</h3>
+        <ul>
+            <li><strong>Redirects to main page:</strong> Check for JavaScript redirects</li>
+            <li><strong>404 page:</strong> Event page route might not be working</li>
+            <li><strong>Blank page:</strong> JavaScript error preventing page load</li>
+            <li><strong>No console messages:</strong> Event page component not loading</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Current Page Info</h2>
+        <div id="current-info"></div>
+    </div>
+
+    <script>
+        // Show current page info
+        document.getElementById('current-info').innerHTML = `
+            <strong>Current URL:</strong> ${window.location.href}<br>
+            <strong>Pathname:</strong> ${window.location.pathname}<br>
+            <strong>Search:</strong> ${window.location.search}<br>
+            <strong>Hash:</strong> ${window.location.hash}<br>
+            <strong>Host:</strong> ${window.location.host}
+        `;
+    </script>
+</body>
+</html>

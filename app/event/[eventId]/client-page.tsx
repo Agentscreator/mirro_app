@@ -20,6 +20,13 @@ export default function ClientEventPage({ eventId }: ClientEventPageProps) {
   const [user, setUser] = useState<User | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  // Debug logging
+  useEffect(() => {
+    console.log('🎯 ClientEventPage mounted with eventId:', eventId)
+    console.log('🌐 Current URL:', window.location.href)
+    console.log('📍 Current pathname:', window.location.pathname)
+  }, [])
+
   // Check if user is logged in
   useEffect(() => {
     const storedUser = localStorage.getItem('user')
@@ -37,35 +44,45 @@ export default function ClientEventPage({ eventId }: ClientEventPageProps) {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        console.log('Fetching event:', eventId)
+        console.log('🔍 Fetching event with ID:', eventId)
+        console.log('🌐 API URL will be:', `/api/events/${eventId}`)
         setStatus('Loading event details...')
 
         const response = await fetch(`/api/events/${eventId}`)
-        console.log('Event fetch response:', response.status)
+        console.log('📡 Event fetch response status:', response.status)
+        console.log('📡 Event fetch response headers:', Object.fromEntries(response.headers.entries()))
 
         if (response.ok) {
           const eventData = await response.json()
-          console.log('Event loaded:', eventData.title)
+          console.log('✅ Event loaded successfully:', eventData.title)
+          console.log('📄 Full event data:', eventData)
           setEvent(eventData)
           setStatus('Event loaded successfully')
         } else if (response.status === 404) {
-          console.log('Event not found (404)')
+          console.log('❌ Event not found (404)')
+          const errorData = await response.json()
+          console.log('❌ 404 Error response:', errorData)
           setError('Event not found')
           setStatus('Event not found')
         } else {
-          console.log('Unexpected response status:', response.status)
+          console.log('❌ Unexpected response status:', response.status)
+          const errorData = await response.text()
+          console.log('❌ Error response:', errorData)
           setError('Failed to load event')
           setStatus('Error loading event')
         }
       } catch (error) {
-        console.error('Error fetching event:', error)
+        console.error('❌ Network error fetching event:', error)
         setError('Network error')
         setStatus('Network error')
       }
     }
 
     if (eventId) {
+      console.log('🚀 Starting event fetch for ID:', eventId)
       fetchEvent()
+    } else {
+      console.log('⚠️ No eventId provided to ClientEventPage')
     }
   }, [eventId])
 
