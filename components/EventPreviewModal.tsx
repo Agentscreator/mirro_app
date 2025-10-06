@@ -541,7 +541,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                         onClose()
                       }
                     }}
-                    className={`w-full ${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')}`} text-white py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}
+                    className={`w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}
                   >
                     Sign Up to Join Event
                   </button>
