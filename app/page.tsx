@@ -69,6 +69,39 @@ function EventsAppContent() {
     validateSession()
   }, [])
 
+  // Function to fetch shared event data
+  const fetchSharedEvent = async (eventId: string) => {
+    console.log('Starting to fetch shared event:', eventId)
+    setIsLoadingSharedEvent(true)
+    try {
+      const apiUrl = `/api/events/${eventId}`
+      console.log('Fetching from:', apiUrl)
+      const response = await fetch(apiUrl)
+      console.log('Response status:', response.status)
+
+      if (response.ok) {
+        const eventData = await response.json()
+        console.log('Event data received:', eventData)
+        setSharedEvent(eventData)
+      } else if (response.status === 404) {
+        console.log('Event not found (404), redirecting')
+        // Event not found, redirect to main page with error
+        window.history.replaceState({}, '', '/?eventNotFound=' + eventId)
+        setSelectedEventId(null)
+      } else {
+        console.error('Failed to fetch shared event, status:', response.status)
+        const errorData = await response.text()
+        console.error('Error response:', errorData)
+        setSelectedEventId(null)
+      }
+    } catch (error) {
+      console.error('Error fetching shared event:', error)
+      setSelectedEventId(null)
+    } finally {
+      setIsLoadingSharedEvent(false)
+    }
+  }
+
   // Handle event parameter from URL - fetch shared event data
   useEffect(() => {
     const eventId = searchParams.get('event')
@@ -86,39 +119,7 @@ function EventsAppContent() {
     if (eventId) {
       console.log('Found event ID in URL:', eventId)
       setSelectedEventId(eventId)
-      // Fetch shared event data for non-authenticated users
-      const fetchSharedEvent = async () => {
-        console.log('Starting to fetch shared event:', eventId)
-        setIsLoadingSharedEvent(true)
-        try {
-          const apiUrl = `/api/events/${eventId}`
-          console.log('Fetching from:', apiUrl)
-          const response = await fetch(apiUrl)
-          console.log('Response status:', response.status)
-          
-          if (response.ok) {
-            const eventData = await response.json()
-            console.log('Event data received:', eventData)
-            setSharedEvent(eventData)
-          } else if (response.status === 404) {
-            console.log('Event not found (404), redirecting')
-            // Event not found, redirect to main page with error
-            window.history.replaceState({}, '', '/?eventNotFound=' + eventId)
-            setSelectedEventId(null)
-          } else {
-            console.error('Failed to fetch shared event, status:', response.status)
-            const errorData = await response.text()
-            console.error('Error response:', errorData)
-            setSelectedEventId(null)
-          }
-        } catch (error) {
-          console.error('Error fetching shared event:', error)
-          setSelectedEventId(null)
-        } finally {
-          setIsLoadingSharedEvent(false)
-        }
-      }
-      fetchSharedEvent()
+      fetchSharedEvent(eventId)
     } else if (eventNotFound) {
       // Show a toast or alert that the event wasn't found
       console.log('Event not found:', eventNotFound)
@@ -137,6 +138,7 @@ function EventsAppContent() {
       setUser(JSON.parse(storedUser))
       // If there was a shared event being viewed, keep it open after login
       // The EventPreviewModal will now show join/leave buttons since user is authenticated
+      // The modal will automatically update because user state changed
     }
   }
 
@@ -178,6 +180,11 @@ function EventsAppContent() {
               setSharedEvent(null)
             }}
             currentUserId=""
+            onJoinStatusChange={() => {
+              if (selectedEventId) {
+                fetchSharedEvent(selectedEventId)
+              }
+            }}
           />
         </div>
       )
@@ -235,7 +242,7 @@ function EventsAppContent() {
         <ProfilePage
           user={user}
           key={refreshEvents}
-          initialEventId={selectedEventId}
+          initialEventId={sharedEvent ? null : selectedEventId}
           onEventModalClose={() => {
             setSelectedEventId(null)
             setSharedEvent(null)
@@ -257,6 +264,11 @@ function EventsAppContent() {
             setSharedEvent(null)
           }}
           currentUserId={user.id}
+          onJoinStatusChange={() => {
+            if (selectedEventId) {
+              fetchSharedEvent(selectedEventId)
+            }
+          }}
         />
       )}
 

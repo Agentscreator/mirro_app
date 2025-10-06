@@ -36,9 +36,10 @@ interface EventPreviewModalProps {
   isOpen: boolean
   onClose: () => void
   currentUserId: string
+  onJoinStatusChange?: () => void
 }
 
-export default function EventPreviewModal({ event, isOpen, onClose, currentUserId }: EventPreviewModalProps) {
+export default function EventPreviewModal({ event, isOpen, onClose, currentUserId, onJoinStatusChange }: EventPreviewModalProps) {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [showVideoControls, setShowVideoControls] = useState(false)
   const [videoProgress, setVideoProgress] = useState(0)
@@ -232,8 +233,13 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
       if (response.ok) {
         setIsJoined(!isJoined);
-        // Optionally refresh event data to update attendee count
-        window.location.reload();
+        // Notify parent component to refresh event data
+        if (onJoinStatusChange) {
+          onJoinStatusChange();
+        } else {
+          // Fallback to reload if no callback provided
+          window.location.reload();
+        }
       } else {
         const error = await response.json();
         alert(error.error || 'Failed to update event participation');
