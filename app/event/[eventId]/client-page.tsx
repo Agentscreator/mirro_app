@@ -25,6 +25,8 @@ export default function ClientEventPage({ eventId }: ClientEventPageProps) {
     console.log('🎯 ClientEventPage mounted with eventId:', eventId)
     console.log('🌐 Current URL:', window.location.href)
     console.log('📍 Current pathname:', window.location.pathname)
+    console.log('🔧 Event ID type:', typeof eventId)
+    console.log('🔧 Event ID length:', eventId?.length)
   }, [])
 
   // Check if user is logged in

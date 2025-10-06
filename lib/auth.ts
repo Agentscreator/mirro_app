@@ -252,9 +252,59 @@ export async function getEventById(eventId: string) {
     console.log('getEventById: Attempting to fetch event with ID:', eventId);
     console.log('getEventById: Database URL exists:', !!process.env.DATABASE_URL);
     
-    const [event] = await db.select().from(events).where(eq(events.id, eventId));
-    console.log('getEventById: Query result:', event ? 'Event found' : 'Event not found');
+    const [eventData] = await db.select({
+      id: events.id,
+      title: events.title,
+      description: events.description,
+      date: events.date,
+      time: events.time,
+      location: events.location,
+      icon: events.icon,
+      gradient: events.gradient,
+      mediaUrl: events.mediaUrl,
+      mediaType: events.mediaType,
+      visualStyling: events.visualStyling,
+      // visualStylingUrl: events.visualStylingUrl, // Commented out for backward compatibility
+      createdBy: events.createdBy,
+      createdAt: events.createdAt,
+      updatedAt: events.updatedAt,
+      creatorName: users.name,
+      creatorUsername: users.username,
+      creatorProfilePicture: users.profilePicture,
+    }).from(events).leftJoin(users, eq(events.createdBy, users.id)).where(eq(events.id, eventId));
     
+    if (!eventData) {
+      console.log('getEventById: Event not found');
+      return null;
+    }
+
+    // Get attendees for the event
+    const participants = await getEventParticipants(eventData.id);
+    
+    // Include creator as an attendee if they're not already in participants
+    const creatorAsAttendee = {
+      id: eventData.createdBy,
+      name: eventData.creatorName || 'Unknown',
+      username: eventData.creatorUsername || 'unknown',
+      profilePicture: eventData.creatorProfilePicture || null,
+      joinedAt: eventData.createdAt,
+    };
+
+    // Check if creator is already in participants list
+    const isCreatorInParticipants = participants.some(p => p.id === eventData.createdBy);
+    
+    // Combine creator and participants, ensuring creator is first
+    const allAttendees = isCreatorInParticipants 
+      ? participants 
+      : [creatorAsAttendee, ...participants];
+
+    const event = {
+      ...eventData,
+      attendees: allAttendees,
+      attendeeCount: allAttendees.length,
+    };
+
+    console.log('getEventById: Event found:', event.title);
     return event;
   } catch (error) {
     console.error('getEventById: Database query failed:', error);

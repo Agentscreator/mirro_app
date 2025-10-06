@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Specific Event API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Specific Event API</h1>
+    
+    <div class="test-section">
+        <h2>Test Your Friend's Event</h2>
+        <p><strong>Event ID:</strong> f1cdf3e-928b-473b-8bf4-ee79908fb49</p>
+        <button onclick="testSpecificEvent()">Test API Endpoint</button>
+        <button onclick="testEventPage()">Test Event Page</button>
+        <div id="result" class="result">Click a button to test...</div>
+    </div>
+
+    <script>
+        const BASE_URL = window.location.origin;
+        const EVENT_ID = 'f1cdf3e-928b-473b-8bf4-ee79908fb49';
+        
+        function log(message, isError = false) {
+            const element = document.getElementById('result');
+            element.textContent = message;
+            element.className = `result ${isError ? 'error' : 'success'}`;
+        }
+
+        async function testSpecificEvent() {
+            try {
+                log('🔍 Testing API endpoint...\n\nURL: /api/events/' + EVENT_ID);
+                
+                const response = await fetch(`${BASE_URL}/api/events/${EVENT_ID}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(
+                        `✅ SUCCESS!\n\n` +
+                        `Status: ${response.status}\n` +
+                        `Event Title: ${data.title}\n` +
+                        `Event Description: ${data.description}\n` +
+                        `Date: ${data.date} at ${data.time}\n` +
+                        `Location: ${data.location}\n` +
+                        `Created By: ${data.createdBy}\n\n` +
+                        `Full Response:\n${JSON.stringify(data, null, 2)}`
+                    );
+                } else if (response.status === 404) {
+                    log(
+                        `❌ EVENT NOT FOUND (404)\n\n` +
+                        `This event ID doesn't exist in your database.\n` +
+                        `Response: ${JSON.stringify(data, null, 2)}\n\n` +
+                        `Possible reasons:\n` +
+                        `1. Event was deleted\n` +
+                        `2. Wrong event ID\n` +
+                        `3. Database connection issue`,
+                        true
+                    );
+                } else {
+                    log(
+                        `❌ ERROR ${response.status}\n\n` +
+                        `Response: ${JSON.stringify(data, null, 2)}`,
+                        true
+                    );
+                }
+            } catch (error) {
+                log(
+                    `❌ NETWORK ERROR\n\n` +
+                    `Error: ${error.message}\n\n` +
+                    `Make sure your development server is running!`,
+                    true
+                );
+            }
+        }
+
+        function testEventPage() {
+            const eventPageUrl = `${BASE_URL}/event/${EVENT_ID}`;
+            log(
+                `🌐 Opening event page...\n\n` +
+                `URL: ${eventPageUrl}\n\n` +
+                `Check the browser console for debug messages starting with:\n` +
+                `🎯 ClientEventPage mounted\n` +
+                `🔍 Fetching event\n` +
+                `📡 Event fetch response\n` +
+                `✅ Event loaded successfully\n` +
+                `❌ Error messages`
+            );
+            
+            // Open in new tab
+            window.open(eventPageUrl, '_blank');
+        }
+    </script>
+</body>
+</html>

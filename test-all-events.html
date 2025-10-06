@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test All Events</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        .event-item {
+            background: #e3f2fd;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid #1976d2;
+        }
+        .event-item a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .event-item a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test All Events & Find Valid IDs</h1>
+    
+    <div class="test-section">
+        <h2>Get All Events from Database</h2>
+        <button onclick="getAllEvents()">Fetch All Events</button>
+        <div id="result" class="result">Click the button to fetch all events...</div>
+        <div id="event-links"></div>
+    </div>
+
+    <script>
+        const BASE_URL = window.location.origin;
+        
+        function log(message, isError = false) {
+            const element = document.getElementById('result');
+            element.textContent = message;
+            element.className = `result ${isError ? 'error' : 'success'}`;
+        }
+
+        async function getAllEvents() {
+            try {
+                log('🔍 Fetching all events from database...');
+                
+                const response = await fetch(`${BASE_URL}/api/events`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    if (Array.isArray(data) && data.length > 0) {
+                        log(
+                            `✅ SUCCESS!\n\n` +
+                            `Found ${data.length} events in database:\n\n` +
+                            data.map((event, index) => 
+                                `${index + 1}. ${event.title}\n` +
+                                `   ID: ${event.id}\n` +
+                                `   Created by: ${event.creatorName || 'Unknown'}\n` +
+                                `   Date: ${event.date} at ${event.time}\n` +
+                                `   Location: ${event.location}\n`
+                            ).join('\n')
+                        );
+
+                        // Create clickable links for each event
+                        const linksContainer = document.getElementById('event-links');
+                        linksContainer.innerHTML = '<h3>🔗 Test Event Pages:</h3>';
+                        
+                        data.forEach((event, index) => {
+                            const eventDiv = document.createElement('div');
+                            eventDiv.className = 'event-item';
+                            eventDiv.innerHTML = `
+                                <strong>${event.title}</strong><br>
+                                <small>ID: ${event.id}</small><br>
+                                <a href="/event/${event.id}" target="_blank">Open Event Page</a> | 
+                                <a href="/api/events/${event.id}" target="_blank">Test API</a>
+                            `;
+                            linksContainer.appendChild(eventDiv);
+                        });
+
+                    } else {
+                        log(
+                            `⚠️ NO EVENTS FOUND\n\n` +
+                            `The database returned an empty array.\n` +
+                            `You need to create some events first through your app.`,
+                            true
+                        );
+                    }
+                } else {
+                    log(
+                        `❌ ERROR ${response.status}\n\n` +
+                        `Response: ${JSON.stringify(data, null, 2)}`,
+                        true
+                    );
+                }
+            } catch (error) {
+                log(
+                    `❌ NETWORK ERROR\n\n` +
+                    `Error: ${error.message}\n\n` +
+                    `Make sure your development server is running!`,
+                    true
+                );
+            }
+        }
+
+        // Auto-fetch on page load
+        window.addEventListener('load', getAllEvents);
+    </script>
+</body>
+</html>
