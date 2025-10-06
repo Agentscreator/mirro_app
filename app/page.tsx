@@ -72,31 +72,46 @@ function EventsAppContent() {
 
   // Function to fetch shared event data
   const fetchSharedEvent = async (eventId: string) => {
-    console.log('Starting to fetch shared event:', eventId)
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+    console.log('🔍 FETCH DEBUG:')
+    console.log('   Event ID:', eventId)
+    console.log('   Event ID type:', typeof eventId)
+    console.log('   Event ID length:', eventId?.length)
+    console.log('   Current URL:', window.location.href)
+    console.log('   Current pathname:', window.location.pathname)
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
     setIsLoadingSharedEvent(true)
     try {
       const apiUrl = `/api/events/${eventId}`
-      console.log('Fetching from:', apiUrl)
+      console.log('📡 Fetching from:', apiUrl)
+      console.log('📡 Full URL will be:', window.location.origin + apiUrl)
+
       const response = await fetch(apiUrl)
-      console.log('Response status:', response.status)
+      console.log('📥 Response status:', response.status)
+      console.log('📥 Response statusText:', response.statusText)
+      console.log('📥 Response headers:', Object.fromEntries(response.headers.entries()))
 
       if (response.ok) {
         const eventData = await response.json()
-        console.log('Event data received:', eventData)
+        console.log('✅ Event data received:', eventData)
         setSharedEvent(eventData)
       } else if (response.status === 404) {
-        console.log('Event not found (404), redirecting')
+        console.log('❌ Event not found (404), redirecting')
+        const errorBody = await response.text()
+        console.log('❌ 404 Response body:', errorBody)
         // Event not found, redirect to main page with error
         window.history.replaceState({}, '', '/?eventNotFound=' + eventId)
         setSelectedEventId(null)
       } else {
-        console.error('Failed to fetch shared event, status:', response.status)
+        console.error('❌ Failed to fetch shared event, status:', response.status)
         const errorData = await response.text()
-        console.error('Error response:', errorData)
+        console.error('❌ Error response:', errorData)
         setSelectedEventId(null)
       }
     } catch (error) {
-      console.error('Error fetching shared event:', error)
+      console.error('❌ Error fetching shared event:', error)
+      console.error('❌ Error type:', error?.constructor?.name)
+      console.error('❌ Error message:', error instanceof Error ? error.message : 'Unknown')
       setSelectedEventId(null)
     } finally {
       setIsLoadingSharedEvent(false)
