@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Event Sharing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%);
+            min-height: 100vh;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Event Sharing Test Page</h1>
+    
+    <div class="test-section">
+        <h2>1. Test API Endpoints</h2>
+        <button onclick="testGetEvents()">Test GET /api/events</button>
+        <button onclick="testGetEventById()">Test GET /api/events/[id]</button>
+        <button onclick="testGenerateEvent()">Test Generate Event</button>
+        <div id="api-results" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Create Test Event</h2>
+        <input type="text" id="event-title" placeholder="Event Title" value="Test Birthday Party">
+        <textarea id="event-description" placeholder="Event Description">Join us for an amazing birthday celebration!</textarea>
+        <input type="date" id="event-date" value="2024-12-15">
+        <input type="time" id="event-time" value="19:00">
+        <input type="text" id="event-location" placeholder="Location" value="123 Main St">
+        <input type="text" id="user-id" placeholder="User ID (UUID)" value="123e4567-e89b-12d3-a456-426614174000">
+        <button onclick="createTestEvent()">Create Event</button>
+        <div id="create-results" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Event URL</h2>
+        <input type="text" id="event-url" placeholder="Event ID" value="">
+        <button onclick="testEventUrl()">Test Event URL</button>
+        <button onclick="generateEventUrl()">Generate Event URL</button>
+        <div id="url-results" class="result"></div>
+    </div>
+
+    <script>
+        const BASE_URL = window.location.origin;
+        
+        function log(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${isError ? 'error' : 'success'}`;
+        }
+
+        async function testGetEvents() {
+            try {
+                log('api-results', 'Testing GET /api/events...');
+                const response = await fetch(`${BASE_URL}/api/events`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('api-results', `Success! Found ${Array.isArray(data) ? data.length : 'unknown'} events\n\n${JSON.stringify(data, null, 2)}`);
+                } else {
+                    log('api-results', `Error ${response.status}: ${JSON.stringify(data, null, 2)}`, true);
+                }
+            } catch (error) {
+                log('api-results', `Network Error: ${error.message}`, true);
+            }
+        }
+
+        async function testGetEventById() {
+            try {
+                log('api-results', 'Testing GET /api/events/[id] with fake ID...');
+                const fakeId = '123e4567-e89b-12d3-a456-426614174000';
+                const response = await fetch(`${BASE_URL}/api/events/${fakeId}`);
+                const data = await response.json();
+                
+                if (response.status === 404) {
+                    log('api-results', `Expected 404 for fake ID: ${JSON.stringify(data, null, 2)}`);
+                } else if (response.ok) {
+                    log('api-results', `Unexpected success: ${JSON.stringify(data, null, 2)}`);
+                } else {
+                    log('api-results', `Error ${response.status}: ${JSON.stringify(data, null, 2)}`, true);
+                }
+            } catch (error) {
+                log('api-results', `Network Error: ${error.message}`, true);
+            }
+        }
+
+        async function testGenerateEvent() {
+            try {
+                log('api-results', 'Testing POST /api/generate-event...');
+                const response = await fetch(`${BASE_URL}/api/generate-event`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        input: 'Birthday party tomorrow at 7 PM at my house',
+                        method: 'extract'
+                    })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('api-results', `Success! Generated event:\n\n${JSON.stringify(data, null, 2)}`);
+                } else {
+                    log('api-results', `Error ${response.status}: ${JSON.stringify(data, null, 2)}`, true);
+                }
+            } catch (error) {
+                log('api-results', `Network Error: ${error.message}`, true);
+            }
+        }
+
+        async function createTestEvent() {
+            try {
+                log('create-results', 'Creating test event...');
+                
+                const eventData = {
+                    title: document.getElementById('event-title').value,
+                    description: document.getElementById('event-description').value,
+                    date: document.getElementById('event-date').value,
+                    time: document.getElementById('event-time').value,
+                    location: document.getElementById('event-location').value,
+                    createdBy: document.getElementById('user-id').value,
+                    icon: '🎉',
+                    gradient: 'bg-pink-50'
+                };
+
+                const response = await fetch(`${BASE_URL}/api/events`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(eventData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('create-results', `Success! Created event:\n\n${JSON.stringify(data, null, 2)}`);
+                    document.getElementById('event-url').value = data.event.id;
+                } else {
+                    log('create-results', `Error ${response.status}: ${JSON.stringify(data, null, 2)}`, true);
+                }
+            } catch (error) {
+                log('create-results', `Network Error: ${error.message}`, true);
+            }
+        }
+
+        async function testEventUrl() {
+            const eventId = document.getElementById('event-url').value;
+            if (!eventId) {
+                log('url-results', 'Please enter an event ID', true);
+                return;
+            }
+
+            try {
+                log('url-results', `Testing event URL: /event/${eventId}`);
+                
+                // Test the API endpoint first
+                const apiResponse = await fetch(`${BASE_URL}/api/events/${eventId}`);
+                const apiData = await apiResponse.json();
+                
+                if (apiResponse.ok) {
+                    log('url-results', `API Success! Event found:\n\n${JSON.stringify(apiData, null, 2)}\n\nEvent URL: ${BASE_URL}/event/${eventId}`);
+                } else {
+                    log('url-results', `API Error ${apiResponse.status}: ${JSON.stringify(apiData, null, 2)}`, true);
+                }
+            } catch (error) {
+                log('url-results', `Network Error: ${error.message}`, true);
+            }
+        }
+
+        function generateEventUrl() {
+            const eventId = document.getElementById('event-url').value;
+            if (!eventId) {
+                log('url-results', 'Please enter an event ID first', true);
+                return;
+            }
+            
+            const eventUrl = `${BASE_URL}/event/${eventId}`;
+            const shareUrl = `${BASE_URL}/?event=${eventId}`;
+            
+            log('url-results', `Event URLs:\n\nDirect: ${eventUrl}\nShare: ${shareUrl}\n\nClick to test:\n${eventUrl}`);
+            
+            // Create clickable links
+            const element = document.getElementById('url-results');
+            element.innerHTML = `
+                Event URLs:<br><br>
+                Direct: <a href="${eventUrl}" target="_blank">${eventUrl}</a><br>
+                Share: <a href="${shareUrl}" target="_blank">${shareUrl}</a>
+            `;
+        }
+    </script>
+</body>
+</html>

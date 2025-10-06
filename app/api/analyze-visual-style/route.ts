@@ -5,207 +5,143 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Predefined visual themes based on event types and moods
-const visualThemes = {
-  professional: {
-    gradients: [
-      'from-slate-600 to-slate-800',
-      'from-gray-700 to-gray-900',
-      'from-blue-800 to-blue-900',
-      'from-indigo-700 to-indigo-900'
-    ],
-    colors: ['slate', 'gray', 'blue', 'indigo'],
-    fonts: ['font-medium', 'font-semibold'],
-    layouts: ['minimal', 'structured']
-  },
-  creative: {
-    gradients: [
-      'from-purple-500 to-pink-600',
-      'from-orange-400 to-red-500',
-      'from-yellow-400 to-orange-500',
-      'from-green-400 to-blue-500'
-    ],
-    colors: ['purple', 'pink', 'orange', 'yellow', 'green'],
-    fonts: ['font-bold', 'font-extrabold'],
-    layouts: ['artistic', 'dynamic']
-  },
-  social: {
-    gradients: [
-      'from-pink-400 to-rose-500',
-      'from-blue-400 to-cyan-500',
-      'from-green-400 to-emerald-500',
-      'from-yellow-300 to-amber-400'
-    ],
-    colors: ['pink', 'rose', 'blue', 'cyan', 'green', 'emerald'],
-    fonts: ['font-medium', 'font-semibold'],
-    layouts: ['friendly', 'inviting']
-  },
-  formal: {
-    gradients: [
-      'from-gray-800 to-black',
-      'from-slate-700 to-slate-900',
-      'from-blue-900 to-indigo-900',
-      'from-purple-900 to-indigo-900'
-    ],
-    colors: ['gray', 'slate', 'blue', 'purple', 'indigo'],
-    fonts: ['font-semibold', 'font-bold'],
-    layouts: ['elegant', 'classic']
-  },
-  outdoor: {
-    gradients: [
-      'from-green-500 to-emerald-600',
-      'from-blue-400 to-teal-500',
-      'from-yellow-400 to-green-500',
-      'from-orange-400 to-yellow-500'
-    ],
-    colors: ['green', 'emerald', 'blue', 'teal', 'yellow', 'orange'],
-    fonts: ['font-medium', 'font-semibold'],
-    layouts: ['natural', 'adventurous']
-  },
-  celebration: {
-    gradients: [
-      'from-yellow-400 to-orange-500',
-      'from-pink-400 to-purple-500',
-      'from-red-400 to-pink-500',
-      'from-orange-400 to-red-500'
-    ],
-    colors: ['yellow', 'orange', 'pink', 'purple', 'red'],
-    fonts: ['font-bold', 'font-extrabold'],
-    layouts: ['festive', 'joyful']
-  }
-};
-
-async function analyzeEventStyle(eventData: any) {
-  const systemPrompt = `You are a visual design AI that analyzes event content and suggests appropriate visual styling.
-
-Based on the event title, description, location, and time, determine:
-1. The overall mood/theme (professional, creative, social, formal, outdoor, celebration)
-2. The energy level (low, medium, high)
-3. The formality level (casual, semi-formal, formal)
-4. Key visual elements that would enhance the invite
-
-Available themes: ${Object.keys(visualThemes).join(', ')}
-
-Return ONLY valid JSON in this exact format:
-{
-  "theme": "theme_name",
-  "energy": "low|medium|high",
-  "formality": "casual|semi-formal|formal",
-  "mood": "descriptive mood (e.g., 'energetic and fun', 'professional and sleek')",
-  "visualElements": ["element1", "element2", "element3"],
-  "colorPalette": ["color1", "color2", "color3"],
-  "reasoning": "Brief explanation of why these choices fit the event"
-}`;
-
-  const userPrompt = `Analyze this event for visual styling:
-Title: ${eventData.title}
-Description: ${eventData.description}
-Location: ${eventData.location}
-Time: ${eventData.time}
-Date: ${eventData.date}`;
-
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ],
-      temperature: 0.7,
-      max_tokens: 400,
-    });
-
-    const response = completion.choices[0]?.message?.content;
-    if (!response) {
-      throw new Error('No response from OpenAI');
-    }
-
-    const analysis = JSON.parse(response);
-    
-    // Generate visual styling based on analysis
-    const theme = visualThemes[analysis.theme as keyof typeof visualThemes] || visualThemes.social;
-    const gradient = theme.gradients[Math.floor(Math.random() * theme.gradients.length)];
-    const primaryColor = theme.colors[Math.floor(Math.random() * theme.colors.length)];
-    const font = theme.fonts[Math.floor(Math.random() * theme.fonts.length)];
-    const layout = theme.layouts[Math.floor(Math.random() * theme.layouts.length)];
-
-    return {
-      ...analysis,
-      styling: {
-        gradient: `bg-gradient-to-br ${gradient}`,
-        primaryColor,
-        font,
-        layout,
-        theme: analysis.theme
-      }
-    };
-
-  } catch (error) {
-    console.error('Error with OpenAI visual analysis:', error);
-    
-    // Fallback: Basic analysis based on keywords
-    return fallbackVisualAnalysis(eventData);
-  }
-}
-
-function fallbackVisualAnalysis(eventData: any) {
-  const text = `${eventData.title} ${eventData.description} ${eventData.location}`.toLowerCase();
-  
-  let theme = 'social'; // default
-  
-  // Simple keyword matching
-  if (text.includes('business') || text.includes('meeting') || text.includes('conference') || text.includes('workshop')) {
-    theme = 'professional';
-  } else if (text.includes('art') || text.includes('music') || text.includes('creative') || text.includes('design')) {
-    theme = 'creative';
-  } else if (text.includes('formal') || text.includes('gala') || text.includes('ceremony') || text.includes('award')) {
-    theme = 'formal';
-  } else if (text.includes('outdoor') || text.includes('park') || text.includes('hiking') || text.includes('beach')) {
-    theme = 'outdoor';
-  } else if (text.includes('party') || text.includes('celebration') || text.includes('birthday') || text.includes('wedding')) {
-    theme = 'celebration';
-  }
-
-  const themeConfig = visualThemes[theme as keyof typeof visualThemes];
-  const gradient = themeConfig.gradients[0];
-  const primaryColor = themeConfig.colors[0];
-  const font = themeConfig.fonts[0];
-  const layout = themeConfig.layouts[0];
-
-  return {
-    theme,
-    energy: 'medium',
-    formality: 'casual',
-    mood: 'welcoming and engaging',
-    visualElements: ['gradient background', 'clean typography', 'balanced layout'],
-    colorPalette: themeConfig.colors.slice(0, 3),
-    reasoning: `Based on keywords in the event content, this appears to be a ${theme} event.`,
-    styling: {
-      gradient: `bg-gradient-to-br ${gradient}`,
-      primaryColor,
-      font,
-      layout,
-      theme
-    }
-  };
-}
-
 export async function POST(request: NextRequest) {
   try {
     const eventData = await request.json();
-
+    
     if (!eventData.title || !eventData.description) {
       return NextResponse.json({ error: 'Event title and description are required' }, { status: 400 });
     }
 
-    const visualAnalysis = await analyzeEventStyle(eventData);
+    const systemPrompt = `You are a visual design AI that analyzes event content and generates appropriate visual styling. 
 
-    return NextResponse.json(visualAnalysis);
+Based on the event details provided, generate visual styling that matches the mood, theme, and context of the event.
+
+Return ONLY valid JSON in this exact format:
+{
+  "styling": {
+    "gradient": "linear-gradient(135deg, #color1 0%, #color2 50%, #color3 100%)",
+    "font": "font-family-name"
+  },
+  "theme": "theme-name",
+  "mood": "mood-description"
+}
+
+Guidelines:
+- Use warm, inviting gradients for social events
+- Use professional, clean gradients for business events
+- Use vibrant, energetic gradients for sports/fitness events
+- Use calm, soothing gradients for wellness/meditation events
+- Choose fonts that match the event type (elegant, modern, playful, etc.)
+- Keep theme names simple (elegant, modern, vibrant, calm, professional, etc.)`;
+
+    const userPrompt = `Generate visual styling for this event:
+Title: ${eventData.title}
+Description: ${eventData.description}
+Location: ${eventData.location}
+Date: ${eventData.date}
+Time: ${eventData.time}`;
+
+    try {
+      const completion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        temperature: 0.7,
+        max_tokens: 300,
+      });
+
+      const response = completion.choices[0]?.message?.content;
+      if (!response) {
+        throw new Error('No response from OpenAI');
+      }
+
+      const visualStyling = JSON.parse(response);
+      return NextResponse.json(visualStyling);
+      
+    } catch (openaiError) {
+      console.error('OpenAI error:', openaiError);
+      
+      // Fallback to default styling based on keywords
+      const fallbackStyling = generateFallbackStyling(eventData);
+      return NextResponse.json(fallbackStyling);
+    }
+
   } catch (error) {
     console.error('Error analyzing visual style:', error);
-    return NextResponse.json(
-      { error: 'Failed to analyze visual style. Please try again.' },
-      { status: 500 }
-    );
+    
+    // Return a basic default styling
+    return NextResponse.json({
+      styling: {
+        gradient: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)",
+        font: "Inter"
+      },
+      theme: "default",
+      mood: "neutral"
+    });
   }
+}
+
+function generateFallbackStyling(eventData: any) {
+  const text = `${eventData.title} ${eventData.description}`.toLowerCase();
+  
+  // Business/Professional events
+  if (text.includes('meeting') || text.includes('conference') || text.includes('business') || text.includes('work')) {
+    return {
+      styling: {
+        gradient: "linear-gradient(135deg, #E8F4FD 0%, #D6EFFC 50%, #C4E9FB 100%)",
+        font: "Inter"
+      },
+      theme: "professional",
+      mood: "focused"
+    };
+  }
+  
+  // Party/Social events
+  if (text.includes('party') || text.includes('celebration') || text.includes('birthday') || text.includes('wedding')) {
+    return {
+      styling: {
+        gradient: "linear-gradient(135deg, #FFE8F5 0%, #FFD6EF 50%, #FFC4E9 100%)",
+        font: "Poppins"
+      },
+      theme: "celebratory",
+      mood: "joyful"
+    };
+  }
+  
+  // Sports/Fitness events
+  if (text.includes('workout') || text.includes('gym') || text.includes('sports') || text.includes('fitness')) {
+    return {
+      styling: {
+        gradient: "linear-gradient(135deg, #E8FFE8 0%, #D6FFD6 50%, #C4FFC4 100%)",
+        font: "Roboto"
+      },
+      theme: "energetic",
+      mood: "motivating"
+    };
+  }
+  
+  // Food/Dining events
+  if (text.includes('dinner') || text.includes('lunch') || text.includes('food') || text.includes('restaurant')) {
+    return {
+      styling: {
+        gradient: "linear-gradient(135deg, #FFF8E8 0%, #FFF0D6 50%, #FFE8C4 100%)",
+        font: "Playfair Display"
+      },
+      theme: "warm",
+      mood: "inviting"
+    };
+  }
+  
+  // Default styling
+  return {
+    styling: {
+      gradient: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)",
+      font: "Inter"
+    },
+    theme: "default",
+    mood: "neutral"
+  };
 }
