@@ -1,31 +1,229 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Event API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .url-display {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+    </style>
 </head>
 <body>
-    <h1>Test Event API</h1>
-    <button onclick="testEventAPI()">Test Event API</button>
-    <div id="result"></div>
+    <h1>Event API Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Test All Events API</h2>
+        <button onclick="testAllEvents()">GET /api/events</button>
+        <div id="all-events-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test Specific Event API</h2>
+        <input type="text" id="event-id-input" placeholder="Enter Event ID" value="f1cdf3e-928b-473b-8bf4-ee79908fb49">
+        <button onclick="testSpecificEvent()">GET /api/events/[eventId]</button>
+        <div class="url-display">
+            URL will be: <span id="api-url-display">Enter an Event ID above</span>
+        </div>
+        <div id="specific-event-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Event Page URL</h2>
+        <button onclick="testEventPageUrl()">Test Event Page</button>
+        <div class="url-display">
+            Event Page URL: <span id="page-url-display">Enter an Event ID above</span>
+        </div>
+        <div id="page-test-result" class="result"></div>
+    </div>
 
     <script>
-        async function testEventAPI() {
-            const eventId = 'b563cef0-438f-4f37-bfee-13dfbae43cb5';
-            const resultDiv = document.getElementById('result');
-            
+        const BASE_URL = window.location.origin;
+        
+        // Update URL displays when event ID changes
+        document.getElementById('event-id-input').addEventListener('input', function() {
+            const eventId = this.value;
+            document.getElementById('api-url-display').textContent = 
+                eventId ? `${BASE_URL}/api/events/${eventId}` : 'Enter an Event ID above';
+            document.getElementById('page-url-display').textContent = 
+                eventId ? `${BASE_URL}/event/${eventId}` : 'Enter an Event ID above';
+        });
+
+        function log(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${isError ? 'error' : 'success'}`;
+        }
+
+        async function testAllEvents() {
             try {
-                resultDiv.innerHTML = 'Testing...';
-                const response = await fetch(`/api/events/${eventId}`);
+                log('all-events-result', 'Testing GET /api/events...');
+                
+                const response = await fetch(`${BASE_URL}/api/events`);
                 const data = await response.json();
                 
-                resultDiv.innerHTML = `
-                    <h3>API Response:</h3>
-                    <pre>${JSON.stringify(data, null, 2)}</pre>
-                `;
+                if (response.ok) {
+                    const eventCount = Array.isArray(data) ? data.length : 'unknown';
+                    log('all-events-result', 
+                        `✅ SUCCESS!\n` +
+                        `Status: ${response.status}\n` +
+                        `Events found: ${eventCount}\n\n` +
+                        `Response:\n${JSON.stringify(data, null, 2)}`
+                    );
+                } else {
+                    log('all-events-result', 
+                        `❌ ERROR!\n` +
+                        `Status: ${response.status}\n` +
+                        `Response:\n${JSON.stringify(data, null, 2)}`, 
+                        true
+                    );
+                }
             } catch (error) {
-                resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                log('all-events-result', 
+                    `❌ NETWORK ERROR!\n` +
+                    `Error: ${error.message}\n` +
+                    `This might mean the server is not running or there's a connection issue.`, 
+                    true
+                );
             }
         }
+
+        async function testSpecificEvent() {
+            const eventId = document.getElementById('event-id-input').value.trim();
+            
+            if (!eventId) {
+                log('specific-event-result', '❌ Please enter an Event ID', true);
+                return;
+            }
+
+            try {
+                log('specific-event-result', `Testing GET /api/events/${eventId}...`);
+                
+                const apiUrl = `${BASE_URL}/api/events/${eventId}`;
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('specific-event-result', 
+                        `✅ SUCCESS!\n` +
+                        `Status: ${response.status}\n` +
+                        `Event found: ${data.title || 'Unknown'}\n` +
+                        `Created by: ${data.createdBy || 'Unknown'}\n\n` +
+                        `Full Response:\n${JSON.stringify(data, null, 2)}`
+                    );
+                } else if (response.status === 404) {
+                    log('specific-event-result', 
+                        `⚠️ EVENT NOT FOUND\n` +
+                        `Status: 404\n` +
+                        `This event ID doesn't exist in the database.\n\n` +
+                        `Response:\n${JSON.stringify(data, null, 2)}`, 
+                        true
+                    );
+                } else {
+                    log('specific-event-result', 
+                        `❌ ERROR!\n` +
+                        `Status: ${response.status}\n` +
+                        `Response:\n${JSON.stringify(data, null, 2)}`, 
+                        true
+                    );
+                }
+            } catch (error) {
+                log('specific-event-result', 
+                    `❌ NETWORK ERROR!\n` +
+                    `Error: ${error.message}\n` +
+                    `URL attempted: ${BASE_URL}/api/events/${eventId}`, 
+                    true
+                );
+            }
+        }
+
+        async function testEventPageUrl() {
+            const eventId = document.getElementById('event-id-input').value.trim();
+            
+            if (!eventId) {
+                log('page-test-result', '❌ Please enter an Event ID', true);
+                return;
+            }
+
+            const eventPageUrl = `${BASE_URL}/event/${eventId}`;
+            
+            log('page-test-result', 
+                `Event Page URL: ${eventPageUrl}\n\n` +
+                `Click the link below to test the event page:\n` +
+                `${eventPageUrl}\n\n` +
+                `Or open it in a new tab to see if the event loads properly.`
+            );
+            
+            // Create a clickable link
+            const element = document.getElementById('page-test-result');
+            element.innerHTML = `
+                <strong>Event Page URL:</strong><br>
+                <a href="${eventPageUrl}" target="_blank" style="color: #1976d2; text-decoration: underline;">
+                    ${eventPageUrl}
+                </a><br><br>
+                <em>Click the link above to test the event page in a new tab.</em>
+            `;
+            element.className = 'result success';
+        }
+
+        // Initialize URL displays
+        document.getElementById('event-id-input').dispatchEvent(new Event('input'));
     </script>
 </body>
 </html>
