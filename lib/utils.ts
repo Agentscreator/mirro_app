@@ -1,7 +1,7 @@
 export async function shareEvent(eventId: string, eventTitle: string) {
   try {
-    // Generate the share URL directly
-    const shareUrl = `${window.location.origin}/?event=${eventId}`;
+    // Generate the share URL using the dedicated event route
+    const shareUrl = `${window.location.origin}/event/${eventId}`;
     
     if (navigator.share) {
       await navigator.share({
@@ -17,7 +17,7 @@ export async function shareEvent(eventId: string, eventTitle: string) {
     console.error('Error sharing event:', error);
     // Fallback for older browsers
     try {
-      const shareUrl = `${window.location.origin}/?event=${eventId}`;
+      const shareUrl = `${window.location.origin}/event/${eventId}`;
       const textArea = document.createElement('textarea');
       textArea.value = shareUrl;
       document.body.appendChild(textArea);

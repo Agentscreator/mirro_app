@@ -75,22 +75,40 @@ function EventsAppContent() {
     const eventNotFound = searchParams.get('eventNotFound')
     const error = searchParams.get('error')
 
+    console.log('URL Parameters:', {
+      eventId,
+      eventNotFound,
+      error,
+      fullURL: window.location.href,
+      searchParams: searchParams.toString()
+    })
+
     if (eventId) {
+      console.log('Found event ID in URL:', eventId)
       setSelectedEventId(eventId)
       // Fetch shared event data for non-authenticated users
       const fetchSharedEvent = async () => {
+        console.log('Starting to fetch shared event:', eventId)
         setIsLoadingSharedEvent(true)
         try {
-          const response = await fetch(`/api/events/${eventId}`)
+          const apiUrl = `/api/events/${eventId}`
+          console.log('Fetching from:', apiUrl)
+          const response = await fetch(apiUrl)
+          console.log('Response status:', response.status)
+          
           if (response.ok) {
             const eventData = await response.json()
+            console.log('Event data received:', eventData)
             setSharedEvent(eventData)
           } else if (response.status === 404) {
+            console.log('Event not found (404), redirecting')
             // Event not found, redirect to main page with error
             window.history.replaceState({}, '', '/?eventNotFound=' + eventId)
             setSelectedEventId(null)
           } else {
-            console.error('Failed to fetch shared event')
+            console.error('Failed to fetch shared event, status:', response.status)
+            const errorData = await response.text()
+            console.error('Error response:', errorData)
             setSelectedEventId(null)
           }
         } catch (error) {
@@ -104,10 +122,12 @@ function EventsAppContent() {
     } else if (eventNotFound) {
       // Show a toast or alert that the event wasn't found
       console.log('Event not found:', eventNotFound)
-      // You could add a toast notification here
+      alert(`Event not found: ${eventNotFound}`)
     } else if (error) {
       console.log('Error loading event:', error)
-      // You could add a toast notification here
+      alert(`Error loading event: ${error}`)
+    } else {
+      console.log('No event parameter found in URL')
     }
   }, [searchParams])
 
@@ -170,11 +190,13 @@ function EventsAppContent() {
           className="max-w-md mx-auto min-h-screen shadow-xl flex items-center justify-center"
           style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}
         >
-          <div className="glass-card rounded-full p-6">
-            <svg className="animate-spin h-8 w-8 text-taupe-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <div className="glass-card rounded-2xl p-8 text-center">
+            <svg className="animate-spin h-8 w-8 text-taupe-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
+            <p className="text-taupe-600">Loading shared event...</p>
+            <p className="text-sm text-taupe-500 mt-2">Event ID: {selectedEventId}</p>
           </div>
         </div>
       )
