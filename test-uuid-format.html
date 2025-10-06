@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test UUID Format</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .uuid-test {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .valid {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        .invalid {
+            background: #ffebee;
+            color: #c62828;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 UUID Format Tester</h1>
+    
+    <div class="test-section">
+        <h2>1. Check Your Event ID</h2>
+        <p><strong>Your current event ID:</strong></p>
+        <div class="uuid-test invalid">
+            f1cdf3e-928b-473b-8bf4-ee79908fb49
+            <br><small>❌ Invalid: Missing character (should be 36 chars total)</small>
+        </div>
+        
+        <p><strong>Corrected version (example):</strong></p>
+        <div class="uuid-test valid">
+            f1cdf3e0-928b-473b-8bf4-ee79908fb49
+            <br><small>✅ Valid: 36 characters with proper UUID format</small>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test UUID Format</h2>
+        <input type="text" id="uuid-input" placeholder="Enter UUID to test" value="f1cdf3e-928b-473b-8bf4-ee79908fb49">
+        <button onclick="testUUID()">Test UUID Format</button>
+        <div id="uuid-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Generate Sample UUIDs</h2>
+        <button onclick="generateSampleUUIDs()">Generate Sample UUIDs</button>
+        <div id="sample-uuids"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Test API with Different IDs</h2>
+        <button onclick="testAPIWithDifferentIDs()">Test API Endpoints</button>
+        <div id="api-results"></div>
+    </div>
+
+    <script>
+        const BASE_URL = window.location.origin;
+
+        function isValidUUID(uuid) {
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            return uuidRegex.test(uuid);
+        }
+
+        function testUUID() {
+            const uuid = document.getElementById('uuid-input').value.trim();
+            const resultDiv = document.getElementById('uuid-result');
+            
+            if (!uuid) {
+                resultDiv.innerHTML = '<div class="uuid-test invalid">Please enter a UUID</div>';
+                return;
+            }
+
+            const isValid = isValidUUID(uuid);
+            const length = uuid.length;
+            const expectedLength = 36;
+            
+            resultDiv.innerHTML = `
+                <div class="uuid-test ${isValid ? 'valid' : 'invalid'}">
+                    <strong>UUID:</strong> ${uuid}<br>
+                    <strong>Length:</strong> ${length} (expected: ${expectedLength})<br>
+                    <strong>Valid:</strong> ${isValid ? '✅ Yes' : '❌ No'}<br>
+                    ${!isValid ? '<small>Expected format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</small>' : ''}
+                </div>
+            `;
+        }
+
+        function generateSampleUUIDs() {
+            const samples = [
+                'f1cdf3e0-928b-473b-8bf4-ee79908fb49', // Fixed version of your ID
+                '123e4567-e89b-12d3-a456-426614174000', // Standard example
+                '550e8400-e29b-41d4-a716-446655440000', // Another example
+            ];
+
+            const container = document.getElementById('sample-uuids');
+            container.innerHTML = '<h4>Sample Valid UUIDs:</h4>';
+            
+            samples.forEach(uuid => {
+                const div = document.createElement('div');
+                div.className = 'uuid-test valid';
+                div.innerHTML = `
+                    ${uuid}<br>
+                    <small>✅ Valid UUID format</small><br>
+                    <a href="/api/events/${uuid}" target="_blank">Test API</a> | 
+                    <a href="/event/${uuid}" target="_blank">Test Page</a>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function testAPIWithDifferentIDs() {
+            const testIds = [
+                'f1cdf3e-928b-473b-8bf4-ee79908fb49', // Your invalid ID
+                'f1cdf3e0-928b-473b-8bf4-ee79908fb49', // Fixed version
+                '123e4567-e89b-12d3-a456-426614174000', // Standard example
+            ];
+
+            const container = document.getElementById('api-results');
+            container.innerHTML = '<h4>API Test Results:</h4>';
+
+            for (const id of testIds) {
+                const div = document.createElement('div');
+                div.className = 'uuid-test';
+                div.innerHTML = `<strong>Testing:</strong> ${id}<br><small>Loading...</small>`;
+                container.appendChild(div);
+
+                try {
+                    const response = await fetch(`${BASE_URL}/api/events/${id}`);
+                    const data = await response.json();
+                    
+                    if (response.status === 400) {
+                        div.className = 'uuid-test invalid';
+                        div.innerHTML = `
+                            <strong>ID:</strong> ${id}<br>
+                            <strong>Status:</strong> 400 - Invalid Format<br>
+                            <strong>Error:</strong> ${data.error}<br>
+                            <small>❌ ${data.details || 'Invalid UUID format'}</small>
+                        `;
+                    } else if (response.status === 404) {
+                        div.className = 'uuid-test';
+                        div.innerHTML = `
+                            <strong>ID:</strong> ${id}<br>
+                            <strong>Status:</strong> 404 - Not Found<br>
+                            <small>⚠️ Valid format but event doesn't exist</small>
+                        `;
+                    } else if (response.ok) {
+                        div.className = 'uuid-test valid';
+                        div.innerHTML = `
+                            <strong>ID:</strong> ${id}<br>
+                            <strong>Status:</strong> 200 - Success<br>
+                            <strong>Event:</strong> ${data.title}<br>
+                            <small>✅ Event found!</small>
+                        `;
+                    } else {
+                        div.className = 'uuid-test invalid';
+                        div.innerHTML = `
+                            <strong>ID:</strong> ${id}<br>
+                            <strong>Status:</strong> ${response.status} - Error<br>
+                            <small>❌ ${data.error || 'Unknown error'}</small>
+                        `;
+                    }
+                } catch (error) {
+                    div.className = 'uuid-test invalid';
+                    div.innerHTML = `
+                        <strong>ID:</strong> ${id}<br>
+                        <strong>Error:</strong> Network Error<br>
+                        <small>❌ ${error.message}</small>
+                    `;
+                }
+            }
+        }
+
+        // Auto-test the current UUID on load
+        window.addEventListener('load', testUUID);
+    </script>
+</body>
+</html>
