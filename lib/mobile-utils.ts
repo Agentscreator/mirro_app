@@ -99,10 +99,10 @@ export const supportsVideoRecording = () => {
   );
 };
 
-// Request camera permissions with better error handling
-export const requestCameraPermission = async (includeAudio = true) => {
+// Request camera permissions with better error handling  
+export const requestCameraPermission = async (includeAudio: boolean = true, facingMode: 'user' | 'environment' = 'user') => {
   try {
-    const constraints = getVideoConstraints();
+    const constraints = getVideoConstraints(facingMode);
     if (!includeAudio) {
       constraints.audio = false;
     }
@@ -115,7 +115,7 @@ export const requestCameraPermission = async (includeAudio = true) => {
     // Try fallback with basic constraints
     try {
       const fallbackConstraints = {
-        video: true,
+        video: { facingMode },
         audio: includeAudio
       };
       
@@ -124,19 +124,32 @@ export const requestCameraPermission = async (includeAudio = true) => {
     } catch (fallbackError) {
       console.error('Fallback camera permission error:', fallbackError);
       
-      let errorMessage = 'Unable to access camera. ';
-      
-      if (error.name === 'NotAllowedError') {
-        errorMessage += 'Please allow camera access and try again.';
-      } else if (error.name === 'NotFoundError') {
-        errorMessage += 'No camera found on this device.';
-      } else if (error.name === 'NotSupportedError') {
-        errorMessage += 'Camera not supported on this device.';
-      } else {
-        errorMessage += 'Please check your camera permissions.';
+      // Try with just basic video if facingMode fails
+      try {
+        const basicConstraints = {
+          video: true,
+          audio: includeAudio
+        };
+        
+        const stream = await navigator.mediaDevices.getUserMedia(basicConstraints);
+        return { success: true, stream };
+      } catch (basicError) {
+        console.error('Basic camera permission error:', basicError);
+        
+        let errorMessage = 'Unable to access camera. ';
+        
+        if (error.name === 'NotAllowedError') {
+          errorMessage += 'Please allow camera access and try again.';
+        } else if (error.name === 'NotFoundError') {
+          errorMessage += 'No camera found on this device.';
+        } else if (error.name === 'NotSupportedError') {
+          errorMessage += 'Camera not supported on this device.';
+        } else {
+          errorMessage += 'Please check your camera permissions.';
+        }
+        
+        return { success: false, error: errorMessage };
       }
-      
-      return { success: false, error: errorMessage };
     }
   }
 };

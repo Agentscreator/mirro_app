@@ -23,9 +23,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   const [isPaused, setIsPaused] = useState(false)
 
   const [selectedEffect, setSelectedEffect] = useState<string | null>(null)
-  const [greenScreenActive, setGreenScreenActive] = useState(false)
-  const [greenScreenThreshold, setGreenScreenThreshold] = useState(0.4)
-  const [backgroundImageLoaded, setBackgroundImageLoaded] = useState(false)
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user')
   
   const videoRef = useRef<HTMLVideoElement>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -33,10 +31,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   const streamRef = useRef<MediaStream | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const greenScreenCanvasRef = useRef<HTMLCanvasElement>(null)
-  const backgroundImageRef = useRef<HTMLImageElement>(null)
-  const backgroundImageInputRef = useRef<HTMLInputElement>(null)
-  const greenScreenAnimationRef = useRef<number>()
+
 
   useEffect(() => {
     startCamera()
@@ -62,90 +57,30 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
     }
   }, [isRecording, isPaused])
 
-  // Green screen processing effect
-  useEffect(() => {
-    if (greenScreenActive && backgroundImageLoaded && selectedEffect === "greenscreen") {
-      processGreenScreen()
+
+
+
+
+  const flipCamera = async () => {
+    const newFacingMode = facingMode === 'user' ? 'environment' : 'user'
+    setFacingMode(newFacingMode)
+    
+    // Stop current camera
+    stopCamera()
+    
+    // Start camera with new facing mode
+    const result = await requestCameraPermission(mode === "video", newFacingMode);
+    
+    if (result.success && result.stream) {
+      streamRef.current = result.stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = result.stream;
+        setupVideoElement(videoRef.current);
+      }
     } else {
-      if (greenScreenAnimationRef.current) {
-        cancelAnimationFrame(greenScreenAnimationRef.current)
-      }
-    }
-    return () => {
-      if (greenScreenAnimationRef.current) {
-        cancelAnimationFrame(greenScreenAnimationRef.current)
-      }
-    }
-  }, [greenScreenActive, backgroundImageLoaded, selectedEffect, greenScreenThreshold])
-
-  const processGreenScreen = () => {
-    const video = videoRef.current
-    const canvas = greenScreenCanvasRef.current
-    const backgroundImage = backgroundImageRef.current
-    
-    if (!video || !canvas || !backgroundImage) return
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    // Set canvas size to match video
-    canvas.width = video.videoWidth || video.clientWidth
-    canvas.height = video.videoHeight || video.clientHeight
-
-    // Draw video frame
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-    
-    // Get image data
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-    const data = imageData.data
-
-    // Create background canvas
-    const bgCanvas = document.createElement('canvas')
-    bgCanvas.width = canvas.width
-    bgCanvas.height = canvas.height
-    const bgCtx = bgCanvas.getContext('2d')
-    if (!bgCtx) return
-
-    bgCtx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
-    const bgImageData = bgCtx.getImageData(0, 0, canvas.width, canvas.height)
-    const bgData = bgImageData.data
-
-    // Process pixels for chroma keying
-    for (let i = 0; i < data.length; i += 4) {
-      const r = data[i]
-      const g = data[i + 1]
-      const b = data[i + 2]
-      
-      // Calculate green screen detection
-      const greenness = (g - Math.max(r, b)) / 255
-      
-      // If pixel is green enough, replace with background
-      if (greenness > greenScreenThreshold) {
-        data[i] = bgData[i]         // R
-        data[i + 1] = bgData[i + 1] // G
-        data[i + 2] = bgData[i + 2] // B
-        data[i + 3] = bgData[i + 3] // A
-      }
-    }
-
-    // Put processed image data back
-    ctx.putImageData(imageData, 0, 0)
-
-    // Continue processing
-    greenScreenAnimationRef.current = requestAnimationFrame(processGreenScreen)
-  }
-
-  const handleBackgroundImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file && backgroundImageRef.current) {
-      const url = URL.createObjectURL(file)
-      backgroundImageRef.current.src = url
-      backgroundImageRef.current.onload = () => {
-        setBackgroundImageLoaded(true)
-        if (greenScreenActive) {
-          processGreenScreen()
-        }
-      }
+      alert(result.error || "Unable to access camera.");
+      // Revert facing mode if failed
+      setFacingMode(facingMode)
     }
   }
 
@@ -156,7 +91,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       return;
     }
 
-    const result = await requestCameraPermission(mode === "video");
+    const result = await requestCameraPermission(mode === "video", facingMode);
     
     if (result.success && result.stream) {
       streamRef.current = result.stream;
@@ -188,33 +123,13 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   }
 
   const capturePhoto = async () => {
-    const sourceCanvas = greenScreenActive && backgroundImageLoaded && selectedEffect === "greenscreen" 
-      ? greenScreenCanvasRef.current 
-      : null
-    
-    if (videoRef.current || sourceCanvas) {
+    if (videoRef.current) {
       const canvas = document.createElement("canvas")
-      
-      if (sourceCanvas) {
-        // Use processed green screen canvas
-        canvas.width = sourceCanvas.width
-        canvas.height = sourceCanvas.height
-        const ctx = canvas.getContext("2d")
-        if (ctx) {
-          ctx.drawImage(sourceCanvas, 0, 0)
-        }
-      } else if (videoRef.current) {
-        // Use regular video
-        canvas.width = videoRef.current.videoWidth
-        canvas.height = videoRef.current.videoHeight
-        const ctx = canvas.getContext("2d")
-        if (ctx) {
-          ctx.drawImage(videoRef.current, 0, 0)
-        }
-      }
-      
+      canvas.width = videoRef.current.videoWidth
+      canvas.height = videoRef.current.videoHeight
       const ctx = canvas.getContext("2d")
       if (ctx) {
+        ctx.drawImage(videoRef.current, 0, 0)
         
         try {
           // Convert canvas to blob and upload to Vercel Blob
@@ -253,29 +168,20 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
   const startRecording = async () => {
     try {
-      // Determine which stream to use
-      let recordingStream: MediaStream
-      
-      if (greenScreenActive && backgroundImageLoaded && selectedEffect === "greenscreen" && greenScreenCanvasRef.current) {
-        // Use green screen processed canvas stream
-        recordingStream = greenScreenCanvasRef.current.captureStream(30)
-      } else {
-        // Use existing camera stream if available, otherwise start new one
-        let stream = streamRef.current
-        if (!stream) {
-          const result = await requestCameraPermission(true);
-          if (!result.success || !result.stream) {
-            alert(result.error || "Unable to access camera for recording.");
-            return;
-          }
-          stream = result.stream;
-          streamRef.current = stream;
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-            setupVideoElement(videoRef.current);
-          }
+      // Use existing camera stream if available, otherwise start new one
+      let stream = streamRef.current
+      if (!stream) {
+        const result = await requestCameraPermission(true, facingMode);
+        if (!result.success || !result.stream) {
+          alert(result.error || "Unable to access camera for recording.");
+          return;
         }
-        recordingStream = stream
+        stream = result.stream;
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          setupVideoElement(videoRef.current);
+        }
       }
 
       // Get optimal MIME type for this device
@@ -284,9 +190,9 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       
       console.log('Device type:', device);
       console.log('Using MIME type:', mimeType);
-      console.log('Recording with green screen:', greenScreenActive && backgroundImageLoaded);
+      console.log('Recording with camera facing:', facingMode);
 
-      const mediaRecorder = new MediaRecorder(recordingStream, { mimeType })
+      const mediaRecorder = new MediaRecorder(stream, { mimeType })
       mediaRecorderRef.current = mediaRecorder
       chunksRef.current = []
 
@@ -501,11 +407,11 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
   const effects = [
     { 
-      id: "greenscreen", 
-      name: "Green Screen", 
+      id: "flip", 
+      name: "Flip Camera", 
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
       )
     },
@@ -561,62 +467,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           className="w-full h-full object-cover" 
         />
 
-        {/* Green Screen Processing Canvas */}
-        {selectedEffect === "greenscreen" && (
-          <div className="absolute inset-0 pointer-events-none">
-            <canvas 
-              ref={greenScreenCanvasRef}
-              className="w-full h-full object-cover"
-              style={{ display: greenScreenActive ? 'block' : 'none' }}
-            />
-            <div className="absolute top-4 left-4 right-4 pointer-events-auto">
-              <div className="bg-black/70 backdrop-blur-sm rounded-lg p-3 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-white text-sm font-medium">Green Screen</span>
-                  <button
-                    onClick={() => setGreenScreenActive(!greenScreenActive)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                      greenScreenActive 
-                        ? 'bg-green-500 text-white' 
-                        : 'bg-white/20 text-white hover:bg-white/30'
-                    }`}
-                  >
-                    {greenScreenActive ? 'ON' : 'OFF'}
-                  </button>
-                </div>
-                {greenScreenActive && (
-                  <>
-                    <div className="space-y-1">
-                      <label className="text-white text-xs">Threshold: {greenScreenThreshold.toFixed(2)}</label>
-                      <input
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.01"
-                        value={greenScreenThreshold}
-                        onChange={(e) => setGreenScreenThreshold(parseFloat(e.target.value))}
-                        className="w-full h-1 bg-white/20 rounded-lg appearance-none slider"
-                      />
-                    </div>
-                    <button
-                      onClick={() => backgroundImageInputRef.current?.click()}
-                      className="w-full px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs rounded-lg transition-all"
-                    >
-                      {backgroundImageLoaded ? 'Change Background' : 'Select Background'}
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-            {!backgroundImageLoaded && greenScreenActive && (
-              <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-white text-center">
-                <p className="text-sm font-medium bg-black/50 px-4 py-2 rounded-full">
-                  Select a background image to enable green screen
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+
 
         {/* Top Bar */}
         <div className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between camera-header camera-controls">
@@ -667,9 +518,15 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           {effects.map((effect) => (
             <button
               key={effect.id}
-              onClick={() => setSelectedEffect(selectedEffect === effect.id ? null : effect.id)}
+              onClick={() => {
+                if (effect.id === "flip") {
+                  flipCamera()
+                } else {
+                  setSelectedEffect(selectedEffect === effect.id ? null : effect.id)
+                }
+              }}
               className={`w-16 h-16 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center transition-all duration-200 ${
-                selectedEffect === effect.id
+                (effect.id === "flip" && facingMode === "environment") || (selectedEffect === effect.id && effect.id !== "flip")
                   ? "bg-white/95 scale-105 text-text-primary shadow-xl border-2 border-sand-300"
                   : "bg-black/20 hover:bg-black/30 text-white/90 hover:text-white border border-white/20"
               }`}
@@ -738,16 +595,6 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
       {/* Hidden File Inputs */}
       <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleFileSelect} className="hidden" />
-      <input 
-        ref={backgroundImageInputRef} 
-        type="file" 
-        accept="image/*" 
-        onChange={handleBackgroundImageUpload} 
-        className="hidden" 
-      />
-      
-      {/* Hidden background image for processing */}
-      <img ref={backgroundImageRef} className="hidden" alt="" />
     </div>
   )
 }
