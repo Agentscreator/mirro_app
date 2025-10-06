@@ -37,9 +37,10 @@ interface EventPreviewModalProps {
   onClose: () => void
   currentUserId: string
   onJoinStatusChange?: () => void
+  onSignUpRequest?: () => void
 }
 
-export default function EventPreviewModal({ event, isOpen, onClose, currentUserId, onJoinStatusChange }: EventPreviewModalProps) {
+export default function EventPreviewModal({ event, isOpen, onClose, currentUserId, onJoinStatusChange, onSignUpRequest }: EventPreviewModalProps) {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [showVideoControls, setShowVideoControls] = useState(false)
   const [videoProgress, setVideoProgress] = useState(0)
@@ -531,9 +532,31 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                   )}
                 </button>
               ) : (
-                <div className="text-center py-4 space-y-3">
-                  <p className="text-sm text-gray-600">You must be signed in to join this event</p>
-                  <p className="text-xs text-gray-500">Close this preview to access the sign-in form</p>
+                <div className="space-y-3">
+                  <button
+                    onClick={() => {
+                      if (onSignUpRequest) {
+                        onSignUpRequest()
+                      } else {
+                        onClose()
+                      }
+                    }}
+                    className={`w-full ${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')}`} text-white py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}
+                  >
+                    Sign Up to Join Event
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (onSignUpRequest) {
+                        onSignUpRequest()
+                      } else {
+                        onClose()
+                      }
+                    }}
+                    className="w-full bg-gray-100 text-gray-700 py-3 rounded-2xl font-medium hover:bg-gray-200 transition-all duration-200"
+                  >
+                    Sign In
+                  </button>
                 </div>
               )}
 

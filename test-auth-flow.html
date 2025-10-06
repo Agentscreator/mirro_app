@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Auth Flow</title>
+</head>
+<body>
+    <h1>Test Auth Flow Changes</h1>
+    <p>This test verifies that the event preview modal now shows sign up and sign in buttons instead of the old message.</p>
+    
+    <h2>Changes Made:</h2>
+    <ul>
+        <li>✅ Replaced "You must be signed in to join this event" message with sign up and sign in buttons</li>
+        <li>✅ Added onSignUpRequest callback to EventPreviewModal</li>
+        <li>✅ Updated page.tsx to handle auth flow from modal</li>
+        <li>✅ Fixed TypeScript errors</li>
+    </ul>
+    
+    <h2>Expected Behavior:</h2>
+    <ol>
+        <li>When a non-authenticated user views a shared event, they see the event preview modal</li>
+        <li>At the bottom of the modal, they see two buttons:
+            <ul>
+                <li>"Sign Up to Join Event" (primary button with event gradient)</li>
+                <li>"Sign In" (secondary gray button)</li>
+            </ul>
+        </li>
+        <li>Clicking either button takes them to the auth page</li>
+        <li>After successful authentication, they return to the event modal with join/leave functionality</li>
+    </ol>
+    
+    <h2>Test Instructions:</h2>
+    <ol>
+        <li>Clear localStorage to simulate non-authenticated user</li>
+        <li>Visit a shared event URL (e.g., /?event=some-event-id)</li>
+        <li>Verify the modal shows the new buttons instead of the old message</li>
+        <li>Click "Sign Up to Join Event" and verify it takes you to the auth page</li>
+        <li>Complete sign up/sign in process</li>
+        <li>Verify you can now join the event</li>
+    </ol>
+    
+    <script>
+        // Clear localStorage for testing
+        function clearAuth() {
+            localStorage.removeItem('user');
+            alert('Authentication cleared. Refresh the page to test as non-authenticated user.');
+        }
+        
+        // Add test button
+        const button = document.createElement('button');
+        button.textContent = 'Clear Auth for Testing';
+        button.onclick = clearAuth;
+        button.style.padding = '10px 20px';
+        button.style.margin = '20px 0';
+        button.style.backgroundColor = '#007bff';
+        button.style.color = 'white';
+        button.style.border = 'none';
+        button.style.borderRadius = '5px';
+        button.style.cursor = 'pointer';
+        document.body.appendChild(button);
+    </script>
+</body>
+</html>
+</template>

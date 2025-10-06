@@ -28,6 +28,7 @@ function EventsAppContent() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [sharedEvent, setSharedEvent] = useState<any>(null)
   const [isLoadingSharedEvent, setIsLoadingSharedEvent] = useState(false)
+  const [showAuthFromModal, setShowAuthFromModal] = useState(false)
 
   useEffect(() => {
     // Check if user is logged in and validate session
@@ -165,13 +166,12 @@ function EventsAppContent() {
 
   if (!user) {
     // If there's a shared event, show it without requiring authentication
-    if (selectedEventId && sharedEvent) {
+    if (selectedEventId && sharedEvent && !showAuthFromModal) {
       return (
         <div
           className="max-w-md mx-auto min-h-screen shadow-xl"
           style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}
         >
-          <AuthPage onAuthSuccess={handleAuthSuccess} />
           <EventPreviewModal
             event={sharedEvent}
             isOpen={true}
@@ -185,7 +185,25 @@ function EventsAppContent() {
                 fetchSharedEvent(selectedEventId)
               }
             }}
+            onSignUpRequest={() => {
+              setShowAuthFromModal(true)
+            }}
           />
+        </div>
+      )
+    }
+
+    // Show auth page (either directly or from modal request)
+    if (showAuthFromModal || !selectedEventId) {
+      return (
+        <div
+          className="max-w-md mx-auto min-h-screen shadow-xl"
+          style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}
+        >
+          <AuthPage onAuthSuccess={() => {
+            handleAuthSuccess()
+            setShowAuthFromModal(false)
+          }} />
         </div>
       )
     }
@@ -209,14 +227,7 @@ function EventsAppContent() {
       )
     }
 
-    return (
-      <div
-        className="max-w-md mx-auto min-h-screen shadow-xl"
-        style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}
-      >
-        <AuthPage onAuthSuccess={handleAuthSuccess} />
-      </div>
-    )
+
   }
 
   return (
@@ -238,7 +249,7 @@ function EventsAppContent() {
       </header>
 
       {/* Pages */}
-      {currentPage === "profile" && (
+      {currentPage === "profile" && user && (
         <ProfilePage
           user={user}
           key={refreshEvents}
@@ -255,7 +266,7 @@ function EventsAppContent() {
       }} />}
 
       {/* Shared Event Modal for authenticated users */}
-      {selectedEventId && sharedEvent && (
+      {selectedEventId && sharedEvent && user && (
         <EventPreviewModal
           event={sharedEvent}
           isOpen={true}
