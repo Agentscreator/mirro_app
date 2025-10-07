@@ -52,7 +52,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   const [isJoined, setIsJoined] = useState(false)
   const [isJoining, setIsJoining] = useState(false)
   const [visualStyling, setVisualStyling] = useState<any>(null)
-  const [isLoadingVisualStyling, setIsLoadingVisualStyling] = useState(false)
+  const [, setIsLoadingVisualStyling] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   // Load visual styling data (from Vercel Blob or inline)
@@ -506,15 +506,15 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                 <button
                   onClick={handleJoinEvent}
                   disabled={isJoining || (event.createdBy === currentUserId && isJoined)}
-                  className={`w-full ${
+                  className={`w-full py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
                     event.createdBy === currentUserId 
                       ? 'bg-green-100 text-green-700 cursor-default'
                       : isJoined
-                        ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200'
                         : displayGradient.includes('bg-gradient')
-                          ? displayGradient
-                          : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')}`
-                    } ${isJoined && event.createdBy !== currentUserId ? '' : event.createdBy === currentUserId ? '' : 'text-white'} py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base ${event.createdBy === currentUserId ? '' : 'hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]'} shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
+                          ? `${displayGradient} text-white hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]`
+                          : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')} text-white hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]`
+                  }`}
                 >
                   {isJoining ? (
                     <div className="flex items-center justify-center space-x-2">
