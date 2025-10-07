@@ -2,9 +2,9 @@
 
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
-import { 
-  detectDevice, 
-  getOptimalVideoMimeType, 
+import {
+  detectDevice,
+  getOptimalVideoMimeType,
   getOptimalChunkSize,
   requestCameraPermission,
   setupVideoElement,
@@ -24,7 +24,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
   const [selectedEffect, setSelectedEffect] = useState<string | null>(null)
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user')
-  
+
   const videoRef = useRef<HTMLVideoElement>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
@@ -37,6 +37,10 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
     startCamera()
     return () => {
       stopCamera()
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+        timerRef.current = null
+      }
     }
   }, [])
 
@@ -48,11 +52,13 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
     } else {
       if (timerRef.current) {
         clearInterval(timerRef.current)
+        timerRef.current = null
       }
     }
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current)
+        timerRef.current = null
       }
     }
   }, [isRecording, isPaused])
@@ -64,13 +70,13 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   const flipCamera = async () => {
     const newFacingMode = facingMode === 'user' ? 'environment' : 'user'
     setFacingMode(newFacingMode)
-    
+
     // Stop current camera
     stopCamera()
-    
+
     // Start camera with new facing mode
     const result = await requestCameraPermission(mode === "video", newFacingMode);
-    
+
     if (result.success && result.stream) {
       streamRef.current = result.stream;
       if (videoRef.current) {
@@ -92,7 +98,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
     }
 
     const result = await requestCameraPermission(mode === "video", facingMode);
-    
+
     if (result.success && result.stream) {
       streamRef.current = result.stream;
       if (videoRef.current) {
@@ -130,7 +136,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       const ctx = canvas.getContext("2d")
       if (ctx) {
         ctx.drawImage(videoRef.current, 0, 0)
-        
+
         try {
           // Convert canvas to blob and upload to Vercel Blob
           canvas.toBlob(async (blob) => {
@@ -138,12 +144,12 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
               const formData = new FormData()
               formData.append('file', blob, 'photo.jpg')
               formData.append('type', 'image')
-              
+
               const uploadResponse = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData
               })
-              
+
               if (uploadResponse.ok) {
                 const { url } = await uploadResponse.json()
                 onCapture(url, "photo")
@@ -160,7 +166,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           const dataUrl = canvas.toDataURL("image/jpeg")
           onCapture(dataUrl, "photo")
         }
-        
+
         stopCamera()
       }
     }
@@ -187,7 +193,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       // Get optimal MIME type for this device
       const mimeType = getOptimalVideoMimeType();
       const device = detectDevice();
-      
+
       console.log('Device type:', device);
       console.log('Using MIME type:', mimeType);
       console.log('Recording with camera facing:', facingMode);
@@ -204,39 +210,39 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
       mediaRecorder.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: mimeType })
-        
+
         // Check file size (limit to 50MB for better upload reliability)
         const maxSize = 50 * 1024 * 1024 // 50MB
         if (blob.size > maxSize) {
           alert('Video file is too large. Please record a shorter video.')
           return
         }
-        
+
         try {
           console.log('Video blob size:', blob.size, 'bytes')
           console.log('Video blob type:', blob.type)
-          
+
           // Upload video to Vercel Blob storage with retry logic
           const formData = new FormData()
           // Always use webm extension since that's what we're recording
           formData.append('file', blob, 'video.webm')
           formData.append('type', 'video')
-          
+
           console.log('Uploading video to Vercel Blob...')
-          
+
           // Retry upload up to 3 times
           let uploadSuccess = false
           let lastError = null
-          
+
           for (let attempt = 1; attempt <= 3; attempt++) {
             try {
               const uploadResponse = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData
               })
-              
+
               console.log(`Upload attempt ${attempt} response status:`, uploadResponse.status)
-              
+
               if (uploadResponse.ok) {
                 const result = await uploadResponse.json()
                 console.log('Upload successful:', result)
@@ -247,12 +253,12 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
                 const errorText = await uploadResponse.text()
                 lastError = `Status ${uploadResponse.status}: ${errorText}`
                 console.error(`Upload attempt ${attempt} failed:`, lastError)
-                
+
                 if (uploadResponse.status === 413) {
                   // Don't retry on 413 errors
                   break
                 }
-                
+
                 // Wait before retry (except on last attempt)
                 if (attempt < 3) {
                   await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
@@ -261,18 +267,18 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
             } catch (error) {
               lastError = error instanceof Error ? error.message : 'Unknown error'
               console.error(`Upload attempt ${attempt} error:`, lastError)
-              
+
               // Wait before retry (except on last attempt)
               if (attempt < 3) {
                 await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
               }
             }
           }
-          
+
           if (!uploadSuccess) {
             console.error('All upload attempts failed, using fallback data URL')
             alert(`Upload failed after 3 attempts. Using local video data. Error: ${lastError}`)
-            
+
             // Fallback to data URL if all uploads fail
             const reader = new FileReader()
             reader.onload = () => {
@@ -285,7 +291,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         } catch (error) {
           console.error('Upload error:', error)
           alert(`Upload error: ${error instanceof Error ? error.message : 'Unknown error'}`)
-          
+
           // Fallback to data URL if upload fails
           const reader = new FileReader()
           reader.onload = () => {
@@ -295,7 +301,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           }
           reader.readAsDataURL(blob)
         }
-        
+
         stopCamera()
       }
 
@@ -315,6 +321,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       mediaRecorderRef.current.stop()
       setIsRecording(false)
       setIsPaused(false)
+      setRecordingTime(0)
     }
   }
 
@@ -342,19 +349,19 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         alert('File is too large. Please select a file smaller than 50MB.')
         return
       }
-      
+
       try {
         const formData = new FormData()
         formData.append('file', file)
         formData.append('type', file.type.startsWith("video/") ? "video" : "image")
-        
+
         console.log('Uploading file:', file.name, 'Size:', file.size, 'bytes')
-        
+
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
           body: formData
         })
-        
+
         if (uploadResponse.ok) {
           const { url } = await uploadResponse.json()
           const type = file.type.startsWith("video/") ? "video" : "photo"
@@ -363,13 +370,13 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         } else {
           const errorText = await uploadResponse.text()
           console.error('File upload failed:', uploadResponse.status, errorText)
-          
+
           if (uploadResponse.status === 413) {
             alert('File is too large for upload. Please select a smaller file.')
           } else {
             alert(`Upload failed: ${errorText}`)
           }
-          
+
           // Fallback to data URL
           const reader = new FileReader()
           reader.onload = (e) => {
@@ -383,7 +390,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       } catch (error) {
         console.error('File upload error:', error)
         alert(`Upload error: ${error instanceof Error ? error.message : 'Unknown error'}`)
-        
+
         // Fallback to data URL
         const reader = new FileReader()
         reader.onload = (e) => {
@@ -394,7 +401,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         }
         reader.readAsDataURL(file)
       }
-      
+
       stopCamera()
     }
   }
@@ -456,13 +463,13 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       `}</style>
       {/* Camera View */}
       <div className="relative w-full h-full video-container">
-        <video 
-          ref={videoRef} 
-          autoPlay 
-          playsInline 
-          muted 
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
           webkit-playsinline="true"
-          className="w-full h-full object-cover" 
+          className="w-full h-full object-cover"
         />
 
 
@@ -482,17 +489,15 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           <div className="flex items-center space-x-2 bg-black/30 backdrop-blur-sm rounded-full px-4 py-2">
             <button
               onClick={() => setMode("photo")}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                mode === "photo" ? "bg-white text-text-primary" : "text-white/70"
-              }`}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${mode === "photo" ? "bg-white text-text-primary" : "text-white/70"
+                }`}
             >
               Photo
             </button>
             <button
               onClick={() => setMode("video")}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                mode === "video" ? "bg-white text-text-primary" : "text-white/70"
-              }`}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${mode === "video" ? "bg-white text-text-primary" : "text-white/70"
+                }`}
             >
               Video
             </button>
@@ -523,11 +528,10 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
                   setSelectedEffect(selectedEffect === effect.id ? null : effect.id)
                 }
               }}
-              className={`w-16 h-16 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center transition-all duration-200 ${
-                (effect.id === "flip" && facingMode === "environment") || (selectedEffect === effect.id && effect.id !== "flip")
+              className={`w-16 h-16 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center transition-all duration-200 ${(effect.id === "flip" && facingMode === "environment") || (selectedEffect === effect.id && effect.id !== "flip")
                   ? "bg-white/95 scale-105 text-text-primary shadow-xl border-2 border-sand-300"
                   : "bg-black/20 hover:bg-black/30 text-white/90 hover:text-white border border-white/20"
-              }`}
+                }`}
             >
               <div className="mb-1">{effect.icon}</div>
               <span className="text-[9px] font-medium leading-tight text-center">{effect.name}</span>
