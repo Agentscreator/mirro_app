@@ -1,67 +1,80 @@
-import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { uploadToR2 } from '@/lib/storage';
 
-export async function POST(request: Request): Promise<NextResponse> {
-  const body = (await request.json()) as HandleUploadBody;
+// Configure for file uploads
+export const runtime = 'nodejs';
+export const maxDuration = 60; // 60 seconds for large uploads
+export const dynamic = 'force-dynamic';
 
+export async function POST(request: NextRequest) {
   try {
-    const jsonResponse = await handleUpload({
-      body,
-      request,
-      onBeforeGenerateToken: async (
-        pathname: string,
-        /* clientPayload?: string, */
-      ) => {
-        // Generate a client token for the browser to upload the file
-        // ⚠️ Authenticate users before generating the token.
-        // Otherwise, you're allowing anonymous uploads.
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
 
-        // TODO: Add authentication check here
-        // const { user } = await auth(request);
-        // if (!user) {
-        //   throw new Error('Not authorized');
-        // }
+    if (!file) {
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    }
 
-        return {
-          allowedContentTypes: [
-            'image/jpeg',
-            'image/jpg',
-            'image/png',
-            'image/gif',
-            'image/webp',
-            'video/mp4',
-            'video/webm',
-            'video/quicktime',
-          ],
-          tokenPayload: JSON.stringify({
-            // optional, sent to your server on upload completion
-            // userId: user.id,
-            uploadedAt: new Date().toISOString(),
-          }),
-        };
-      },
-      onUploadCompleted: async ({ blob, tokenPayload }) => {
-        // Get notified of client upload completion
-        // ⚠️ This will not work on `localhost` websites,
-        // Use ngrok or similar to get the full upload flow
+    // Validate file type
+    const baseFileType = file.type.split(';')[0].trim();
 
-        console.log('blob upload completed', blob, tokenPayload);
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'video/mp4',
+      'video/webm',
+      'video/quicktime',
+    ];
 
-        try {
-          // Run any logic after the file upload completed
-          // const { userId } = JSON.parse(tokenPayload);
-          // await db.update({ mediaUrl: blob.url, userId });
-        } catch (error) {
-          throw new Error('Could not process upload completion');
-        }
-      },
+    if (!allowedTypes.includes(baseFileType)) {
+      return NextResponse.json({
+        error: `Invalid file type. Got: ${baseFileType}`
+      }, { status: 400 });
+    }
+
+    // Check file size (500MB limit for R2)
+    const maxSize = 500 * 1024 * 1024; // 500MB
+    if (file.size > maxSize) {
+      return NextResponse.json({
+        error: 'File too large. Maximum size is 500MB.'
+      }, { status: 413 });
+    }
+
+    // Generate unique filename
+    const timestamp = Date.now();
+    const extension = file.name.split('.').pop();
+    const uniqueFilename = `${timestamp}-${Math.random().toString(36).substring(7)}.${extension}`;
+
+    // Convert file to buffer and upload to R2
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const publicUrl = await uploadToR2(buffer, uniqueFilename, file.type);
+
+    // Return the public URL
+    return NextResponse.json({
+      success: true,
+      url: publicUrl,
+      filename: uniqueFilename,
+      size: file.size,
+      type: file.type
     });
 
-    return NextResponse.json(jsonResponse);
   } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 }, // The webhook will retry 5 times waiting for a 200
-    );
+    console.error('Upload error:', error);
+
+    // Handle specific error types
+    if (error instanceof Error) {
+      if (error.message.includes('PayloadTooLargeError')) {
+        return NextResponse.json({
+          error: 'File too large. Please reduce file size and try again'
+        }, { status: 413 });
+      }
+    }
+
+    return NextResponse.json({
+      error: 'Upload failed. Please try again.'
+    }, { status: 500 });
   }
 }
