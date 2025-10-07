@@ -511,9 +511,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                       ? 'bg-green-100 text-green-700 cursor-default'
                       : isJoined
                         ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200'
-                        : displayGradient.includes('bg-gradient')
-                          ? `${displayGradient} text-white hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]`
-                          : `bg-gradient-to-r ${displayGradient.replace('from-', 'from-').replace('to-', 'to-')} text-white hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]`
+                        : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]'
                   }`}
                 >
                   {isJoining ? (
