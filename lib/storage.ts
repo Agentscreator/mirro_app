@@ -1,30 +1,46 @@
-import { put } from '@vercel/blob';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
-export async function uploadToBlob(
+const s3Client = new S3Client({
+  region: 'auto',
+  endpoint: process.env.R2_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+  },
+});
+
+export async function uploadToR2(
   file: Buffer,
   fileName: string,
   contentType: string
 ): Promise<string> {
-  console.log('Vercel Blob Upload attempt:', {
+  console.log('R2 Upload attempt:', {
     fileName,
     contentType,
     fileSize: file.length
   });
 
   try {
-    const blob = await put(fileName, file, {
-      access: 'public',
-      contentType,
+    const command = new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME!,
+      Key: fileName,
+      Body: file,
+      ContentType: contentType,
     });
+
+    await s3Client.send(command);
     
-    console.log('Vercel Blob Upload successful:', blob);
-    console.log('Public URL:', blob.url);
-    return blob.url;
+    const publicUrl = `${process.env.R2_PUBLIC_URL}/${fileName}`;
+    console.log('R2 Upload successful:', publicUrl);
+    return publicUrl;
   } catch (error) {
-    console.error('Vercel Blob Upload failed:', error);
+    console.error('R2 Upload failed:', error);
     throw error;
   }
 }
+
+// Keep the old function name for backward compatibility
+export const uploadToBlob = uploadToR2;
 
 export function generateFileName(prefix: string, extension: string): string {
   const timestamp = Date.now();

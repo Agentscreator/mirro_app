@@ -1,5 +1,5 @@
 /**
- * Utility functions for handling visual styling data stored in Vercel Blob
+ * Utility functions for handling visual styling data stored in R2
  */
 
 export async function fetchVisualStylingFromBlob(url: string): Promise<any> {
@@ -10,7 +10,7 @@ export async function fetchVisualStylingFromBlob(url: string): Promise<any> {
     }
     return await response.json();
   } catch (error) {
-    console.error('Error fetching visual styling from Vercel Blob:', error);
+    console.error('Error fetching visual styling from R2:', error);
     return null;
   }
 }
@@ -38,12 +38,12 @@ export function getVisualStyling(event: any): any {
 }
 
 export async function getVisualStylingAsync(event: any): Promise<any> {
-  // If there's a visualStylingUrl, fetch from Vercel Blob
+  // If there's a visualStylingUrl, fetch from R2
   if (event.visualStylingUrl) {
     try {
       return await fetchVisualStylingFromBlob(event.visualStylingUrl);
     } catch (error) {
-      console.error('Failed to fetch from Vercel Blob, falling back to inline:', error);
+      console.error('Failed to fetch from R2, falling back to inline:', error);
       // Fall through to inline parsing
     }
   }

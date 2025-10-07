@@ -1,12 +1,18 @@
 'use client';
 
-import { type PutBlobResult } from '@vercel/blob';
-import { upload } from '@vercel/blob/client';
 import { useState, useRef } from 'react';
+
+interface UploadResult {
+  success: boolean;
+  url: string;
+  filename: string;
+  size: number;
+  type: string;
+}
 
 export default function UploadPage() {
   const inputFileRef = useRef<HTMLInputElement>(null);
-  const [blob, setBlob] = useState<PutBlobResult | null>(null);
+  const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,12 +38,22 @@ export default function UploadPage() {
               setError(null);
 
               try {
-                const newBlob = await upload(file.name, file, {
-                  access: 'public',
-                  handleUploadUrl: '/api/upload',
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('type', file.type.startsWith('image/') ? 'image' : 'video');
+
+                const response = await fetch('/api/upload', {
+                  method: 'POST',
+                  body: formData,
                 });
 
-                setBlob(newBlob);
+                if (!response.ok) {
+                  const errorData = await response.json();
+                  throw new Error(errorData.error || 'Upload failed');
+                }
+
+                const result = await response.json();
+                setUploadResult(result);
               } catch (err) {
                 setError((err as Error).message || 'Upload failed');
               } finally {
@@ -87,31 +103,28 @@ export default function UploadPage() {
             </button>
           </form>
 
-          {blob && (
+          {uploadResult && (
             <div className="mt-8 p-6 bg-green-50 border border-green-200 rounded-lg">
               <h2 className="text-lg font-semibold text-green-900 mb-2">Upload Successful!</h2>
               <div className="space-y-2">
                 <div>
-                  <span className="text-sm font-medium text-green-700">Blob URL:</span>
+                  <span className="text-sm font-medium text-green-700">File URL:</span>
                   <a
-                    href={blob.url}
+                    href={uploadResult.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block text-sm text-blue-600 hover:text-blue-800 break-all mt-1"
                   >
-                    {blob.url}
+                    {uploadResult.url}
                   </a>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-green-700">Download URL:</span>
-                  <a
-                    href={blob.downloadUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-sm text-blue-600 hover:text-blue-800 break-all mt-1"
-                  >
-                    {blob.downloadUrl}
-                  </a>
+                  <span className="text-sm font-medium text-green-700">Filename:</span>
+                  <span className="block text-sm text-gray-700 mt-1">{uploadResult.filename}</span>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-green-700">Size:</span>
+                  <span className="block text-sm text-gray-700 mt-1">{Math.round(uploadResult.size / 1024)} KB</span>
                 </div>
               </div>
             </div>

@@ -265,7 +265,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         location: eventData.location,
         icon: undefined,
         gradient: eventData.visualStyling?.styling?.gradient || 'bg-gray-50',
-        mediaUrl: mediaUrl, // Now using Vercel Blob URLs instead of data URLs
+        mediaUrl: mediaUrl, // Now using R2 URLs instead of data URLs
         mediaType: mediaType,
         createdBy: user.id,
         visualStyling: eventData.visualStyling,
@@ -279,7 +279,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
       const payloadSizeKB = (payloadSize / 1024).toFixed(2)
       console.log(`Creating event with payload size: ${payloadSizeKB} KB`)
 
-      // Payload should be small now since media is uploaded to Vercel Blob separately
+      // Payload should be small now since media is uploaded to R2 separately
       if (payloadSize > 1 * 1024 * 1024) { // 1MB warning
         console.warn(`Payload is large: ${payloadSizeKB} KB`)
       }

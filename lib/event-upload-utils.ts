@@ -2,7 +2,7 @@
  * Client-side utilities for handling large event data uploads
  */
 
-const MAX_INLINE_SIZE = 50000; // 50KB threshold for storing data inline vs Vercel Blob
+const MAX_INLINE_SIZE = 50000; // 50KB threshold for storing data inline vs R2
 
 export async function uploadEventDataToBlob(data: any, type: 'visual-styling' | 'event-metadata'): Promise<string> {
   const response = await fetch('/api/upload-event-data', {
@@ -43,14 +43,14 @@ export async function prepareEventData(eventData: {
     
     if (visualStylingSize > MAX_INLINE_SIZE) {
       try {
-        // Upload to Vercel Blob and replace with URL
+        // Upload to R2 and replace with URL
         const visualStylingUrl = await uploadEventDataToBlob(eventData.visualStyling, 'visual-styling');
         prepared.visualStylingUrl = visualStylingUrl;
         delete prepared.visualStyling; // Remove large data from inline
         
-        console.log('Large visual styling uploaded to Vercel Blob:', visualStylingUrl);
+        console.log('Large visual styling uploaded to R2:', visualStylingUrl);
       } catch (error) {
-        console.error('Failed to upload visual styling to Vercel Blob:', error);
+        console.error('Failed to upload visual styling to R2:', error);
         // Keep original data but log the issue
         console.warn('Falling back to inline visual styling due to upload failure');
       }

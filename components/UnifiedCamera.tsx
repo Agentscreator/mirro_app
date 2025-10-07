@@ -138,7 +138,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         ctx.drawImage(videoRef.current, 0, 0)
 
         try {
-          // Convert canvas to blob and upload to Vercel Blob
+          // Convert canvas to blob and upload to R2
           canvas.toBlob(async (blob) => {
             if (blob) {
               const formData = new FormData()
@@ -222,13 +222,13 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           console.log('Video blob size:', blob.size, 'bytes')
           console.log('Video blob type:', blob.type)
 
-          // Upload video to Vercel Blob storage with retry logic
+          // Upload video to R2 storage with retry logic
           const formData = new FormData()
           // Always use webm extension since that's what we're recording
           formData.append('file', blob, 'video.webm')
           formData.append('type', 'video')
 
-          console.log('Uploading video to Vercel Blob...')
+          console.log('Uploading video to R2...')
 
           // Retry upload up to 3 times
           let uploadSuccess = false

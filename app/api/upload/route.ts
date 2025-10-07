@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { uploadToR2 } from '@/lib/storage';
 
 // Configure for file uploads
 export const runtime = 'nodejs';
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Check file size (500MB limit for Vercel Blob)
+    // Check file size (500MB limit for R2)
     const maxSize = 500 * 1024 * 1024; // 500MB
     if (file.size > maxSize) {
       return NextResponse.json({
@@ -47,13 +47,9 @@ export async function POST(request: NextRequest) {
     const extension = file.name.split('.').pop();
     const uniqueFilename = `${timestamp}-${Math.random().toString(36).substring(7)}.${extension}`;
 
-    // Upload to Vercel Blob
-    const blob = await put(uniqueFilename, file, {
-      access: 'public',
-      contentType: file.type,
-    });
-
-    const publicUrl = blob.url;
+    // Convert file to buffer and upload to R2
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const publicUrl = await uploadToR2(buffer, uniqueFilename, file.type);
 
     // Return the public URL
     return NextResponse.json({
@@ -66,18 +62,18 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Upload error:', error);
-    
+
     // Handle specific error types
     if (error instanceof Error) {
       if (error.message.includes('PayloadTooLargeError')) {
-        return NextResponse.json({ 
-          error: 'File too large. Please reduce file size and try again' 
+        return NextResponse.json({
+          error: 'File too large. Please reduce file size and try again'
         }, { status: 413 });
       }
     }
 
-    return NextResponse.json({ 
-      error: 'Upload failed. Please try again.' 
+    return NextResponse.json({
+      error: 'Upload failed. Please try again.'
     }, { status: 500 });
   }
 }
