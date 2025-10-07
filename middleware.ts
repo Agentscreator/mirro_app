@@ -44,10 +44,10 @@ export function middleware(request: NextRequest) {
             );
         }
         
-        // For upload endpoint, allow up to 500MB (matching the upload route limit)
-        if (contentLength && isUploadEndpoint && parseInt(contentLength) > 500 * 1024 * 1024) { // 500MB limit for uploads
+        // For upload endpoint, allow up to 1000MB (matching the upload route limit)
+        if (contentLength && isUploadEndpoint && parseInt(contentLength) > 1000 * 1024 * 1024) { // 1000MB limit for uploads
             return NextResponse.json(
-                { error: 'File too large. Maximum size is 500MB.' },
+                { error: 'File too large. Maximum size is 1000MB.' },
                 {
                     status: 413,
                     headers: {

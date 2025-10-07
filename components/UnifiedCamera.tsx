@@ -211,8 +211,8 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       mediaRecorder.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: mimeType })
 
-        // Check file size (limit to 50MB for better upload reliability)
-        const maxSize = 50 * 1024 * 1024 // 50MB
+        // Check file size (limit to 1000MB for better upload reliability)
+        const maxSize = 1000 * 1024 * 1024 // 1000MB
         if (blob.size > maxSize) {
           alert('Video file is too large. Please record a shorter video.')
           return
@@ -344,9 +344,9 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
     const file = e.target.files?.[0]
     if (file) {
       // Check file size before upload
-      const maxSize = 50 * 1024 * 1024 // 50MB
+      const maxSize = 1000 * 1024 * 1024 // 1000MB
       if (file.size > maxSize) {
-        alert('File is too large. Please select a file smaller than 50MB.')
+        alert('File is too large. Please select a file smaller than 1000MB.')
         return
       }
 

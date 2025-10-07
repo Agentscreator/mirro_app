@@ -34,11 +34,11 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Check file size (500MB limit for R2)
-    const maxSize = 500 * 1024 * 1024; // 500MB
+    // Check file size (1000MB limit for R2)
+    const maxSize = 1000 * 1024 * 1024; // 1000MB
     if (file.size > maxSize) {
       return NextResponse.json({
-        error: 'File too large. Maximum size is 500MB.'
+        error: 'File too large. Maximum size is 1000MB.'
       }, { status: 413 });
     }
 
