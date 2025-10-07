@@ -406,27 +406,24 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   }
 
   const effects = [
-    { 
-      id: "flip", 
-      name: "Flip Camera", 
+    {
+      id: "flip",
+      name: "Flip Camera",
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
       )
     },
-    { 
-      id: "filter", 
-      name: "Filters", 
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-        </svg>
-      )
-    },
-    { 
-      id: "timer", 
-      name: "Timer", 
+    { id: "clear-skin", name: "Clear Skin", icon: "✨" },
+    { id: "makeup", name: "Makeup", icon: "💄" },
+    { id: "glow", name: "Glow", icon: "🌟" },
+    { id: "reshape", name: "Reshape", icon: "🎭" },
+    { id: "vintage", name: "Vintage", icon: "📷" },
+    { id: "greenscreen", name: "Green Screen", icon: "🎬" },
+    {
+      id: "timer",
+      name: "Timer",
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -458,16 +455,74 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       `}</style>
       {/* Camera View */}
       <div className="relative w-full h-full video-container">
-        <video 
-          ref={videoRef} 
-          autoPlay 
-          playsInline 
-          muted 
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
           webkit-playsinline="true"
-          className="w-full h-full object-cover" 
+          className="w-full h-full object-cover"
         />
 
+        {/* Clear Skin Effect Overlay */}
+        {selectedEffect === "clear-skin" && (
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 bg-cream-200/10 backdrop-blur-[0.5px]"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
+              <p className="text-sm font-medium bg-black/50 px-4 py-2 rounded-full">Clear Skin Active</p>
+            </div>
+          </div>
+        )}
 
+        {/* Virtual Makeup Effect Overlay */}
+        {selectedEffect === "makeup" && (
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 bg-pink-100/10"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
+              <p className="text-sm font-medium bg-black/50 px-4 py-2 rounded-full">Virtual Makeup Active</p>
+            </div>
+          </div>
+        )}
+
+        {/* Glow & Radiance Effect Overlay */}
+        {selectedEffect === "glow" && (
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 bg-yellow-100/15 backdrop-brightness-110"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
+              <p className="text-sm font-medium bg-black/50 px-4 py-2 rounded-full">Glow Active</p>
+            </div>
+          </div>
+        )}
+
+        {/* Facial Reshaping Effect Overlay */}
+        {selectedEffect === "reshape" && (
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
+              <p className="text-sm font-medium bg-black/50 px-4 py-2 rounded-full">Reshape Active</p>
+            </div>
+          </div>
+        )}
+
+        {/* Vintage/Retro Effect Overlay */}
+        {selectedEffect === "vintage" && (
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 bg-amber-900/20 backdrop-sepia backdrop-contrast-75"></div>
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=')] opacity-40"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
+              <p className="text-sm font-medium bg-black/50 px-4 py-2 rounded-full">Vintage Active</p>
+            </div>
+          </div>
+        )}
+
+        {/* Green Screen Effect Overlay */}
+        {selectedEffect === "greenscreen" && (
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 bg-green-500 opacity-20"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
+              <p className="text-sm font-medium bg-black/50 px-4 py-2 rounded-full">Green Screen Active</p>
+            </div>
+          </div>
+        )}
 
         {/* Top Bar */}
         <div className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between camera-header camera-controls">
@@ -514,7 +569,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         )}
 
         {/* Side Panel - Effects */}
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 space-y-3">
+        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 max-h-[70vh] overflow-y-auto space-y-3 scrollbar-hide">
           {effects.map((effect) => (
             <button
               key={effect.id}
@@ -525,14 +580,18 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
                   setSelectedEffect(selectedEffect === effect.id ? null : effect.id)
                 }
               }}
-              className={`w-16 h-16 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center transition-all duration-200 ${
+              className={`w-16 h-16 rounded-2xl backdrop-blur-sm flex flex-col items-center justify-center transition-all ${
                 (effect.id === "flip" && facingMode === "environment") || (selectedEffect === effect.id && effect.id !== "flip")
-                  ? "bg-white/95 scale-105 text-text-primary shadow-xl border-2 border-sand-300"
-                  : "bg-black/20 hover:bg-black/30 text-white/90 hover:text-white border border-white/20"
+                  ? "bg-cream-300 scale-110 text-text-primary shadow-lg"
+                  : "bg-cream-200/90 hover:bg-cream-300/90 text-text-secondary"
               }`}
             >
-              <div className="mb-1">{effect.icon}</div>
-              <span className="text-[9px] font-medium leading-tight text-center">{effect.name}</span>
+              {typeof effect.icon === 'string' ? (
+                <span className="text-2xl">{effect.icon}</span>
+              ) : (
+                <div>{effect.icon}</div>
+              )}
+              <span className="text-[9px] mt-1 font-medium leading-tight text-center px-1">{effect.name}</span>
             </button>
           ))}
         </div>
