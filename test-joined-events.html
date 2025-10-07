@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Joined Events</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%);
+            min-height: 100vh;
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .button {
+            background: linear-gradient(135deg, #8B7355 0%, #A0916B 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 14px;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .result {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        input, select {
+            padding: 8px 12px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Joined Events Test</h1>
+    <p>Test the functionality of viewing events a user has joined</p>
+
+    <div class="test-section">
+        <h2>Step 1: Get User's Created Events</h2>
+        <input type="text" id="userIdCreated" placeholder="Enter User ID">
+        <button class="button" onclick="getUserCreatedEvents()">Get Created Events</button>
+        <div id="createdEventsResult" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 2: Get User's Joined Events</h2>
+        <input type="text" id="userIdJoined" placeholder="Enter User ID">
+        <button class="button" onclick="getUserJoinedEvents()">Get Joined Events</button>
+        <div id="joinedEventsResult" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 3: Join an Event</h2>
+        <input type="text" id="joinEventId" placeholder="Enter Event ID">
+        <input type="text" id="joinUserId" placeholder="Enter User ID">
+        <button class="button" onclick="joinEvent()">Join Event</button>
+        <div id="joinResult" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 4: Test Complete Flow</h2>
+        <p>This tests the complete flow:</p>
+        <ol>
+            <li>User joins an event via shared invite</li>
+            <li>Event appears in their "Joined" events</li>
+            <li>Event appears in their "All" events</li>
+            <li>User can view the event from their profile</li>
+        </ol>
+        <input type="text" id="flowUserId" placeholder="Enter User ID">
+        <input type="text" id="flowEventId" placeholder="Enter Event ID to join">
+        <button class="button" onclick="testCompleteJoinFlow()">Test Complete Flow</button>
+        <div id="flowResult" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Get user's created events
+        async function getUserCreatedEvents() {
+            const userId = document.getElementById('userIdCreated').value;
+            const resultDiv = document.getElementById('createdEventsResult');
+            
+            if (!userId) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Please enter a User ID';
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Loading created events...';
+            
+            try {
+                const response = await fetch(`/api/events/user/${userId}`);
+                const events = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Found ${events.length} created events:\n\n` + 
+                        events.map(event => `ID: ${event.id}\nTitle: ${event.title}\nCreated: ${event.createdAt}\n`).join('\n');
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Error: ${events.error || 'Failed to fetch created events'}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Network error: ${error.message}`;
+            }
+        }
+
+        // Get user's joined events
+        async function getUserJoinedEvents() {
+            const userId = document.getElementById('userIdJoined').value;
+            const resultDiv = document.getElementById('joinedEventsResult');
+            
+            if (!userId) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Please enter a User ID';
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Loading joined events...';
+            
+            try {
+                const response = await fetch(`/api/events/joined/${userId}`);
+                const events = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Found ${events.length} joined events:\n\n` + 
+                        events.map(event => `ID: ${event.id}\nTitle: ${event.title}\nCreator: ${event.creatorName} (@${event.creatorUsername})\nJoined: ${event.joinedAt}\n`).join('\n');
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Error: ${events.error || 'Failed to fetch joined events'}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Network error: ${error.message}`;
+            }
+        }
+
+        // Join an event
+        async function joinEvent() {
+            const eventId = document.getElementById('joinEventId').value;
+            const userId = document.getElementById('joinUserId').value;
+            const resultDiv = document.getElementById('joinResult');
+            
+            if (!eventId || !userId) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Please enter both Event ID and User ID';
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Joining event...';
+            
+            try {
+                const response = await fetch(`/api/events/${eventId}/join`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ userId: userId }),
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Successfully joined event!\n\nMessage: ${result.message}\n\nNow check the user's joined events to verify it appears in their profile.`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Failed to join event: ${result.error}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Network error: ${error.message}`;
+            }
+        }
+
+        // Test complete join flow
+        async function testCompleteJoinFlow() {
+            const userId = document.getElementById('flowUserId').value;
+            const eventId = document.getElementById('flowEventId').value;
+            const resultDiv = document.getElementById('flowResult');
+            
+            if (!userId || !eventId) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Please enter both User ID and Event ID';
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Testing complete join flow...\n\n';
+            
+            try {
+                // Step 1: Get initial joined events count
+                resultDiv.textContent += 'Step 1: Getting initial joined events...\n';
+                const initialResponse = await fetch(`/api/events/joined/${userId}`);
+                const initialEvents = await initialResponse.json();
+                const initialCount = initialResponse.ok ? initialEvents.length : 0;
+                resultDiv.textContent += `Initial joined events: ${initialCount}\n\n`;
+                
+                // Step 2: Join the event
+                resultDiv.textContent += 'Step 2: Joining event...\n';
+                const joinResponse = await fetch(`/api/events/${eventId}/join`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ userId: userId }),
+                });
+                
+                const joinResult = await joinResponse.json();
+                if (joinResponse.ok) {
+                    resultDiv.textContent += `✅ Successfully joined event: ${joinResult.message}\n\n`;
+                } else {
+                    resultDiv.textContent += `❌ Failed to join event: ${joinResult.error}\n\n`;
+                    resultDiv.className = 'result error';
+                    return;
+                }
+                
+                // Step 3: Verify event appears in joined events
+                resultDiv.textContent += 'Step 3: Verifying event appears in joined events...\n';
+                const finalResponse = await fetch(`/api/events/joined/${userId}`);
+                const finalEvents = await finalResponse.json();
+                
+                if (finalResponse.ok) {
+                    const finalCount = finalEvents.length;
+                    const joinedEvent = finalEvents.find(e => e.id === eventId);
+                    
+                    resultDiv.textContent += `Final joined events: ${finalCount}\n`;
+                    
+                    if (joinedEvent) {
+                        resultDiv.textContent += `✅ Event found in joined events!\n`;
+                        resultDiv.textContent += `Event: ${joinedEvent.title}\n`;
+                        resultDiv.textContent += `Creator: ${joinedEvent.creatorName}\n\n`;
+                        
+                        resultDiv.textContent += '🎉 COMPLETE FLOW SUCCESS!\n\n';
+                        resultDiv.textContent += 'The event should now appear in the user\'s profile under:\n';
+                        resultDiv.textContent += '- "Joined" tab\n';
+                        resultDiv.textContent += '- "All" tab\n';
+                        resultDiv.textContent += '\nWhen the user closes the shared event modal, they will remain joined to the event.';
+                        
+                        resultDiv.className = 'result success';
+                    } else {
+                        resultDiv.textContent += `❌ Event NOT found in joined events!\n`;
+                        resultDiv.className = 'result error';
+                    }
+                } else {
+                    resultDiv.textContent += `❌ Failed to fetch final joined events: ${finalEvents.error}\n`;
+                    resultDiv.className = 'result error';
+                }
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `❌ Network error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
+</text>

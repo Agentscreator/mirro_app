@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import EventCard from "./EventCard"
 import EventViewToggle from "./EventViewToggle"
 import FollowersModal from "./FollowersModal"
@@ -93,13 +93,16 @@ interface ProfilePageProps {
     user: User
     initialEventId?: string | null
     onEventModalClose?: () => void
+    refreshKey?: number
 }
 
-export default function ProfilePage({ user: initialUser, initialEventId, onEventModalClose }: ProfilePageProps) {
+export default function ProfilePage({ user: initialUser, initialEventId, onEventModalClose, refreshKey }: ProfilePageProps) {
     const [isManageMode, setIsManageMode] = useState(false)
+    const [eventViewMode, setEventViewMode] = useState<'created' | 'joined' | 'all'>('all')
     const [user, setUser] = useState<User>(initialUser)
     const [profilePicture, setProfilePicture] = useState<string | null>(initialUser.profilePicture || null)
     const [userEvents, setUserEvents] = useState<EventCardData[]>([])
+    const [joinedEvents, setJoinedEvents] = useState<EventCardData[]>([])
     const [loading, setLoading] = useState(true)
 
     // Editing states
@@ -130,11 +133,15 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                 setUser(userData)
                 setProfilePicture(userData.profilePicture || null)
 
-                // Fetch user's events (now includes attendee data)
+                // Fetch user's created events (now includes attendee data)
                 const userEventsResponse = await fetch(`/api/events/user/${user.id}`)
                 const userEventsData: DatabaseEvent[] = await userEventsResponse.json()
 
-                // Transform database events to component format and sort by newest first
+                // Fetch user's joined events
+                const joinedEventsResponse = await fetch(`/api/events/joined/${user.id}`)
+                const joinedEventsData: DatabaseEvent[] = await joinedEventsResponse.json()
+
+                // Transform database events to component format
                 const transformEvent = (event: DatabaseEvent): EventCardData => ({
                     id: event.id,
                     title: event.title,
@@ -162,7 +169,12 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                     .map(transformEvent)
                     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 
+                const sortedJoinedEvents = joinedEventsData
+                    .map(transformEvent)
+                    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+
                 setUserEvents(sortedUserEvents)
+                setJoinedEvents(sortedJoinedEvents)
             } catch (error) {
                 console.error('Error fetching data:', error)
             } finally {
@@ -171,7 +183,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
         }
 
         fetchData()
-    }, [user.id])
+    }, [user.id, refreshKey])
 
     // Handle initial event ID from URL
     useEffect(() => {
@@ -228,9 +240,13 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
         // Refresh events data after update
         const fetchData = async () => {
             try {
-                // Fetch user's events (now includes attendee data)
+                // Fetch user's created events (now includes attendee data)
                 const userEventsResponse = await fetch(`/api/events/user/${user.id}`)
                 const userEventsData: DatabaseEvent[] = await userEventsResponse.json()
+
+                // Fetch user's joined events
+                const joinedEventsResponse = await fetch(`/api/events/joined/${user.id}`)
+                const joinedEventsData: DatabaseEvent[] = await joinedEventsResponse.json()
 
                 // Transform database events to component format
                 const transformEvent = (event: DatabaseEvent): EventCardData => ({
@@ -260,7 +276,12 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                     .map(transformEvent)
                     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 
+                const sortedJoinedEvents = joinedEventsData
+                    .map(transformEvent)
+                    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+
                 setUserEvents(sortedUserEvents)
+                setJoinedEvents(sortedJoinedEvents)
             } catch (error) {
                 console.error('Error refreshing events:', error)
             }
@@ -481,7 +502,22 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
         }
     }
 
-    const eventsToShow = userEvents
+    const eventsToShow = useMemo(() => {
+        switch (eventViewMode) {
+            case 'created':
+                return userEvents
+            case 'joined':
+                return joinedEvents
+            case 'all':
+            default:
+                // Combine and deduplicate events (user might be both creator and participant)
+                const allEvents = [...userEvents, ...joinedEvents]
+                const uniqueEvents = allEvents.filter((event, index, self) => 
+                    index === self.findIndex(e => e.id === event.id)
+                )
+                return uniqueEvents.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        }
+    }, [eventViewMode, userEvents, joinedEvents])
 
     return (
         <div className="px-6 py-4 pb-24">
@@ -669,6 +705,8 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                     <EventViewToggle
                         isManageMode={isManageMode}
                         onManageModeToggle={setIsManageMode}
+                        eventViewMode={eventViewMode}
+                        onEventViewModeChange={setEventViewMode}
                     />
                 </div>
 

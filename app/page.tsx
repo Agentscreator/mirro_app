@@ -281,6 +281,7 @@ function EventsAppContent() {
             setSelectedEventId(null)
             setSharedEvent(null)
           }}
+          refreshKey={refreshEvents}
         />
       )}
       {currentPage === "create" && <CreateEventPage onEventCreated={() => {
@@ -302,6 +303,8 @@ function EventsAppContent() {
             if (selectedEventId) {
               fetchSharedEvent(selectedEventId)
             }
+            // Increment refresh counter to trigger profile refresh
+            setRefreshEvents(prev => prev + 1)
           }}
         />
       )}
