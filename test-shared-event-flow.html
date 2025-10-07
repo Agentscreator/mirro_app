@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Shared Event Flow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%);
+            min-height: 100vh;
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .button {
+            background: linear-gradient(135deg, #8B7355 0%, #A0916B 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 14px;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .result {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        input, select {
+            padding: 8px 12px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔗 Shared Event Flow Test</h1>
+    <p>Test the complete flow of sharing an event invite and joining after sign-in</p>
+
+    <div class="test-section">
+        <h2>Step 1: Get All Events</h2>
+        <button class="button" onclick="getAllEvents()">Fetch All Events</button>
+        <div id="eventsResult" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 2: Test Share URL Generation</h2>
+        <input type="text" id="shareEventId" placeholder="Enter Event ID to share">
+        <button class="button" onclick="testShareURL()">Generate Share URL</button>
+        <div id="shareResult" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 3: Test Event Access (Unauthenticated)</h2>
+        <input type="text" id="testEventId" placeholder="Enter Event ID to test">
+        <button class="button" onclick="testEventAccess()">Test Event Access</button>
+        <div id="accessResult" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 4: Test Authentication Flow</h2>
+        <p>This tests the complete flow:</p>
+        <ol>
+            <li>User clicks shared event link</li>
+            <li>User sees event preview (unauthenticated)</li>
+            <li>User clicks "Sign Up to Join Event"</li>
+            <li>User signs in/up</li>
+            <li>User should see the event again with join option</li>
+        </ol>
+        <input type="text" id="flowEventId" placeholder="Enter Event ID for flow test">
+        <button class="button" onclick="testCompleteFlow()">Test Complete Flow</button>
+        <div id="flowResult" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 5: Test Join Event After Auth</h2>
+        <input type="text" id="joinEventId" placeholder="Enter Event ID">
+        <input type="text" id="joinUserId" placeholder="Enter User ID">
+        <button class="button" onclick="testJoinEvent()">Test Join Event</button>
+        <div id="joinResult" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Get all events to see what's available
+        async function getAllEvents() {
+            const resultDiv = document.getElementById('eventsResult');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Loading events...';
+            
+            try {
+                const response = await fetch('/api/events');
+                const events = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `Found ${events.length} events:\n\n` + 
+                        events.map(event => `ID: ${event.id}\nTitle: ${event.title}\nCreated by: ${event.creatorName} (@${event.creatorUsername})\n`).join('\n');
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `Error: ${events.error || 'Failed to fetch events'}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `Network error: ${error.message}`;
+            }
+        }
+
+        // Test share URL generation
+        function testShareURL() {
+            const eventId = document.getElementById('shareEventId').value;
+            const resultDiv = document.getElementById('shareResult');
+            
+            if (!eventId) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Please enter an Event ID';
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result success';
+            
+            const shareUrl = `${window.location.origin}/event/${eventId}`;
+            const mainAppUrl = `${window.location.origin}/?event=${eventId}`;
+            
+            resultDiv.textContent = `Share URLs generated:
+            
+Direct Event Page: ${shareUrl}
+Main App with Event: ${mainAppUrl}
+
+Click to test:`;
+            
+            // Add clickable links
+            const directLink = document.createElement('a');
+            directLink.href = shareUrl;
+            directLink.textContent = 'Test Direct Event Page';
+            directLink.style.display = 'block';
+            directLink.style.margin = '10px 0';
+            directLink.style.color = '#007bff';
+            
+            const mainAppLink = document.createElement('a');
+            mainAppLink.href = mainAppUrl;
+            mainAppLink.textContent = 'Test Main App with Event';
+            mainAppLink.style.display = 'block';
+            mainAppLink.style.margin = '10px 0';
+            mainAppLink.style.color = '#007bff';
+            
+            resultDiv.appendChild(document.createElement('br'));
+            resultDiv.appendChild(directLink);
+            resultDiv.appendChild(mainAppLink);
+        }
+
+        // Test event access without authentication
+        async function testEventAccess() {
+            const eventId = document.getElementById('testEventId').value;
+            const resultDiv = document.getElementById('accessResult');
+            
+            if (!eventId) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Please enter an Event ID';
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Testing event access...';
+            
+            try {
+                const response = await fetch(`/api/events/${eventId}`);
+                const eventData = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Event accessible:
+                    
+Title: ${eventData.title}
+Description: ${eventData.description}
+Date: ${eventData.date}
+Time: ${eventData.time}
+Location: ${eventData.location}
+Creator: ${eventData.creatorName} (@${eventData.creatorUsername})
+Attendees: ${eventData.attendeeCount || 0}
+
+This means unauthenticated users can view the event details.`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Event not accessible: ${eventData.error || 'Unknown error'}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Network error: ${error.message}`;
+            }
+        }
+
+        // Test complete authentication flow
+        function testCompleteFlow() {
+            const eventId = document.getElementById('flowEventId').value;
+            const resultDiv = document.getElementById('flowResult');
+            
+            if (!eventId) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Please enter an Event ID';
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result success';
+            
+            const steps = `
+Complete Flow Test for Event ID: ${eventId}
+
+Step 1: Clear any existing authentication
+- Open browser dev tools → Application → Local Storage
+- Clear 'user' key if it exists
+
+Step 2: Visit shared event link
+- URL: ${window.location.origin}/event/${eventId}
+- Should show event preview without authentication
+- Should see "Sign Up to Join Event" button
+
+Step 3: Click "Sign Up to Join Event"
+- Should redirect to: ${window.location.origin}/?event=${eventId}
+- Should show authentication form
+- Should display context: "Create an account to join [Event Title]"
+
+Step 4: Sign up or sign in
+- Complete authentication process
+- Should automatically return to event view
+- Should now show "Join Event" button instead of "Sign Up"
+
+Step 5: Join the event
+- Click "Join Event"
+- Should successfully join and show "Leave Event"
+
+Click the link below to start the test:`;
+            
+            resultDiv.textContent = steps;
+            
+            const testLink = document.createElement('a');
+            testLink.href = `${window.location.origin}/event/${eventId}`;
+            testLink.textContent = '🚀 Start Flow Test';
+            testLink.style.display = 'block';
+            testLink.style.margin = '15px 0';
+            testLink.style.padding = '10px 20px';
+            testLink.style.background = '#007bff';
+            testLink.style.color = 'white';
+            testLink.style.textDecoration = 'none';
+            testLink.style.borderRadius = '5px';
+            testLink.style.textAlign = 'center';
+            
+            resultDiv.appendChild(document.createElement('br'));
+            resultDiv.appendChild(testLink);
+        }
+
+        // Test joining an event (requires authentication)
+        async function testJoinEvent() {
+            const eventId = document.getElementById('joinEventId').value;
+            const userId = document.getElementById('joinUserId').value;
+            const resultDiv = document.getElementById('joinResult');
+            
+            if (!eventId || !userId) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Please enter both Event ID and User ID';
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Testing event join...';
+            
+            try {
+                const response = await fetch(`/api/events/${eventId}/join`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ userId: userId }),
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Successfully joined event: ${result.message}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Failed to join event: ${result.error}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Network error: ${error.message}`;
+            }
+        }
+
+        // Auto-load events on page load
+        window.addEventListener('load', getAllEvents);
+    </script>
+</body>
+</html>
+</text>

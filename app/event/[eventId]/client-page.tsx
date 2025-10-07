@@ -93,8 +93,8 @@ export default function ClientEventPage({ eventId }: ClientEventPageProps) {
 
 
   const handleCloseModal = () => {
-    // Redirect to main app
-    window.location.href = '/'
+    // Redirect to main app with event parameter to preserve context
+    window.location.href = `/?event=${eventId}`
   }
 
   // Loading state
@@ -161,6 +161,10 @@ export default function ClientEventPage({ eventId }: ClientEventPageProps) {
         onJoinStatusChange={() => {
           // Refresh event data after join/leave
           window.location.reload()
+        }}
+        onSignUpRequest={() => {
+          // Redirect to main app with event parameter for sign up
+          window.location.href = `/?event=${eventId}`
         }}
       />
 

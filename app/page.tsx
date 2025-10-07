@@ -152,9 +152,10 @@ function EventsAppContent() {
     const storedUser = localStorage.getItem('user')
     if (storedUser) {
       setUser(JSON.parse(storedUser))
-      // If there was a shared event being viewed, keep it open after login
-      // The EventPreviewModal will now show join/leave buttons since user is authenticated
-      // The modal will automatically update because user state changed
+      // If there was a shared event being viewed, refresh it to show updated join status
+      if (selectedEventId) {
+        fetchSharedEvent(selectedEventId)
+      }
     }
   }
 
@@ -215,10 +216,17 @@ function EventsAppContent() {
           className="max-w-md mx-auto min-h-screen shadow-xl"
           style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}
         >
-          <AuthPage onAuthSuccess={() => {
-            handleAuthSuccess()
-            setShowAuthFromModal(false)
-          }} />
+          <AuthPage 
+            onAuthSuccess={() => {
+              handleAuthSuccess()
+              setShowAuthFromModal(false)
+              // Keep the shared event context after authentication
+              if (selectedEventId && !sharedEvent) {
+                fetchSharedEvent(selectedEventId)
+              }
+            }}
+            sharedEventTitle={sharedEvent?.title}
+          />
         </div>
       )
     }

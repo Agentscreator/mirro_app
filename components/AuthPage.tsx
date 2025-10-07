@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation"
 
 interface AuthPageProps {
   onAuthSuccess: () => void
+  sharedEventTitle?: string
 }
 
-export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
+export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPageProps) {
   const [isLogin, setIsLogin] = useState(true)
   const [formData, setFormData] = useState({
     name: "",
@@ -106,7 +107,10 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
           {isLogin ? "Welcome Back" : "Create Account"}
         </h1>
         <p className="text-text-secondary font-normal">
-          {isLogin ? "Sign in to continue to your events" : "Join us to start creating amazing events"}
+          {sharedEventTitle 
+            ? `${isLogin ? "Sign in" : "Create an account"} to join "${sharedEventTitle}"`
+            : isLogin ? "Sign in to continue to your events" : "Join us to start creating amazing events"
+          }
         </p>
       </div>
 
