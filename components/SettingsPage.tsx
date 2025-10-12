@@ -1,4 +1,4 @@
-"use client"
+"use client" 
 
 import React, { useState } from "react"
 
@@ -59,6 +59,18 @@ How We Share Your Personal Information
 
 We may share your personal information with service providers, payment processors, business partners, professional advisors, authorities when required by law, and other users of the Service when you choose to make information public.
 
+3. App Tracking Transparency (ATT)
+
+If your app collects data for tracking across other apps or websites (for example, with ad SDKs like Facebook, Google Ads, etc.), Apple requires an App Tracking Transparency prompt before tracking. We may use tracking technologies to personalize content or advertising across third-party platforms. In such cases, we request your consent as required by Apple's App Tracking Transparency framework. By using the Service, you agree to our use of such tracking technologies in accordance with your device settings and applicable privacy laws.
+
+4. Disclosure of Apple-Specific Requirements
+
+We do not use HealthKit, HomeKit, or other Apple-provided frameworks to collect personal information. If this changes in the future, we will update this policy and comply with all of Apple's requirements. Our data collection and usage practices are designed to respect your privacy while delivering core Service functionality.
+
+5. User-Generated Content and Moderation
+
+User-generated content you submit, including photos, videos, event materials, and other content, may be visible to other users or the public depending on your privacy settings and choices. We reserve the right to moderate or remove content that violates our community guidelines, infringes on intellectual property rights, or breaches legal obligations. You may request deletion of your user-generated content at any time by contacting us. Upon your request, we will make reasonable efforts to remove such content from the Service and our systems, though backup copies may be retained for legal compliance purposes.
+
 Your Choices
 
 • Opt-out of communications: You may opt-out of marketing-related emails by following the unsubscribe instructions.
@@ -79,8 +91,8 @@ The Service is not intended for use by anyone under 16 years of age.
 
 Contact Us
 
-Email: privacy@mirro.app
-Mail: Mirro, Inc.
+Email: mirrosocial@gmail.com
+Mail: Gravity, Inc., 4050 Rocky Cir, Tampa, FL 33613
 
 For European users, additional rights and protections apply under GDPR, including rights to access, correct, delete, transfer, restrict, and object to processing of your personal information.`
 
