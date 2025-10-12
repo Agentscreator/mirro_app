@@ -6,6 +6,7 @@ import EventViewToggle from "./EventViewToggle"
 import FollowersModal from "./FollowersModal"
 import EditEventModal from "./EditEventModal"
 import EventPreviewModal from "./EventPreviewModal"
+import SettingsPage from "./SettingsPage"
 import type { Event } from "@/lib/db/schema"
 
 interface EventWithCreator extends Omit<Event, 'icon'> {
@@ -120,6 +121,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
     const [editingEventId, setEditingEventId] = useState<string | null>(null)
     const [isEventPreviewModalOpen, setIsEventPreviewModalOpen] = useState(false)
     const [previewEvent, setPreviewEvent] = useState<EventWithCreator | null>(null)
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
     // Fetch user data and events
     useEffect(() => {
@@ -522,7 +524,17 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
     return (
         <div className="px-6 py-4 pb-24">
             {/* Profile Header */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-8 relative">
+                {/* Hamburger Menu Button */}
+                <button
+                    onClick={() => setIsSettingsOpen(true)}
+                    className="absolute top-0 right-0 p-2 glass-card rounded-xl hover:bg-white/10 transition-all duration-200"
+                >
+                    <svg className="w-5 h-5 text-text-secondary" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" />
+                    </svg>
+                </button>
+
                 <div className="relative inline-block">
                     <div className="w-24 h-24 glass-card rounded-full mx-auto mb-6 flex items-center justify-center soft-shadow hover-lift overflow-hidden">
                         {profilePicture ? (
@@ -777,6 +789,11 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                 }}
                 event={previewEvent}
                 currentUserId={user.id}
+            />
+
+            <SettingsPage
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
             />
         </div>
     )

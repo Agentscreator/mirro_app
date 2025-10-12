@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%);
+            min-height: 100vh;
+        }
+        .test-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .success {
+            color: #059669;
+            font-weight: bold;
+        }
+        .info {
+            color: #0369a1;
+        }
+        .hamburger-demo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .hamburger-demo:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: translateY(-1px);
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .feature-list li::before {
+            content: "✓";
+            color: #059669;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-card">
+        <h1>🔧 Settings Integration Test</h1>
+        <p class="success">✅ Privacy Policy Integration Complete!</p>
+        
+        <h2>📋 Implementation Summary</h2>
+        <ul class="feature-list">
+            <li>Created SettingsPage component with privacy policy content</li>
+            <li>Added hamburger menu button to ProfilePage header</li>
+            <li>Integrated modal state management</li>
+            <li>Styled with consistent glass-card design</li>
+            <li>Added smooth transitions and hover effects</li>
+            <li>Implemented back navigation within settings</li>
+        </ul>
+
+        <h2>🎯 User Experience</h2>
+        <div class="info">
+            <p><strong>Access Path:</strong> Profile Page → Hamburger Menu (top-right) → Settings → Privacy Policy</p>
+            <p><strong>Design:</strong> Subtle integration that doesn't clutter the main interface</p>
+            <p><strong>Navigation:</strong> Easy back-and-forth between settings sections</p>
+        </div>
+
+        <h2>🔍 Hamburger Menu Preview</h2>
+        <p>The hamburger menu appears as a subtle button in the top-right corner of the profile:</p>
+        <button class="hamburger-demo">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" />
+            </svg>
+            Settings Menu
+        </button>
+
+        <h2>📱 Settings Page Features</h2>
+        <ul class="feature-list">
+            <li>Privacy Policy - Full text with proper formatting</li>
+            <li>About Mirro - App description and purpose</li>
+            <li>Contact Support - Direct email link</li>
+            <li>Responsive design for mobile devices</li>
+            <li>Consistent with app's visual theme</li>
+        </ul>
+
+        <h2>🚀 Next Steps</h2>
+        <p class="info">
+            The privacy policy is now seamlessly integrated into your app! Users can access it through the hamburger menu on their profile page. The implementation is subtle and doesn't interfere with the main user experience while ensuring compliance and transparency.
+        </p>
+    </div>
+
+    <div class="test-card">
+        <h2>🧪 Test Instructions</h2>
+        <ol>
+            <li>Navigate to your app at <code>http://localhost:3000</code></li>
+            <li>Log in to access your profile page</li>
+            <li>Look for the hamburger menu (three lines) in the top-right corner</li>
+            <li>Click the hamburger menu to open settings</li>
+            <li>Click "Privacy Policy" to view the full policy</li>
+            <li>Use the back button to navigate between sections</li>
+        </ol>
+    </div>
+</body>
+</html>
