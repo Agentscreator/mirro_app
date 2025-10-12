@@ -19,7 +19,16 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
-import { REPORT_REASONS } from "@/lib/moderation"
+
+// Report reasons defined here to avoid server-side imports
+const REPORT_REASONS = [
+  { value: 'spam', label: 'Spam' },
+  { value: 'harassment', label: 'Harassment or Bullying' },
+  { value: 'inappropriate_content', label: 'Inappropriate Content' },
+  { value: 'hate_speech', label: 'Hate Speech' },
+  { value: 'violence', label: 'Violence or Threats' },
+  { value: 'other', label: 'Other' },
+] as const
 
 interface ReportDialogProps {
   open: boolean

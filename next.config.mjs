@@ -18,14 +18,7 @@ const nextConfig = {
   experimental: {
     missingSuspenseWithCSRBailout: false,
     // Increase body size limit for App Router
-    serverComponentsExternalPackages: [],
-  },
-  // Configure API routes for large file uploads
-  api: {
-    bodyParser: {
-      sizeLimit: '500mb',
-    },
-    responseLimit: false,
+    serverComponentsExternalPackages: ['postgres'],
   },
 }
 

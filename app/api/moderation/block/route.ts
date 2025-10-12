@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { blockedUsers, follows } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, or } from 'drizzle-orm';
+
+export const dynamic = 'force-dynamic';
 
 // Block a user
 export async function POST(request: NextRequest) {
