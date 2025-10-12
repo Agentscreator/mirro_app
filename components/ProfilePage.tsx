@@ -95,9 +95,10 @@ interface ProfilePageProps {
     initialEventId?: string | null
     onEventModalClose?: () => void
     refreshKey?: number
+    onAccountDeleted?: () => void
 }
 
-export default function ProfilePage({ user: initialUser, initialEventId, onEventModalClose, refreshKey }: ProfilePageProps) {
+export default function ProfilePage({ user: initialUser, initialEventId, onEventModalClose, refreshKey, onAccountDeleted }: ProfilePageProps) {
     const [isManageMode, setIsManageMode] = useState(false)
     const [eventViewMode, setEventViewMode] = useState<'created' | 'joined' | 'all'>('all')
     const [user, setUser] = useState<User>(initialUser)
@@ -794,6 +795,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
             <SettingsPage
                 isOpen={isSettingsOpen}
                 onClose={() => setIsSettingsOpen(false)}
+                onAccountDeleted={onAccountDeleted}
             />
         </div>
     )

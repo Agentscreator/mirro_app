@@ -282,6 +282,12 @@ function EventsAppContent() {
             setSharedEvent(null)
           }}
           refreshKey={refreshEvents}
+          onAccountDeleted={() => {
+            // Clear user state and redirect to auth
+            setUser(null)
+            setSelectedEventId(null)
+            setSharedEvent(null)
+          }}
         />
       )}
       {currentPage === "create" && <CreateEventPage onEventCreated={() => {
