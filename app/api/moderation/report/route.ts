@@ -88,16 +88,20 @@ export async function GET(request: NextRequest) {
     const reporterId = searchParams.get('reporterId');
     const status = searchParams.get('status') || 'pending';
 
-    let query = db.select().from(reports);
+    let allReports;
 
     if (reporterId) {
-      query = query.where(eq(reports.reporterId, reporterId));
+      allReports = await db
+        .select()
+        .from(reports)
+        .where(eq(reports.reporterId, reporterId));
     } else {
       // If no reporter specified, filter by status
-      query = query.where(eq(reports.status, status));
+      allReports = await db
+        .select()
+        .from(reports)
+        .where(eq(reports.status, status));
     }
-
-    const allReports = await query;
 
     return NextResponse.json(allReports);
   } catch (error) {
