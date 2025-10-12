@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { db } from './db';
-import { users, events, follows, eventParticipants } from './db/schema';
-import { eq, count, sql } from 'drizzle-orm';
+import { users, events, follows, eventParticipants, blockedUsers } from './db/schema';
+import { eq, count, sql, notInArray } from 'drizzle-orm';
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
@@ -112,33 +112,92 @@ export async function getUserEvents(userId: string) {
   return eventsWithAttendees;
 }
 
-export async function getAllEvents() {
-  const eventsData = await db.select({
-    id: events.id,
-    title: events.title,
-    description: events.description,
-    date: events.date,
-    time: events.time,
-    location: events.location,
-    icon: events.icon,
-    gradient: events.gradient,
-    mediaUrl: events.mediaUrl,
-    mediaType: events.mediaType,
-    visualStyling: events.visualStyling,
-    visualStylingUrl: events.visualStylingUrl,
-    createdBy: events.createdBy,
-    createdAt: events.createdAt,
-    updatedAt: events.updatedAt,
-    creatorName: users.name,
-    creatorUsername: users.username,
-    creatorProfilePicture: users.profilePicture,
-  }).from(events).leftJoin(users, eq(events.createdBy, users.id));
+export async function getAllEvents(currentUserId?: string) {
+  let eventsData;
+
+  if (currentUserId) {
+    // Get list of blocked user IDs
+    const blockedUsersList = await db
+      .select({ blockedId: blockedUsers.blockedId })
+      .from(blockedUsers)
+      .where(eq(blockedUsers.blockerId, currentUserId));
+
+    const blockedUserIds = blockedUsersList.map(b => b.blockedId);
+
+    // If there are blocked users, filter them out
+    if (blockedUserIds.length > 0) {
+      eventsData = await db.select({
+        id: events.id,
+        title: events.title,
+        description: events.description,
+        date: events.date,
+        time: events.time,
+        location: events.location,
+        icon: events.icon,
+        gradient: events.gradient,
+        mediaUrl: events.mediaUrl,
+        mediaType: events.mediaType,
+        visualStyling: events.visualStyling,
+        visualStylingUrl: events.visualStylingUrl,
+        createdBy: events.createdBy,
+        createdAt: events.createdAt,
+        updatedAt: events.updatedAt,
+        creatorName: users.name,
+        creatorUsername: users.username,
+        creatorProfilePicture: users.profilePicture,
+      }).from(events)
+        .leftJoin(users, eq(events.createdBy, users.id))
+        .where(notInArray(events.createdBy, blockedUserIds));
+    } else {
+      eventsData = await db.select({
+        id: events.id,
+        title: events.title,
+        description: events.description,
+        date: events.date,
+        time: events.time,
+        location: events.location,
+        icon: events.icon,
+        gradient: events.gradient,
+        mediaUrl: events.mediaUrl,
+        mediaType: events.mediaType,
+        visualStyling: events.visualStyling,
+        visualStylingUrl: events.visualStylingUrl,
+        createdBy: events.createdBy,
+        createdAt: events.createdAt,
+        updatedAt: events.updatedAt,
+        creatorName: users.name,
+        creatorUsername: users.username,
+        creatorProfilePicture: users.profilePicture,
+      }).from(events).leftJoin(users, eq(events.createdBy, users.id));
+    }
+  } else {
+    eventsData = await db.select({
+      id: events.id,
+      title: events.title,
+      description: events.description,
+      date: events.date,
+      time: events.time,
+      location: events.location,
+      icon: events.icon,
+      gradient: events.gradient,
+      mediaUrl: events.mediaUrl,
+      mediaType: events.mediaType,
+      visualStyling: events.visualStyling,
+      visualStylingUrl: events.visualStylingUrl,
+      createdBy: events.createdBy,
+      createdAt: events.createdAt,
+      updatedAt: events.updatedAt,
+      creatorName: users.name,
+      creatorUsername: users.username,
+      creatorProfilePicture: users.profilePicture,
+    }).from(events).leftJoin(users, eq(events.createdBy, users.id));
+  }
 
   // Get attendees for each event
   const eventsWithAttendees = await Promise.all(
     eventsData.map(async (event) => {
       const participants = await getEventParticipants(event.id);
-      
+
       // Include creator as an attendee if they're not already in participants
       const creatorAsAttendee = {
         id: event.createdBy,
@@ -150,10 +209,10 @@ export async function getAllEvents() {
 
       // Check if creator is already in participants list
       const isCreatorInParticipants = participants.some(p => p.id === event.createdBy);
-      
+
       // Combine creator and participants, ensuring creator is first
-      const allAttendees = isCreatorInParticipants 
-        ? participants 
+      const allAttendees = isCreatorInParticipants
+        ? participants
         : [creatorAsAttendee, ...participants];
 
       return {

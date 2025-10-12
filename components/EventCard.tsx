@@ -4,6 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { shareEvent } from "@/lib/utils"
 import { getVisualStylingAsync } from "@/lib/visual-styling-utils"
+import ReportDialog from "@/components/ReportDialog"
 
 interface Attendee {
   id: string
@@ -43,6 +44,7 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
   const canEdit = event.createdBy === currentUserId
   const [visualStyling, setVisualStyling] = useState<any>(null)
   const [isLoadingVisualStyling, setIsLoadingVisualStyling] = useState(false)
+  const [showReportDialog, setShowReportDialog] = useState(false)
 
   // Load visual styling data (from R2 or inline)
   useEffect(() => {
@@ -170,17 +172,31 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
               </button>
             </>
           ) : (
-            <button
-              onClick={async (e) => {
-                e.stopPropagation();
-                await shareEvent(event.id, event.title);
-              }}
-              className="p-2 rounded-xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all duration-200"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path>
-              </svg>
-            </button>
+            <>
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  await shareEvent(event.id, event.title);
+                }}
+                className="p-2 rounded-xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all duration-200"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path>
+                </svg>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowReportDialog(true);
+                }}
+                className="p-2 rounded-xl bg-red-500/20 backdrop-blur-sm text-white hover:bg-red-500/30 transition-all duration-200"
+                title="Report event"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                </svg>
+              </button>
+            </>
           )}
           </div>
         </div>
@@ -252,6 +268,15 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
           )}
         </div>
       </div>
+
+      <ReportDialog
+        open={showReportDialog}
+        onOpenChange={setShowReportDialog}
+        reporterId={currentUserId}
+        reportedEventId={event.id}
+        contentType="event"
+        contentName={event.title}
+      />
     </div>
   )
 }

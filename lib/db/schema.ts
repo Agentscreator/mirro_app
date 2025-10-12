@@ -85,6 +85,59 @@ export const eventParticipantsRelations = relations(eventParticipants, ({ one })
   }),
 }));
 
+// Content moderation tables
+export const blockedUsers = pgTable('blocked_users', {
+  blockerId: uuid('blocker_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  blockedId: uuid('blocked_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.blockerId, table.blockedId] }),
+}));
+
+export const reports = pgTable('reports', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  reporterId: uuid('reporter_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  reportedUserId: uuid('reported_user_id').references(() => users.id, { onDelete: 'cascade' }),
+  reportedEventId: uuid('reported_event_id').references(() => events.id, { onDelete: 'cascade' }),
+  reason: text('reason').notNull(), // e.g., "spam", "harassment", "inappropriate_content", "hate_speech", "violence", "other"
+  description: text('description'), // Optional detailed description
+  status: text('status').notNull().default('pending'), // "pending", "reviewed", "resolved", "dismissed"
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  reviewedAt: timestamp('reviewed_at'),
+});
+
+// Relations for moderation tables
+export const blockedUsersRelations = relations(blockedUsers, ({ one }) => ({
+  blocker: one(users, {
+    fields: [blockedUsers.blockerId],
+    references: [users.id],
+    relationName: 'BlockedByUser',
+  }),
+  blocked: one(users, {
+    fields: [blockedUsers.blockedId],
+    references: [users.id],
+    relationName: 'BlockedUser',
+  }),
+}));
+
+export const reportsRelations = relations(reports, ({ one }) => ({
+  reporter: one(users, {
+    fields: [reports.reporterId],
+    references: [users.id],
+    relationName: 'ReportedByUser',
+  }),
+  reportedUser: one(users, {
+    fields: [reports.reportedUserId],
+    references: [users.id],
+    relationName: 'ReportedUser',
+  }),
+  reportedEvent: one(events, {
+    fields: [reports.reportedEventId],
+    references: [events.id],
+    relationName: 'ReportedEvent',
+  }),
+}));
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Event = typeof events.$inferSelect;
@@ -93,3 +146,7 @@ export type Follow = typeof follows.$inferSelect;
 export type NewFollow = typeof follows.$inferInsert;
 export type EventParticipant = typeof eventParticipants.$inferSelect;
 export type NewEventParticipant = typeof eventParticipants.$inferInsert;
+export type BlockedUser = typeof blockedUsers.$inferSelect;
+export type NewBlockedUser = typeof blockedUsers.$inferInsert;
+export type Report = typeof reports.$inferSelect;
+export type NewReport = typeof reports.$inferInsert;
