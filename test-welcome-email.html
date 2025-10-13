@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Welcome Email</title>
+    <style>
+        body { 
+            font-family: 'Georgia', serif; 
+            max-width: 600px; 
+            margin: 50px auto; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(139, 115, 85, 0.1);
+            border: 1px solid rgba(232, 220, 198, 0.3);
+        }
+        h1 { 
+            color: #8B7355; 
+            text-align: center; 
+            margin-bottom: 30px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        .form-group { 
+            margin-bottom: 20px; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 500; 
+            color: #6B5B47;
+        }
+        input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 1px solid #E8DCC6; 
+            border-radius: 8px; 
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.7);
+            color: #6B5B47;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #8B7355;
+            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
+        }
+        button { 
+            background: linear-gradient(135deg, #8B7355 0%, #A0916B 100%);
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 25px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: 500;
+            margin-right: 10px;
+            box-shadow: 0 4px 15px rgba(139, 115, 85, 0.3);
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 115, 85, 0.4);
+        }
+        .result { 
+            margin-top: 20px; 
+            padding: 15px; 
+            border-radius: 8px; 
+            white-space: pre-wrap; 
+        }
+        .success { 
+            background: rgba(212, 237, 218, 0.8); 
+            border: 1px solid #C3E6CB; 
+            color: #155724; 
+        }
+        .error { 
+            background: rgba(248, 215, 218, 0.8); 
+            border: 1px solid #F5C6CB; 
+            color: #721C24; 
+        }
+        .info {
+            background: rgba(209, 236, 241, 0.8);
+            border: 1px solid #B8DAFF;
+            color: #004085;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome Email Test</h1>
+        
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" placeholder="Enter user's name" value="John Doe">
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email Address:</label>
+            <input type="email" id="email" placeholder="Enter email to test welcome email" value="test@example.com">
+        </div>
+        
+        <button onclick="testWelcomeEmail()">Send Welcome Email</button>
+        <button onclick="testUserRegistration()">Test Full Registration Flow</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function testWelcomeEmail() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            
+            if (!name || !email) {
+                showResult('Please enter both name and email', 'error');
+                return;
+            }
+            
+            showResult('Sending welcome email...', 'info');
+            
+            try {
+                const response = await fetch('/api/test-welcome-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email })
+                });
+                
+                const data = await response.json();
+                console.log('Welcome Email Response:', data);
+                
+                if (response.ok && data.success) {
+                    showResult(`✅ Welcome email sent successfully!
+                    
+Check your email inbox and Resend dashboard.
+In development, the email content is also logged to the console.`, 'success');
+                } else {
+                    showResult(`❌ Failed to send welcome email: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testUserRegistration() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            
+            if (!name || !email) {
+                showResult('Please enter both name and email', 'error');
+                return;
+            }
+            
+            showResult('Testing user registration with welcome email...', 'info');
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        name, 
+                        email, 
+                        username: 'testuser' + Date.now(),
+                        password: 'testpassword123',
+                        confirmPassword: 'testpassword123'
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('Registration Response:', data);
+                
+                if (response.ok) {
+                    showResult(`✅ User registered successfully!
+                    
+Welcome email should be sent automatically.
+Check your email inbox and server console for logs.`, 'success');
+                } else {
+                    showResult(`❌ Registration failed: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = `result ${type}`;
+        }
+    </script>
+</body>
+</html>

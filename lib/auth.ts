@@ -22,6 +22,15 @@ export async function createUser(name: string, username: string, email: string, 
     password: hashedPassword,
   }).returning();
   
+  // Send welcome email (don't await to avoid blocking user registration)
+  if (user) {
+    import('./email').then(({ sendWelcomeEmail }) => {
+      sendWelcomeEmail(email, name).catch((error: any) => {
+        console.error('Failed to send welcome email:', error);
+      });
+    });
+  }
+  
   return user;
 }
 
