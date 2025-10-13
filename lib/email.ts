@@ -50,25 +50,28 @@ export async function sendWelcomeEmail(email: string, name: string): Promise<boo
 export async function sendPasswordResetEmail(email: string, token: string): Promise<boolean> {
   try {
     const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${token}`;
-    
+
     // For development - log the reset URL to console
-    if (process.env.NODE_ENV === 'development') {
-      console.log('\n=== PASSWORD RESET EMAIL ===');
-      console.log(`To: ${email}`);
-      console.log(`Reset URL: ${resetUrl}`);
-      console.log('============================\n');
-    }
+    console.log('\n=== PASSWORD RESET EMAIL ===');
+    console.log(`To: ${email}`);
+    console.log(`Reset URL: ${resetUrl}`);
+    console.log(`Environment: ${process.env.NODE_ENV}`);
+    console.log('============================\n');
 
     // Check if Resend is configured
     if (!process.env.RESEND_API_KEY) {
       console.error('RESEND_API_KEY is not configured. Please add it to your .env file.');
+      console.error('In development mode, the reset URL is still logged above.');
       return false;
     }
 
     if (!process.env.FROM_EMAIL) {
       console.error('FROM_EMAIL is not configured. Please add it to your .env file.');
+      console.error('In development mode, the reset URL is still logged above.');
       return false;
     }
+
+    console.log(`Attempting to send email from: ${process.env.FROM_EMAIL}`);
 
     // Send email using Resend
     const { data, error } = await resend.emails.send({
@@ -80,15 +83,21 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
     });
 
     if (error) {
-      console.error('Resend error:', error);
+      console.error('Resend API error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       return false;
     }
 
-    console.log('Password reset email sent successfully:', data?.id);
+    console.log('Password reset email sent successfully!');
+    console.log('Email ID:', data?.id);
     return true;
 
   } catch (error) {
     console.error('Error sending password reset email:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
     return false;
   }
 }

@@ -36,28 +36,21 @@ export async function POST(request: NextRequest) {
         const emailSent = await sendPasswordResetEmail(email, token);
         console.log('Email sent result:', emailSent);
         console.log('Email sent type:', typeof emailSent);
-        
-        if (emailSent === true) {
-          console.log('=== FORGOT PASSWORD SUCCESS ===');
-          return NextResponse.json({
-            success: true,
-            message: 'Password reset link has been sent to your email.',
-          });
-        } else {
-          console.log('=== FORGOT PASSWORD EMAIL FAILED ===');
-          console.log('emailSent value:', emailSent);
-          return NextResponse.json({
-            success: false,
-            error: 'Failed to send password reset email. Please try again.',
-          }, { status: 500 });
-        }
+
+        // Always return success to the user for security reasons
+        // (don't reveal if email exists or if there was an email sending issue)
+        console.log('=== FORGOT PASSWORD REQUEST PROCESSED ===');
+        return NextResponse.json({
+          success: true,
+          message: 'If an account exists with this email, a password reset link has been sent.',
+        });
       } catch (emailError) {
         console.error('Email sending error:', emailError);
+        // Still return success for security, but log the error
         return NextResponse.json({
-          success: false,
-          error: 'Failed to send password reset email. Please try again.',
-          details: emailError instanceof Error ? emailError.message : 'Unknown error'
-        }, { status: 500 });
+          success: true,
+          message: 'If an account exists with this email, a password reset link has been sent.',
+        });
       }
     } else {
       // No user found with this email
