@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (response.ok && data.success) {
         setMessage(data.message);
         setEmail(''); // Clear the form
       } else {
@@ -71,20 +71,7 @@ export default function ForgotPasswordPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Info Box */}
-            <div className="mb-6 p-4 glass-card border border-taupe-200 rounded-xl">
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0">
-                  <svg className="w-5 h-5 text-taupe-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="text-sm text-text-secondary">
-                  <p className="font-medium text-taupe-600 mb-1">How it works:</p>
-                  <p>We'll send you a secure link that expires in 1 hour. Click the link to create a new password.</p>
-                </div>
-              </div>
-            </div>
+
 
             {message && (
               <Alert className="mb-6 border-green-200 bg-green-50">

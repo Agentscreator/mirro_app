@@ -16,17 +16,27 @@ export async function POST(request: NextRequest) {
     const token = await createPasswordResetToken(email);
     
     if (token) {
-      // Send email (don't await to avoid timing attacks)
-      sendPasswordResetEmail(email, token).catch(error => {
-        console.error('Failed to send password reset email:', error);
-      });
+      // Send email and wait for result
+      const emailSent = await sendPasswordResetEmail(email, token);
+      
+      if (emailSent) {
+        return NextResponse.json({
+          success: true,
+          message: 'Password reset link has been sent to your email.',
+        });
+      } else {
+        return NextResponse.json({
+          success: false,
+          error: 'Failed to send password reset email. Please try again.',
+        }, { status: 500 });
+      }
+    } else {
+      // No user found with this email
+      return NextResponse.json({
+        success: false,
+        error: 'No account found with this email address.',
+      }, { status: 404 });
     }
-
-    // Always return success to prevent email enumeration
-    return NextResponse.json({
-      success: true,
-      message: 'If an account with that email exists, we\'ve sent a password reset link.',
-    });
 
   } catch (error) {
     console.error('Forgot password error:', error);
