@@ -1,7 +1,8 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { db } from './db';
-import { users, events, follows, eventParticipants, blockedUsers } from './db/schema';
-import { eq, count, sql, notInArray } from 'drizzle-orm';
+import { users, events, follows, eventParticipants, blockedUsers, passwordResetTokens } from './db/schema';
+import { eq, count, sql, notInArray, and, gt } from 'drizzle-orm';
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
@@ -577,4 +578,90 @@ export async function getUserParticipatingEvents(userId: string) {
     .innerJoin(events, eq(eventParticipants.eventId, events.id))
     .leftJoin(users, eq(events.createdBy, users.id))
     .where(eq(eventParticipants.userId, userId));
+}
+
+// Password Reset Functions
+export async function createPasswordResetToken(email: string): Promise<string | null> {
+  // Check if user exists
+  const user = await getUserByEmail(email);
+  if (!user) {
+    return null; // Don't reveal if email exists or not
+  }
+
+  // Generate secure random token
+  const token = crypto.randomBytes(32).toString('hex');
+  
+  // Set expiration to 1 hour from now
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+  // Delete any existing tokens for this user
+  await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, user.id));
+
+  // Create new token
+  await db.insert(passwordResetTokens).values({
+    userId: user.id,
+    token,
+    expiresAt,
+  });
+
+  return token;
+}
+
+export async function validatePasswordResetToken(token: string): Promise<string | null> {
+  const [resetToken] = await db
+    .select({
+      userId: passwordResetTokens.userId,
+      used: passwordResetTokens.used,
+      expiresAt: passwordResetTokens.expiresAt,
+    })
+    .from(passwordResetTokens)
+    .where(eq(passwordResetTokens.token, token));
+
+  if (!resetToken) {
+    return null; // Token doesn't exist
+  }
+
+  if (resetToken.used) {
+    return null; // Token already used
+  }
+
+  if (resetToken.expiresAt < new Date()) {
+    return null; // Token expired
+  }
+
+  return resetToken.userId;
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<boolean> {
+  const userId = await validatePasswordResetToken(token);
+  if (!userId) {
+    return false;
+  }
+
+  // Hash the new password
+  const hashedPassword = await hashPassword(newPassword);
+
+  // Update user's password
+  await db.update(users)
+    .set({ 
+      password: hashedPassword,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId));
+
+  // Mark token as used
+  await db.update(passwordResetTokens)
+    .set({ used: new Date() })
+    .where(eq(passwordResetTokens.token, token));
+
+  return true;
+}
+
+export async function cleanupExpiredTokens(): Promise<void> {
+  // Delete expired tokens (older than 24 hours)
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  await db.delete(passwordResetTokens)
+    .where(
+      sql`${passwordResetTokens.expiresAt} < ${oneDayAgo} OR ${passwordResetTokens.used} IS NOT NULL`
+    );
 }

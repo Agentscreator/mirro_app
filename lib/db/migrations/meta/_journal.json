@@ -43,6 +43,13 @@
       "when": 1760368569561,
       "tag": "0005_gorgeous_gravity",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1760372860371,
+      "tag": "0006_cynical_onslaught",
+      "breakpoints": true
     }
   ]
 }

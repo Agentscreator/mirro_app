@@ -19,7 +19,9 @@
     "mobile:android": "npx cap open android",
     "mobile:ios": "npx cap open ios",
     "mobile:run:android": "npx cap run android",
-    "mobile:run:ios": "npx cap run ios"
+    "mobile:run:ios": "npx cap run ios",
+    "setup:password-reset": "node scripts/setup-password-reset.js",
+    "cleanup:tokens": "node scripts/cleanup-tokens.js"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.10.0",
@@ -83,6 +85,7 @@
     "react-hook-form": "^7.60.0",
     "react-resizable-panels": "^2.1.7",
     "recharts": "2.15.4",
+    "resend": "^4.0.1",
     "sonner": "^1.7.4",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",

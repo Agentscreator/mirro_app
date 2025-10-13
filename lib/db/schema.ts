@@ -12,6 +12,15 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+export const passwordResetTokens = pgTable('password_reset_tokens', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  token: text('token').notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  used: timestamp('used'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 export const events = pgTable('events', {
   id: uuid('id').defaultRandom().primaryKey(),
   title: text('title').notNull(),
@@ -151,3 +160,5 @@ export type BlockedUser = typeof blockedUsers.$inferSelect;
 export type NewBlockedUser = typeof blockedUsers.$inferInsert;
 export type Report = typeof reports.$inferSelect;
 export type NewReport = typeof reports.$inferInsert;
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+export type NewPasswordResetToken = typeof passwordResetTokens.$inferInsert;

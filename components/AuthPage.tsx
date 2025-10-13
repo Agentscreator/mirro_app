@@ -288,8 +288,21 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
         </button>
       </form>
 
+      {/* Forgot Password Link */}
+      {isLogin && (
+        <div className="text-center mt-4">
+          <button
+            type="button"
+            onClick={() => router.push('/forgot-password')}
+            className="text-taupe-600 text-sm font-medium hover:text-taupe-700 transition-colors"
+          >
+            Forgot your password?
+          </button>
+        </div>
+      )}
+
       {/* Footer */}
-      <div className="text-center mt-8">
+      <div className="text-center mt-6">
         <p className="text-text-muted text-sm">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <button
