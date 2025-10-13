@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Email Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        .result { margin-top: 20px; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Email Service Test</h1>
+    
+    <button onclick="testForgotPassword()">Test Forgot Password API</button>
+    <button onclick="testEmailService()">Test Email Service Directly</button>
+    
+    <div id="result"></div>
+
+    <script>
+        async function testForgotPassword() {
+            showResult('Testing forgot password API...', 'info');
+            
+            try {
+                const response = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'test@example.com' })
+                });
+                
+                const data = await response.json();
+                console.log('API Response:', data);
+                
+                if (response.ok) {
+                    showResult(`✅ API Success: ${data.message}`, 'success');
+                } else {
+                    showResult(`❌ API Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testEmailService() {
+            showResult('Testing email service directly...', 'info');
+            
+            try {
+                const response = await fetch('/api/test-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'test@example.com' })
+                });
+                
+                const data = await response.json();
+                console.log('Email Service Response:', data);
+                
+                if (response.ok) {
+                    showResult(`✅ Email Service: ${data.message}`, 'success');
+                } else {
+                    showResult(`❌ Email Service Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = `result ${type}`;
+        }
+    </script>
+</body>
+</html>

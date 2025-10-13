@@ -83,7 +83,7 @@ export default function ResetPasswordPage() {
       if (response.ok) {
         setMessage('Password reset successfully! Redirecting to login...');
         setTimeout(() => {
-          router.push('/login');
+          router.push('/');
         }, 2000);
       } else {
         setError(data.error || 'Something went wrong');
@@ -97,7 +97,7 @@ export default function ResetPasswordPage() {
 
   if (isValidating) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-2 text-gray-600">Validating reset link...</p>
@@ -108,7 +108,7 @@ export default function ResetPasswordPage() {
 
   if (!tokenValid) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}>
         <div className="max-w-md w-full space-y-8">
           <Card>
             <CardHeader className="text-center">
@@ -129,11 +129,11 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}>
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Link
-            href="/login"
+            href="/"
             className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-8"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -141,10 +141,10 @@ export default function ResetPasswordPage() {
           </Link>
         </div>
 
-        <Card>
+        <Card className="glass-card soft-shadow border-cream-300">
           <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <Lock className="w-6 h-6 text-blue-600" />
+            <div className="mx-auto w-12 h-12 glass-card rounded-full flex items-center justify-center mb-4 soft-shadow">
+              <Lock className="w-6 h-6 text-taupe-500" />
             </div>
             <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
             <CardDescription>
@@ -181,16 +181,17 @@ export default function ResetPasswordPage() {
                     required
                     disabled={isLoading}
                     minLength={8}
+                    className="glass-card border-cream-300 focus:ring-taupe-400 focus:border-transparent text-text-primary placeholder-text-light pr-12"
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-light hover:text-text-secondary transition-colors duration-200"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
+                      <EyeOff className="h-4 w-4" />
                     ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
+                      <Eye className="h-4 w-4" />
                     )}
                   </button>
                 </div>
@@ -208,16 +209,17 @@ export default function ResetPasswordPage() {
                     required
                     disabled={isLoading}
                     minLength={8}
+                    className="glass-card border-cream-300 focus:ring-taupe-400 focus:border-transparent text-text-primary placeholder-text-light pr-12"
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-light hover:text-text-secondary transition-colors duration-200"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
                     {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
+                      <EyeOff className="h-4 w-4" />
                     ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
+                      <Eye className="h-4 w-4" />
                     )}
                   </button>
                 </div>
@@ -225,7 +227,7 @@ export default function ResetPasswordPage() {
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full gradient-primary text-white hover:shadow-lg transition-all duration-200 disabled:opacity-50"
                 disabled={isLoading || !password || !confirmPassword}
               >
                 {isLoading ? 'Resetting...' : 'Reset Password'}
@@ -235,7 +237,7 @@ export default function ResetPasswordPage() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Remember your password?{' '}
-                <Link href="/login" className="text-blue-600 hover:text-blue-500">
+                <Link href="/" className="text-blue-600 hover:text-blue-500">
                   Sign in
                 </Link>
               </p>

@@ -48,11 +48,11 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}>
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Link
-            href="/login"
+            href="/"
             className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-8"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -60,10 +60,10 @@ export default function ForgotPasswordPage() {
           </Link>
         </div>
 
-        <Card>
+        <Card className="glass-card soft-shadow border-cream-300">
           <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <Mail className="w-6 h-6 text-blue-600" />
+            <div className="mx-auto w-12 h-12 glass-card rounded-full flex items-center justify-center mb-4 soft-shadow">
+              <Mail className="w-6 h-6 text-taupe-500" />
             </div>
             <CardTitle className="text-2xl font-bold">Forgot Password?</CardTitle>
             <CardDescription>
@@ -98,13 +98,13 @@ export default function ForgotPasswordPage() {
                   placeholder="Enter your email"
                   required
                   disabled={isLoading}
-                  className="mt-1"
+                  className="mt-1 glass-card border-cream-300 focus:ring-taupe-400 focus:border-transparent text-text-primary placeholder-text-light"
                 />
               </div>
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full gradient-primary text-white hover:shadow-lg transition-all duration-200 disabled:opacity-50"
                 disabled={isLoading || !email}
               >
                 {isLoading ? 'Sending...' : 'Send Reset Link'}
@@ -114,7 +114,7 @@ export default function ForgotPasswordPage() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Remember your password?{' '}
-                <Link href="/login" className="text-blue-600 hover:text-blue-500">
+                <Link href="/" className="text-blue-600 hover:text-blue-500">
                   Sign in
                 </Link>
               </p>

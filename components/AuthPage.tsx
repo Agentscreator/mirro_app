@@ -293,7 +293,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
         <div className="text-center mt-4">
           <button
             type="button"
-            onClick={() => router.push('/forgot-password')}
+            onClick={() => window.location.href = '/forgot-password'}
             className="text-taupe-600 text-sm font-medium hover:text-taupe-700 transition-colors"
           >
             Forgot your password?
