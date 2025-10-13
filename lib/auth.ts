@@ -11,12 +11,13 @@ export async function verifyPassword(password: string, hashedPassword: string): 
   return bcrypt.compare(password, hashedPassword);
 }
 
-export async function createUser(name: string, username: string, password: string) {
+export async function createUser(name: string, username: string, email: string, password: string) {
   const hashedPassword = await hashPassword(password);
   
   const [user] = await db.insert(users).values({
     name,
     username,
+    email,
     password: hashedPassword,
   }).returning();
   
@@ -25,6 +26,11 @@ export async function createUser(name: string, username: string, password: strin
 
 export async function getUserByUsername(username: string) {
   const [user] = await db.select().from(users).where(eq(users.username, username));
+  return user;
+}
+
+export async function getUserByEmail(email: string) {
+  const [user] = await db.select().from(users).where(eq(users.email, email));
   return user;
 }
 

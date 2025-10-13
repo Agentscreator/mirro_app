@@ -34,24 +34,28 @@ export async function POST(request: Request) {
     const [user1] = await db.insert(users).values({
       name: 'John Doe',
       username: 'johndoe',
+      email: 'john@example.com',
       password: hashedPassword,
     }).returning();
 
     const [user2] = await db.insert(users).values({
       name: 'Jane Smith',
       username: 'janesmith',
+      email: 'jane@example.com',
       password: hashedPassword,
     }).returning();
 
     const [user3] = await db.insert(users).values({
       name: 'Mike Johnson',
       username: 'mikejohnson',
+      email: 'mike@example.com',
       password: hashedPassword,
     }).returning();
 
     const [user4] = await db.insert(users).values({
       name: 'Sarah Wilson',
       username: 'sarahwilson',
+      email: 'sarah@example.com',
       password: hashedPassword,
     }).returning();
 

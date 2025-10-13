@@ -1,22 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser, getUserByUsername, getUserWithCounts } from '@/lib/auth';
+import { createUser, getUserByUsername, getUserByEmail, getUserWithCounts } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, username, password } = await request.json();
+    const { name, username, email, password } = await request.json();
 
-    if (!name || !username || !password) {
-      return NextResponse.json({ error: 'Name, username, and password are required' }, { status: 400 });
+    if (!name || !username || !email || !password) {
+      return NextResponse.json({ error: 'Name, username, email, and password are required' }, { status: 400 });
     }
 
-    // Check if user already exists
+    // Check if username already exists
     const existingUser = await getUserByUsername(username);
     if (existingUser) {
       return NextResponse.json({ error: 'Username already exists' }, { status: 409 });
     }
 
+    // Check if email already exists
+    const existingEmail = await getUserByEmail(email);
+    if (existingEmail) {
+      return NextResponse.json({ error: 'Email already exists' }, { status: 409 });
+    }
+
     // Create new user
-    const newUser = await createUser(name, username, password);
+    const newUser = await createUser(name, username, email, password);
 
     // Get user data with follower counts (will be 0 for new user)
     const userWithCounts = await getUserWithCounts(newUser.id);
