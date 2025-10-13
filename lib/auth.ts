@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { db } from './db';
 import { users, events, follows, eventParticipants, blockedUsers, passwordResetTokens } from './db/schema';
 import { eq, count, sql, notInArray, and, gt } from 'drizzle-orm';
+import { sendWelcomeEmail } from './email';
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
@@ -24,10 +25,8 @@ export async function createUser(name: string, username: string, email: string, 
   
   // Send welcome email (don't await to avoid blocking user registration)
   if (user) {
-    import('./email').then(({ sendWelcomeEmail }) => {
-      sendWelcomeEmail(email, name).catch((error: any) => {
-        console.error('Failed to send welcome email:', error);
-      });
+    sendWelcomeEmail(email, name).catch((error: any) => {
+      console.error('Failed to send welcome email:', error);
     });
   }
   
