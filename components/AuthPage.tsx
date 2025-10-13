@@ -198,7 +198,18 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
         )}
 
         <div>
-          <label className="block text-sm font-medium mb-3 text-text-secondary">Password</label>
+          <div className="flex justify-between items-center mb-3">
+            <label className="block text-sm font-medium text-text-secondary">Password</label>
+            {isLogin && (
+              <button
+                type="button"
+                onClick={() => window.location.href = '/forgot-password'}
+                className="text-xs text-taupe-500 hover:text-taupe-600 transition-colors"
+              >
+                Forgot?
+              </button>
+            )}
+          </div>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
@@ -288,21 +299,33 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
         </button>
       </form>
 
-      {/* Forgot Password Link */}
+      {/* Forgot Password - Prominent Button */}
       {isLogin && (
-        <div className="text-center mt-4">
+        <div className="text-center mt-6">
           <button
             type="button"
             onClick={() => window.location.href = '/forgot-password'}
-            className="text-taupe-600 text-sm font-medium hover:text-taupe-700 transition-colors"
+            className="w-full glass-card border border-taupe-300 text-taupe-600 py-3 px-4 rounded-2xl font-medium hover:bg-taupe-50 hover:border-taupe-400 hover:text-taupe-700 transition-all duration-200 soft-shadow-sm"
           >
+            <svg className="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3a1 1 0 011-1h2.586l6.243-6.243C11.978 9.587 12.488 9.5 13 9.5a6 6 0 016-2.5z" />
+            </svg>
             Forgot your password?
           </button>
         </div>
       )}
 
+      {/* Divider */}
+      {isLogin && (
+        <div className="flex items-center mt-6 mb-4">
+          <div className="flex-1 border-t border-cream-300"></div>
+          <span className="px-4 text-text-muted text-xs">OR</span>
+          <div className="flex-1 border-t border-cream-300"></div>
+        </div>
+      )}
+
       {/* Footer */}
-      <div className="text-center mt-6">
+      <div className="text-center mt-4">
         <p className="text-text-muted text-sm">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <button
