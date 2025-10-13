@@ -1,7 +1,7 @@
-# Email Login Implementation
+# Email Registration Implementation
 
 ## Overview
-Successfully updated the authentication system to use email addresses for login instead of usernames, while maintaining usernames for user profiles and registration.
+Successfully updated the authentication system to require email addresses during registration while keeping username-based login. This provides better user data collection while maintaining the existing login experience.
 
 ## Changes Made
 
@@ -21,10 +21,7 @@ Successfully updated the authentication system to use email addresses for login 
 
 #### Login Endpoint
 - **File**: `app/api/auth/login/route.ts`
-- **Changes**:
-  - Now accepts `email` instead of `username` in request body
-  - Uses `getUserByEmail()` for user lookup
-  - Updated error messages to reflect email requirement
+- **Changes**: No changes - still uses username and password for login
 
 #### Register Endpoint
 - **File**: `app/api/auth/register/route.ts`
@@ -37,10 +34,10 @@ Successfully updated the authentication system to use email addresses for login 
 - **File**: `components/AuthPage.tsx`
 - **Changes**:
   - Added email field to form data state
-  - Updated form validation to include email validation
-  - For login: Shows email field only
-  - For registration: Shows both email and username fields
-  - Added proper email format validation
+  - Updated form validation to include email validation for registration only
+  - For login: Shows username and password fields
+  - For registration: Shows name, username, email, and password fields
+  - Added proper email format validation for registration
 
 ### 5. Seed Data Updates
 - **File**: `app/api/seed/route.ts`
@@ -65,34 +62,35 @@ ALTER TABLE users ADD CONSTRAINT users_email_unique UNIQUE (email);
 ## User Experience Changes
 
 ### Login Flow
-- Users now log in with their email address instead of username
-- Password remains the same
-- More intuitive for users who are accustomed to email-based authentication
+- Users continue to log in with their username and password
+- No changes to existing login experience
 
 ### Registration Flow
-- Users must provide both email and username during registration
-- Email is used for login, username is used for profile display
+- Users must now provide name, username, email, and password during registration
+- Email is collected for future communication and account recovery
 - Both email and username must be unique
 
 ## Testing
 
 To test the implementation:
 
-1. **New Registration**: Try registering with email, username, name, and password
-2. **Email Login**: Use the registered email address to log in
-3. **Validation**: Test email format validation and uniqueness constraints
-4. **Error Handling**: Test with invalid emails, duplicate emails, etc.
+1. **New Registration**: Try registering with name, username, email, and password
+2. **Username Login**: Use the registered username to log in (unchanged)
+3. **Validation**: Test email format validation and uniqueness constraints during registration
+4. **Error Handling**: Test with invalid emails, duplicate emails, duplicate usernames, etc.
 
 ## Backward Compatibility
 
 - All existing user data remains intact
-- Username field is preserved for profile display and social features
+- Login mechanism remains unchanged (username + password)
+- Username field continues to be used for login and profile display
 - Existing API endpoints for user management continue to work
-- Only login mechanism has changed from username to email
+- Only registration process now requires email
 
 ## Security Considerations
 
-- Email addresses are validated for proper format
+- Email addresses are validated for proper format during registration
 - Email uniqueness is enforced at database level
 - Password hashing and verification remain unchanged
 - No sensitive data is exposed in API responses
+- Email can be used for future features like password recovery

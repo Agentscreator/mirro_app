@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserByEmail, verifyPassword, getUserWithCounts } from '@/lib/auth';
+import { getUserByUsername, verifyPassword, getUserWithCounts } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const { username, password } = await request.json();
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+    if (!username || !password) {
+      return NextResponse.json({ error: 'Username and password are required' }, { status: 400 });
     }
 
-    const user = await getUserByEmail(email);
+    const user = await getUserByUsername(username);
     if (!user) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }

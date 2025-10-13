@@ -30,15 +30,15 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
       newErrors.name = "Name is required"
     }
 
-    if (!isLogin && !formData.username.trim()) {
+    if (!formData.username.trim()) {
       newErrors.username = "Username is required"
-    } else if (!isLogin && formData.username.length < 3) {
+    } else if (formData.username.length < 3) {
       newErrors.username = "Username must be at least 3 characters"
     }
 
-    if (!formData.email.trim()) {
+    if (!isLogin && !formData.email.trim()) {
       newErrors.email = "Email is required"
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!isLogin && !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Please enter a valid email address"
     }
 
@@ -167,35 +167,35 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
           </div>
         )}
 
+        <div>
+          <label className="block text-sm font-medium mb-3 text-text-secondary">Username</label>
+          <input
+            type="text"
+            placeholder={isLogin ? "Enter your username" : "Choose a username"}
+            className={`w-full px-5 py-4 text-base rounded-2xl border glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary placeholder-text-light ${
+              errors.username ? "border-red-400" : "border-cream-300"
+            }`}
+            value={formData.username}
+            onChange={(e) => handleInputChange("username", e.target.value)}
+          />
+          {errors.username && <p className="text-red-500 text-sm mt-2">{errors.username}</p>}
+        </div>
+
         {!isLogin && (
           <div>
-            <label className="block text-sm font-medium mb-3 text-text-secondary">Username</label>
+            <label className="block text-sm font-medium mb-3 text-text-secondary">Email</label>
             <input
-              type="text"
-              placeholder="Choose a username"
+              type="email"
+              placeholder="Enter your email address"
               className={`w-full px-5 py-4 text-base rounded-2xl border glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary placeholder-text-light ${
-                errors.username ? "border-red-400" : "border-cream-300"
+                errors.email ? "border-red-400" : "border-cream-300"
               }`}
-              value={formData.username}
-              onChange={(e) => handleInputChange("username", e.target.value)}
+              value={formData.email}
+              onChange={(e) => handleInputChange("email", e.target.value)}
             />
-            {errors.username && <p className="text-red-500 text-sm mt-2">{errors.username}</p>}
+            {errors.email && <p className="text-red-500 text-sm mt-2">{errors.email}</p>}
           </div>
         )}
-
-        <div>
-          <label className="block text-sm font-medium mb-3 text-text-secondary">Email</label>
-          <input
-            type="email"
-            placeholder="Enter your email address"
-            className={`w-full px-5 py-4 text-base rounded-2xl border glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary placeholder-text-light ${
-              errors.email ? "border-red-400" : "border-cream-300"
-            }`}
-            value={formData.email}
-            onChange={(e) => handleInputChange("email", e.target.value)}
-          />
-          {errors.email && <p className="text-red-500 text-sm mt-2">{errors.email}</p>}
-        </div>
 
         <div>
           <label className="block text-sm font-medium mb-3 text-text-secondary">Password</label>
