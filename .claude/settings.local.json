@@ -19,7 +19,8 @@
       "Bash(npx tsc:*)",
       "Bash(git revert:*)",
       "Bash(git commit:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npx drizzle-kit push:*)"
     ],
     "deny": [],
     "ask": []
