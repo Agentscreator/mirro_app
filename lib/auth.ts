@@ -590,29 +590,48 @@ export async function getUserParticipatingEvents(userId: string) {
 
 // Password Reset Functions
 export async function createPasswordResetToken(email: string): Promise<string | null> {
-  // Check if user exists
-  const user = await getUserByEmail(email);
-  if (!user) {
-    return null; // Don't reveal if email exists or not
+  try {
+    console.log('createPasswordResetToken: Starting for email:', email);
+    
+    // Check if user exists
+    console.log('createPasswordResetToken: Looking up user...');
+    const user = await getUserByEmail(email);
+    console.log('createPasswordResetToken: User found:', !!user);
+    
+    if (!user) {
+      console.log('createPasswordResetToken: No user found, returning null');
+      return null; // Don't reveal if email exists or not
+    }
+
+    // Generate secure random token
+    console.log('createPasswordResetToken: Generating token...');
+    const token = crypto.randomBytes(32).toString('hex');
+    console.log('createPasswordResetToken: Token generated, length:', token.length);
+    
+    // Set expiration to 1 hour from now
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    console.log('createPasswordResetToken: Expiration set to:', expiresAt);
+
+    // Delete any existing tokens for this user
+    console.log('createPasswordResetToken: Deleting existing tokens...');
+    await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, user.id));
+    console.log('createPasswordResetToken: Existing tokens deleted');
+
+    // Create new token
+    console.log('createPasswordResetToken: Creating new token...');
+    await db.insert(passwordResetTokens).values({
+      userId: user.id,
+      token,
+      expiresAt,
+    });
+    console.log('createPasswordResetToken: New token created successfully');
+
+    return token;
+  } catch (error) {
+    console.error('createPasswordResetToken: Error occurred:', error);
+    console.error('createPasswordResetToken: Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    throw error;
   }
-
-  // Generate secure random token
-  const token = crypto.randomBytes(32).toString('hex');
-  
-  // Set expiration to 1 hour from now
-  const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-
-  // Delete any existing tokens for this user
-  await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, user.id));
-
-  // Create new token
-  await db.insert(passwordResetTokens).values({
-    userId: user.id,
-    token,
-    expiresAt,
-  });
-
-  return token;
 }
 
 export async function validatePasswordResetToken(token: string): Promise<string | null> {
