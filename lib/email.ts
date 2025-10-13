@@ -13,11 +13,6 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
       console.log(`To: ${email}`);
       console.log(`Reset URL: ${resetUrl}`);
       console.log('============================\n');
-      
-      // Still send email in development if Resend is configured
-      if (!process.env.RESEND_API_KEY) {
-        return true;
-      }
     }
 
     // Check if Resend is configured
