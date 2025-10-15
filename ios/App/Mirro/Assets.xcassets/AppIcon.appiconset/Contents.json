@@ -1,0 +1,38 @@
+{
+  "images" : [
+    {
+      "filename" : "20250828_0747_Smaller Snowflake Design_remix_01k3r7zg6sf2csa2ss4w9j8fzx.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "20250828_0747_Smaller Snowflake Design_remix_01k3r7zg6sf2csa2ss4w9j8fzx 1.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "tinted"
+        }
+      ],
+      "filename" : "20250828_0747_Smaller Snowflake Design_remix_01k3r7zg6sf2csa2ss4w9j8fzx 2.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

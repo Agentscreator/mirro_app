@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>Events App</string>
+	<string>MirroSocial</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -43,7 +43,26 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSAppClip</key>
+	<dict>
+		<key>NSAppClipRequestEphemeralUserNotification</key>
+		<false/>
+		<key>NSAppClipRequestLocationConfirmation</key>
+		<false/>
+	</dict>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app allows you to select and share photos from your photo library.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs access to your camera to record and share videos with your friends.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>This app needs to access your contacts so that you can better connect with your friends</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs to access your microphone</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>This app needs access to your photos</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.social-networking</string>
 </dict>
 </plist>
