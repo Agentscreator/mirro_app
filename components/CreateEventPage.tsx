@@ -119,6 +119,8 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
   const handleCameraCapture = (data: string, type: "photo" | "video") => {
     setSelectedMedia({ type: type === "photo" ? "image" : "video", data })
     setShowCamera(false)
+    // Automatically move to AI generation step after media is uploaded
+    setCurrentStep(2)
   }
 
   const handleAIMethodSelect = (method: string) => {
