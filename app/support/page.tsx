@@ -78,71 +78,20 @@ export default function SupportPage() {
 
       {/* Content */}
       <div className="px-6 pb-6 space-y-6">
-        {/* Quick Help Cards */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-medium text-text-primary mb-4">Quick Help</h2>
-          
-          {/* Contact Support Card */}
-          <div className="glass-card rounded-2xl p-4 hover-lift">
-            <div className="flex items-center space-x-3 mb-3">
-              <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <p className="font-medium text-text-primary">Email Support</p>
-                <p className="text-sm text-text-secondary">mirrosocial@gmail.com</p>
-              </div>
+        {/* Support Info */}
+        <div className="glass-card rounded-2xl p-4 hover-lift">
+          <div className="flex items-center space-x-3 mb-3">
+            <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
-            <p className="text-xs text-text-muted">Response within 24 hours</p>
-          </div>
-
-          {/* Common Issues */}
-          <div className="glass-card rounded-2xl p-4">
-            <h3 className="font-medium text-text-primary mb-3">Common Issues</h3>
-            <div className="space-y-2 text-sm text-text-secondary">
-              <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-taupe-400 rounded-full"></div>
-                <span>Account login problems</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-taupe-400 rounded-full"></div>
-                <span>Event creation help</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-taupe-400 rounded-full"></div>
-                <span>Mobile app issues</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-taupe-400 rounded-full"></div>
-                <span>Video upload troubles</span>
-              </div>
+            <div>
+              <p className="font-medium text-text-primary">Email Support</p>
+              <p className="text-sm text-text-secondary">mirrosocial@gmail.com</p>
             </div>
           </div>
-
-          {/* Quick Fixes */}
-          <div className="glass-card rounded-2xl p-4">
-            <h3 className="font-medium text-text-primary mb-3">Try These First</h3>
-            <div className="space-y-2 text-sm text-text-secondary">
-              <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                <span>Refresh the page</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                <span>Check internet connection</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                <span>Update the app</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                <span>Clear browser cache</span>
-              </div>
-            </div>
-          </div>
+          <p className="text-xs text-text-muted">Response within 24 hours</p>
         </div>
 
         {/* Contact Form */}
