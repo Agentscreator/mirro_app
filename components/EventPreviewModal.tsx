@@ -53,6 +53,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   const [isJoining, setIsJoining] = useState(false)
   const [visualStyling, setVisualStyling] = useState<any>(null)
   const [, setIsLoadingVisualStyling] = useState(false)
+  const [showAttendeeList, setShowAttendeeList] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   // Load visual styling data (from R2 or inline)
@@ -263,6 +264,8 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
   const { day, month } = formatDate(event.date)
   const attendeesToShow = event.attendees || []
+  const maxVisibleAvatars = 3
+  const hasMoreAttendees = attendeesToShow.length > maxVisibleAvatars
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -460,10 +463,14 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                 <div className="text-xs text-gray-600">{formatTimeWithAMPM(event.time)}</div>
               </div>
 
-              {/* Attendees */}
-              <div className="flex flex-col items-end">
-                <div className="flex -space-x-2 mb-1">
-                  {attendeesToShow.slice(0, 3).map((attendee, index) => (
+              {/* Attendees - Clickable to expand */}
+              <div className="flex flex-col items-end relative">
+                <button
+                  onClick={() => setShowAttendeeList(!showAttendeeList)}
+                  className="flex -space-x-2 mb-1 hover:scale-105 transition-transform duration-200 cursor-pointer"
+                  disabled={attendeesToShow.length === 0}
+                >
+                  {attendeesToShow.slice(0, maxVisibleAvatars).map((attendee, index) => (
                     <div
                       key={attendee.id}
                       className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-lg"
@@ -484,11 +491,96 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                       )}
                     </div>
                   ))}
-                </div>
+                  {hasMoreAttendees && (
+                    <div
+                      className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center shadow-lg"
+                      style={{ zIndex: 5 }}
+                    >
+                      <span className="text-xs font-semibold text-gray-700">
+                        +{attendeesToShow.length - maxVisibleAvatars}
+                      </span>
+                    </div>
+                  )}
+                </button>
                 {event.attendeeCount && event.attendeeCount > 0 && (
                   <div className="text-xs text-gray-600">
                     {event.attendeeCount} attending
                   </div>
+                )}
+
+                {/* Attendee List Dropdown */}
+                {showAttendeeList && attendeesToShow.length > 0 && (
+                  <>
+                    {/* Backdrop to close dropdown */}
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setShowAttendeeList(false)}
+                    />
+                    
+                    {/* Dropdown Panel */}
+                    <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl z-50 overflow-hidden border border-gray-100 animate-in fade-in slide-in-from-top-2 duration-200">
+                      {/* Header */}
+                      <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                        <h3 className="text-sm font-semibold text-gray-800">
+                          Attendees ({attendeesToShow.length})
+                        </h3>
+                        <button
+                          onClick={() => setShowAttendeeList(false)}
+                          className="text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      {/* Attendee List */}
+                      <div className="max-h-80 overflow-y-auto">
+                        {attendeesToShow.map((attendee, index) => (
+                          <div
+                            key={attendee.id}
+                            className={`px-4 py-3 flex items-center space-x-3 hover:bg-gray-50 transition-colors ${
+                              index !== attendeesToShow.length - 1 ? 'border-b border-gray-100' : ''
+                            }`}
+                          >
+                            {/* Avatar */}
+                            <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 shadow-sm">
+                              {attendee.profilePicture ? (
+                                <img
+                                  src={attendee.profilePicture}
+                                  alt={attendee.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Name and Username */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-800 truncate">
+                                {attendee.name}
+                              </p>
+                              <p className="text-xs text-gray-500 truncate">
+                                @{attendee.username}
+                              </p>
+                            </div>
+
+                            {/* Host Badge */}
+                            {attendee.id === event.createdBy && (
+                              <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                                Host
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
             </div>

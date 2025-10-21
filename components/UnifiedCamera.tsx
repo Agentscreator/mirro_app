@@ -24,6 +24,10 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
   const [selectedEffect, setSelectedEffect] = useState<string | null>(null)
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user')
+  const [additionalFilter, setAdditionalFilter] = useState<string>('')
+  const [timerDelay, setTimerDelay] = useState<number>(0)
+  const [countdown, setCountdown] = useState<number>(0)
+  const countdownTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -41,13 +45,24 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         clearInterval(timerRef.current)
         timerRef.current = null
       }
+      if (countdownTimerRef.current) {
+        clearInterval(countdownTimerRef.current)
+        countdownTimerRef.current = null
+      }
     }
   }, [])
 
   useEffect(() => {
     if (isRecording && !isPaused) {
       timerRef.current = setInterval(() => {
-        setRecordingTime((prev) => prev + 1)
+        setRecordingTime((prev) => {
+          const newTime = prev + 1
+          // Auto-stop recording if timer is set and duration reached
+          if (timerDelay > 0 && newTime >= timerDelay) {
+            stopRecording()
+          }
+          return newTime
+        })
       }, 1000)
     } else {
       if (timerRef.current) {
@@ -61,7 +76,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         timerRef.current = null
       }
     }
-  }, [isRecording, isPaused])
+  }, [isRecording, isPaused, timerDelay])
 
 
 
@@ -135,6 +150,14 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       canvas.height = videoRef.current.videoHeight
       const ctx = canvas.getContext("2d")
       if (ctx) {
+        // Apply beauty filter + additional filter
+        const baseFilter = 'brightness(1.05) contrast(1.05) saturate(1.1) blur(0.3px)'
+        ctx.filter = additionalFilter ? `${baseFilter} ${additionalFilter}` : baseFilter
+
+        // Always flip the captured image to match the mirrored preview
+        ctx.translate(canvas.width, 0)
+        ctx.scale(-1, 1)
+
         ctx.drawImage(videoRef.current, 0, 0)
 
         try {
@@ -412,6 +435,21 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
   }
 
+  const filters = [
+    { id: 'none', name: 'None', filter: '' },
+    { id: 'warm', name: 'Warm', filter: 'sepia(0.3) hue-rotate(-10deg)' },
+    { id: 'cool', name: 'Cool', filter: 'hue-rotate(10deg) saturate(1.2)' },
+    { id: 'vintage', name: 'Vintage', filter: 'sepia(0.5) contrast(0.9)' },
+    { id: 'bw', name: 'B&W', filter: 'grayscale(1)' },
+  ]
+
+  const timerOptions = [
+    { id: 'off', name: 'Off', seconds: 0 },
+    { id: '15s', name: '15s', seconds: 15 },
+    { id: '30s', name: '30s', seconds: 30 },
+    { id: '60s', name: '60s', seconds: 60 },
+  ]
+
   const effects = [
     {
       id: "flip",
@@ -470,6 +508,12 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           muted
           webkit-playsinline="true"
           className="w-full h-full object-cover"
+          style={{
+            transform: 'scaleX(-1)',
+            filter: additionalFilter
+              ? `brightness(1.05) contrast(1.05) saturate(1.1) blur(0.3px) ${additionalFilter}`
+              : 'brightness(1.05) contrast(1.05) saturate(1.1) blur(0.3px)'
+          }}
         />
 
 
@@ -529,8 +573,8 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
                 }
               }}
               className={`w-16 h-16 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center transition-all duration-200 ${(effect.id === "flip" && facingMode === "environment") || (selectedEffect === effect.id && effect.id !== "flip")
-                  ? "bg-white/95 scale-105 text-text-primary shadow-xl border-2 border-sand-300"
-                  : "bg-black/20 hover:bg-black/30 text-white/90 hover:text-white border border-white/20"
+                ? "bg-white/95 scale-105 text-text-primary shadow-xl border-2 border-sand-300"
+                : "bg-black/20 hover:bg-black/30 text-white/90 hover:text-white border border-white/20"
                 }`}
             >
               <div className="mb-1">{effect.icon}</div>
@@ -538,6 +582,59 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
             </button>
           ))}
         </div>
+
+        {/* Filter Selection Panel */}
+        {selectedEffect === "filter" && (
+          <div className="absolute bottom-32 left-0 right-0 px-4">
+            <div className="bg-black/40 backdrop-blur-md rounded-2xl p-4">
+              <div className="flex space-x-3 overflow-x-auto">
+                {filters.map((filter) => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setAdditionalFilter(filter.filter)}
+                    className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all ${additionalFilter === filter.filter
+                      ? "bg-white text-text-primary"
+                      : "bg-white/20 text-white hover:bg-white/30"
+                      }`}
+                  >
+                    {filter.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Timer Selection Panel */}
+        {selectedEffect === "timer" && (
+          <div className="absolute bottom-32 left-0 right-0 px-4">
+            <div className="bg-black/40 backdrop-blur-md rounded-2xl p-4">
+              <div className="flex space-x-3 overflow-x-auto">
+                {timerOptions.map((timer) => (
+                  <button
+                    key={timer.id}
+                    onClick={() => setTimerDelay(timer.seconds)}
+                    className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all ${timerDelay === timer.seconds
+                      ? "bg-white text-text-primary"
+                      : "bg-white/20 text-white hover:bg-white/30"
+                      }`}
+                  >
+                    {timer.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Countdown Display */}
+        {countdown > 0 && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+            <div className="text-white text-9xl font-bold animate-pulse">
+              {countdown}
+            </div>
+          </div>
+        )}
 
         {/* Bottom Controls */}
         <div className="absolute bottom-0 left-0 right-0 p-8 pb-12 camera-footer camera-controls">
