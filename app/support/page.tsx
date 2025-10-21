@@ -1,13 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Mail, MessageCircle, HelpCircle, ArrowLeft } from 'lucide-react';
+import { Toaster } from '@/components/ui/sonner';
 import Link from 'next/link';
 
 export default function SupportPage() {
@@ -63,203 +58,212 @@ export default function SupportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Header */}
-        <div className="mb-8">
-          <Link 
-            href="/" 
-            className="inline-flex items-center text-amber-700 hover:text-amber-800 mb-4 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Mirro
-          </Link>
-          <h1 className="text-4xl font-light text-amber-900 mb-2">Support Center</h1>
-          <p className="text-lg text-amber-700">We're here to help you create beautiful events</p>
+    <div 
+      className="max-w-md mx-auto min-h-screen shadow-xl"
+      style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}
+    >
+      {/* Header */}
+      <header className="px-6 py-6 flex items-center justify-between">
+        <Link 
+          href="/" 
+          className="p-2 glass-card rounded-xl hover:bg-white/10 transition-all duration-200"
+        >
+          <svg className="w-5 h-5 text-text-secondary" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+        </Link>
+        <h1 className="text-xl font-normal text-text-primary">Support</h1>
+        <div className="w-9"></div> {/* Spacer for centering */}
+      </header>
+
+      {/* Content */}
+      <div className="px-6 pb-6 space-y-6">
+        {/* Quick Help Cards */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-medium text-text-primary mb-4">Quick Help</h2>
+          
+          {/* Contact Support Card */}
+          <div className="glass-card rounded-2xl p-4 hover-lift">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-medium text-text-primary">Email Support</p>
+                <p className="text-sm text-text-secondary">mirrosocial@gmail.com</p>
+              </div>
+            </div>
+            <p className="text-xs text-text-muted">Response within 24 hours</p>
+          </div>
+
+          {/* Common Issues */}
+          <div className="glass-card rounded-2xl p-4">
+            <h3 className="font-medium text-text-primary mb-3">Common Issues</h3>
+            <div className="space-y-2 text-sm text-text-secondary">
+              <div className="flex items-center space-x-2">
+                <div className="w-1.5 h-1.5 bg-taupe-400 rounded-full"></div>
+                <span>Account login problems</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-1.5 h-1.5 bg-taupe-400 rounded-full"></div>
+                <span>Event creation help</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-1.5 h-1.5 bg-taupe-400 rounded-full"></div>
+                <span>Mobile app issues</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-1.5 h-1.5 bg-taupe-400 rounded-full"></div>
+                <span>Video upload troubles</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Fixes */}
+          <div className="glass-card rounded-2xl p-4">
+            <h3 className="font-medium text-text-primary mb-3">Try These First</h3>
+            <div className="space-y-2 text-sm text-text-secondary">
+              <div className="flex items-center space-x-2">
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                <span>Refresh the page</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                <span>Check internet connection</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                <span>Update the app</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                <span>Clear browser cache</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* Support Form */}
-          <div className="md:col-span-2">
-            <Card className="border-amber-200 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-amber-100 to-orange-100">
-                <CardTitle className="text-amber-900 flex items-center">
-                  <MessageCircle className="w-5 h-5 mr-2" />
-                  Contact Support
-                </CardTitle>
-                <CardDescription className="text-amber-700">
-                  Tell us how we can help you with Mirro
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-6">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="name" className="text-amber-900">Name *</Label>
-                      <Input
-                        id="name"
-                        name="name"
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        className="border-amber-200 focus:border-amber-400"
-                        placeholder="Your full name"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email" className="text-amber-900">Email *</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className="border-amber-200 focus:border-amber-400"
-                        placeholder="your@email.com"
-                      />
-                    </div>
-                  </div>
+        {/* Contact Form */}
+        <div className="glass-card rounded-2xl p-6">
+          <h2 className="text-lg font-medium text-text-primary mb-4">Send a Message</h2>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">Name *</label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 glass-card rounded-xl border-0 text-text-primary placeholder-text-light focus:ring-2 focus:ring-taupe-400 transition-all duration-200"
+                  placeholder="Your name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">Email *</label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 glass-card rounded-xl border-0 text-text-primary placeholder-text-light focus:ring-2 focus:ring-taupe-400 transition-all duration-200"
+                  placeholder="your@email.com"
+                />
+              </div>
+            </div>
 
-                  <div>
-                    <Label htmlFor="category" className="text-amber-900">Category</Label>
-                    <select
-                      id="category"
-                      name="category"
-                      value={formData.category}
-                      onChange={handleInputChange}
-                      className="w-full mt-1 px-3 py-2 border border-amber-200 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
-                    >
-                      <option value="general">General Support</option>
-                      <option value="technical">Technical Issue</option>
-                      <option value="account">Account Help</option>
-                      <option value="events">Event Creation</option>
-                      <option value="mobile">Mobile App</option>
-                      <option value="billing">Billing & Payments</option>
-                      <option value="feature">Feature Request</option>
-                      <option value="bug">Bug Report</option>
-                    </select>
-                  </div>
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-2">Category</label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 glass-card rounded-xl border-0 text-text-primary focus:ring-2 focus:ring-taupe-400 transition-all duration-200"
+              >
+                <option value="general">General Support</option>
+                <option value="technical">Technical Issue</option>
+                <option value="account">Account Help</option>
+                <option value="events">Event Creation</option>
+                <option value="mobile">Mobile App</option>
+                <option value="billing">Billing & Payments</option>
+                <option value="feature">Feature Request</option>
+                <option value="bug">Bug Report</option>
+              </select>
+            </div>
 
-                  <div>
-                    <Label htmlFor="subject" className="text-amber-900">Subject *</Label>
-                    <Input
-                      id="subject"
-                      name="subject"
-                      type="text"
-                      required
-                      value={formData.subject}
-                      onChange={handleInputChange}
-                      className="border-amber-200 focus:border-amber-400"
-                      placeholder="Brief description of your issue"
-                    />
-                  </div>
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-2">Subject *</label>
+              <input
+                type="text"
+                name="subject"
+                required
+                value={formData.subject}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 glass-card rounded-xl border-0 text-text-primary placeholder-text-light focus:ring-2 focus:ring-taupe-400 transition-all duration-200"
+                placeholder="Brief description"
+              />
+            </div>
 
-                  <div>
-                    <Label htmlFor="message" className="text-amber-900">Message *</Label>
-                    <Textarea
-                      id="message"
-                      name="message"
-                      required
-                      value={formData.message}
-                      onChange={handleInputChange}
-                      className="border-amber-200 focus:border-amber-400 min-h-[120px]"
-                      placeholder="Please describe your issue or question in detail..."
-                    />
-                  </div>
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-2">Message *</label>
+              <textarea
+                name="message"
+                required
+                value={formData.message}
+                onChange={handleInputChange}
+                rows={4}
+                className="w-full px-4 py-3 glass-card rounded-xl border-0 text-text-primary placeholder-text-light focus:ring-2 focus:ring-taupe-400 transition-all duration-200 resize-none"
+                placeholder="Describe your issue or question..."
+              />
+            </div>
 
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white"
-                  >
-                    {isSubmitting ? 'Sending...' : 'Send Support Request'}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full gradient-primary text-white py-4 rounded-xl font-medium hover-lift disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Sending...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                  <span>Send Message</span>
+                </>
+              )}
+            </button>
+          </form>
+        </div>
 
-          {/* Support Information */}
-          <div className="space-y-6">
-            <Card className="border-amber-200">
-              <CardHeader className="bg-gradient-to-r from-amber-100 to-orange-100">
-                <CardTitle className="text-amber-900 flex items-center text-lg">
-                  <Mail className="w-5 h-5 mr-2" />
-                  Contact Info
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <p className="font-medium text-amber-900">Email Support</p>
-                    <p className="text-amber-700">mirrosocial@gmail.com</p>
-                  </div>
-                  <div>
-                    <p className="font-medium text-amber-900">Response Time</p>
-                    <p className="text-amber-700">Within 24 hours</p>
-                  </div>
-                  <div>
-                    <p className="font-medium text-amber-900">Website</p>
-                    <a 
-                      href="https://www.mirro2.com" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-amber-600 hover:text-amber-800 underline"
-                    >
-                      www.mirro2.com
-                    </a>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-amber-200">
-              <CardHeader className="bg-gradient-to-r from-amber-100 to-orange-100">
-                <CardTitle className="text-amber-900 flex items-center text-lg">
-                  <HelpCircle className="w-5 h-5 mr-2" />
-                  Quick Help
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <p className="font-medium text-amber-900">Common Issues</p>
-                    <ul className="text-amber-700 space-y-1 mt-1">
-                      <li>• Account login problems</li>
-                      <li>• Event creation help</li>
-                      <li>• Mobile app issues</li>
-                      <li>• Video upload troubles</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <p className="font-medium text-amber-900">Before Contacting</p>
-                    <ul className="text-amber-700 space-y-1 mt-1">
-                      <li>• Try refreshing the page</li>
-                      <li>• Check your internet connection</li>
-                      <li>• Update your mobile app</li>
-                      <li>• Clear browser cache</li>
-                    </ul>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-amber-200">
-              <CardContent className="p-4">
-                <div className="text-center">
-                  <h3 className="font-medium text-amber-900 mb-2">About Mirro</h3>
-                  <p className="text-sm text-amber-700 leading-relaxed">
-                    We're dedicated to helping you create beautiful, meaningful events. 
-                    Our tools are designed to be simple, elegant, and powerful.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        {/* About */}
+        <div className="glass-card rounded-2xl p-4 text-center">
+          <h3 className="font-medium text-text-primary mb-2">About Mirro</h3>
+          <p className="text-sm text-text-secondary leading-relaxed mb-3">
+            Where beautiful events begin. We help you create meaningful moments with elegant, AI-enhanced tools.
+          </p>
+          <a 
+            href="https://www.mirro2.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-taupe-600 hover:text-taupe-700 text-sm underline transition-colors"
+          >
+            www.mirro2.com
+          </a>
         </div>
       </div>
+      <Toaster />
     </div>
   );
 }
