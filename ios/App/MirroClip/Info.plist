@@ -6,6 +6,10 @@
 	<dict>
 		<key>NSAppClipRequestEphemeralUserNotification</key>
 		<false/>
+		<key>CFBundleShortVersionString</key>
+		<string>2</string>
+		<key>CFBundleVersion</key>
+		<string>2.0</string>
 		<key>NSAppClipRequestLocationConfirmation</key>
 		<false/>
 	</dict>

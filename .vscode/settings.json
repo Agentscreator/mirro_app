@@ -16,5 +16,6 @@
     "className",
     "ngClass"
   ],
-  "html.autoClosingTags": false
+  "html.autoClosingTags": false,
+  "kiroAgent.configureMCP": "Disabled"
 }
