@@ -21,6 +21,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [ageVerified, setAgeVerified] = useState(false)
   const router = useRouter()
 
   const validateForm = () => {
@@ -50,6 +51,10 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
 
     if (!isLogin && formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match"
+    }
+
+    if (!isLogin && !ageVerified) {
+      newErrors.ageVerified = "You must verify that you are at least 13 years old"
     }
 
     setErrors(newErrors)
@@ -126,7 +131,11 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
         <div className="grid grid-cols-2 gap-1">
           <button
             type="button"
-            onClick={() => setIsLogin(true)}
+            onClick={() => {
+              setIsLogin(true)
+              setErrors({})
+              setAgeVerified(false)
+            }}
             className={`py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
               isLogin
                 ? "gradient-primary text-white shadow-md"
@@ -137,7 +146,11 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
           </button>
           <button
             type="button"
-            onClick={() => setIsLogin(false)}
+            onClick={() => {
+              setIsLogin(false)
+              setErrors({})
+              setAgeVerified(false)
+            }}
             className={`py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
               !isLogin
                 ? "gradient-primary text-white shadow-md"
@@ -274,6 +287,31 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
           </div>
         )}
 
+        {!isLogin && (
+          <div>
+            <div className="flex items-start space-x-3">
+              <input
+                type="checkbox"
+                id="ageVerification"
+                checked={ageVerified}
+                onChange={(e) => {
+                  setAgeVerified(e.target.checked)
+                  if (errors.ageVerified) {
+                    setErrors(prev => ({ ...prev, ageVerified: '' }))
+                  }
+                }}
+                className={`mt-1 w-4 h-4 text-taupe-600 border-2 rounded focus:ring-taupe-400 focus:ring-2 ${
+                  errors.ageVerified ? "border-red-400" : "border-cream-300"
+                }`}
+              />
+              <label htmlFor="ageVerification" className="text-sm text-text-secondary leading-relaxed">
+                I verify that I am at least 13 years old
+              </label>
+            </div>
+            {errors.ageVerified && <p className="text-red-500 text-sm mt-2">{errors.ageVerified}</p>}
+          </div>
+        )}
+
         {errors.general && (
           <div className="glass-card rounded-2xl p-4 border border-red-300">
             <p className="text-red-600 text-sm text-center">{errors.general}</p>
@@ -330,7 +368,11 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin)
+              setErrors({})
+              setAgeVerified(false)
+            }}
             className="text-taupe-600 font-medium hover:text-taupe-700 transition-colors"
           >
             {isLogin ? "Sign up" : "Sign in"}

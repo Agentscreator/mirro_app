@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Verification Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <h1>Age Verification Implementation Test</h1>
+    
+    <div class="test-section">
+        <h2>✅ Implementation Complete</h2>
+        <p>Added age verification checkbox to the sign-up form in <code>components/AuthPage.tsx</code></p>
+        
+        <h3>Changes Made:</h3>
+        <ul>
+            <li>✅ Added <code>ageVerified</code> state variable</li>
+            <li>✅ Added validation to require age verification for sign-up</li>
+            <li>✅ Added checkbox UI with proper styling</li>
+            <li>✅ Added error handling and display</li>
+            <li>✅ Clear age verification state when switching between login/signup</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 App Store Compliance</h2>
+        <p>This implementation addresses the App Store guideline 2.3.6 requirement:</p>
+        <blockquote style="border-left: 4px solid #007bff; padding-left: 16px; margin: 16px 0; font-style: italic;">
+            "The content description selected for the app's Age Rating indicates that the app includes In-App Controls. However, we were unable to find either Parental Controls or Age Assurance mechanisms in the app."
+        </blockquote>
+        
+        <p><strong>Solution:</strong> Added age assurance mechanism requiring users to verify they are at least 13 years old during sign-up.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Testing Instructions</h2>
+        <ol>
+            <li><strong>Navigate to Sign-Up:</strong> Go to your app and switch to the "Sign Up" tab</li>
+            <li><strong>Fill Form Without Checkbox:</strong> Fill out all fields but leave the age verification unchecked</li>
+            <li><strong>Attempt Submit:</strong> Try to submit - should show error "You must verify that you are at least 13 years old"</li>
+            <li><strong>Check Checkbox:</strong> Check the "I verify that I am at least 13 years old" checkbox</li>
+            <li><strong>Submit Successfully:</strong> Form should now submit without age verification errors</li>
+            <li><strong>Switch to Login:</strong> Verify the checkbox doesn't appear on the login form</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>📱 App Store Next Steps</h2>
+        <p>After testing the implementation:</p>
+        <ol>
+            <li>Deploy the updated app to your test environment</li>
+            <li>Verify the age verification checkbox appears and functions correctly</li>
+            <li>Submit the app update to App Store Connect</li>
+            <li>In App Store Connect, update the Age Rating to include "Age Assurance" controls</li>
+            <li>Reply to Apple's message explaining where to find the age verification feature</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 Technical Details</h2>
+        <p><strong>Location:</strong> <code>components/AuthPage.tsx</code></p>
+        <p><strong>Checkbox Text:</strong> "I verify that I am at least 13 years old"</p>
+        <p><strong>Validation:</strong> Required for sign-up, not shown for login</p>
+        <p><strong>Error Message:</strong> "You must verify that you are at least 13 years old"</p>
+        <p><strong>Styling:</strong> Matches existing form styling with proper error states</p>
+    </div>
+</body>
+</html>
