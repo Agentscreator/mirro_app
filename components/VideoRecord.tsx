@@ -17,6 +17,7 @@ export default function VideoRecorder({ onComplete, onClose }: VideoRecorderProp
     const [recordingTime, setRecordingTime] = useState(0)
     const [recordedVideo, setRecordedVideo] = useState<string | null>(null)
     const [isPaused, setIsPaused] = useState(false)
+    const [facingMode, setFacingMode] = useState<"user" | "environment">("user")
 
     useEffect(() => {
         startCamera()
@@ -41,7 +42,7 @@ export default function VideoRecorder({ onComplete, onClose }: VideoRecorderProp
         try {
             const constraints = {
                 video: { 
-                    facingMode: "user",
+                    facingMode: facingMode,
                     width: { ideal: 1280, max: 1920 },
                     height: { ideal: 720, max: 1080 },
                     frameRate: { ideal: 30, max: 30 }
@@ -203,6 +204,48 @@ export default function VideoRecorder({ onComplete, onClose }: VideoRecorderProp
         startCamera()
     }
 
+    const switchCamera = async () => {
+        if (isRecording) return // Don't switch during recording
+        
+        // Stop current stream
+        if (stream) {
+            stream.getTracks().forEach((track) => track.stop())
+        }
+        
+        // Toggle facing mode
+        const newFacingMode = facingMode === "user" ? "environment" : "user"
+        setFacingMode(newFacingMode)
+        
+        // Restart camera with new facing mode
+        try {
+            const constraints = {
+                video: { 
+                    facingMode: newFacingMode,
+                    width: { ideal: 1280, max: 1920 },
+                    height: { ideal: 720, max: 1080 },
+                    frameRate: { ideal: 30, max: 30 }
+                },
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                },
+            }
+            
+            const mediaStream = await navigator.mediaDevices.getUserMedia(constraints)
+            setStream(mediaStream)
+            if (videoRef.current) {
+                videoRef.current.srcObject = mediaStream
+                videoRef.current.playsInline = true
+                videoRef.current.muted = true
+            }
+        } catch (err) {
+            console.error("Error switching camera:", err)
+            // Revert to previous facing mode if switch fails
+            setFacingMode(facingMode)
+        }
+    }
+
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60)
         const secs = seconds % 60
@@ -235,7 +278,10 @@ export default function VideoRecorder({ onComplete, onClose }: VideoRecorderProp
                             playsInline 
                             muted 
                             webkit-playsinline="true"
-                            className="w-full h-full object-cover" 
+                            className="w-full h-full object-cover"
+                            style={{ 
+                                transform: facingMode === "user" ? "scaleX(-1)" : "scaleX(1)"
+                            }}
                         />
 
                         {/* Recording Timer Overlay */}
@@ -252,13 +298,17 @@ export default function VideoRecorder({ onComplete, onClose }: VideoRecorderProp
 
                         {/* Side Controls - TikTok Style */}
                         <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col gap-6">
-                            <button className="w-12 h-12 rounded-full glass-card backdrop-blur-md flex items-center justify-center hover:bg-white/60 transition-all">
+                            <button 
+                                onClick={switchCamera}
+                                disabled={isRecording}
+                                className="w-12 h-12 rounded-full glass-card backdrop-blur-md flex items-center justify-center hover:bg-white/60 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
                                 <svg className="w-6 h-6 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth={2}
-                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                                     />
                                 </svg>
                             </button>
