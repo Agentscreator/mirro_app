@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 interface AuthPageProps {
   onAuthSuccess: () => void
@@ -22,7 +22,6 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [ageVerified, setAgeVerified] = useState(false)
-  const router = useRouter()
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -103,32 +102,40 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
   }
 
   return (
-    <div className="px-6 py-8 pb-24">
-      {/* Header */}
-      <div className="text-center mb-10">
-        <div className="w-20 h-20 glass-card rounded-full mx-auto mb-6 flex items-center justify-center soft-shadow">
-          <svg className="w-10 h-10 text-taupe-500" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-              clipRule="evenodd"
+    <div className="min-h-screen flex flex-col">
+      {/* Black Top Section with Logo */}
+      <div className="bg-black pt-16 pb-20 px-6" style={{ background: 'linear-gradient(to bottom, #000000 0%, #0a0a0a 70%, transparent 100%)' }}>
+        {/* App Icon - Seamlessly integrated with black background */}
+        <div className="mb-8 relative">
+          <div className="w-28 h-28 mx-auto relative">
+            <Image
+              src="/app-icon.png"
+              alt="App Logo"
+              width={112}
+              height={112}
+              className="w-full h-full object-contain"
+              priority
             />
-          </svg>
+          </div>
         </div>
-        <h1 className="text-2xl font-normal text-text-primary mb-3">
-          {isLogin ? "Welcome Back" : "Create Account"}
-        </h1>
-        <p className="text-text-secondary font-normal">
-          {sharedEventTitle 
-            ? `${isLogin ? "Sign in" : "Create an account"} to join "${sharedEventTitle}"`
-            : isLogin ? "Sign in to continue to your events" : "Join us to start creating amazing events"
-          }
-        </p>
+
+        {/* Elegant Welcome Text */}
+        <div className="text-center max-w-sm mx-auto">
+          <h1 className="text-4xl font-extralight tracking-tight text-white mb-2 letterspacing-tight">
+            {isLogin ? "Welcome" : "Let's Get Started"}
+          </h1>
+          {sharedEventTitle && (
+            <p className="text-sm text-gray-300 font-light leading-relaxed mt-3">
+              {isLogin ? "Sign in" : "Create an account"} to join "{sharedEventTitle}"
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* Auth Toggle */}
-      <div className="glass-card rounded-2xl p-1 mb-8 soft-shadow">
-        <div className="grid grid-cols-2 gap-1">
+      {/* Beige Form Section with Curved Top */}
+      <div className="flex-1 bg-gradient-to-b from-cream-100 to-cream-200 -mt-10 rounded-t-[3rem] px-6 pt-12 pb-8">
+        {/* Minimalist Auth Toggle */}
+        <div className="mb-10 flex items-center justify-center space-x-10">
           <button
             type="button"
             onClick={() => {
@@ -136,13 +143,13 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
               setErrors({})
               setAgeVerified(false)
             }}
-            className={`py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
+            className={`text-sm font-light tracking-wider transition-all duration-300 pb-2 ${
               isLogin
-                ? "gradient-primary text-white shadow-md"
-                : "text-text-secondary hover:bg-white/40"
+                ? "text-text-primary border-b border-taupe-700"
+                : "text-text-muted hover:text-text-secondary"
             }`}
           >
-            Sign In
+            SIGN IN
           </button>
           <button
             type="button"
@@ -151,84 +158,68 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
               setErrors({})
               setAgeVerified(false)
             }}
-            className={`py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
+            className={`text-sm font-light tracking-wider transition-all duration-300 pb-2 ${
               !isLogin
-                ? "gradient-primary text-white shadow-md"
-                : "text-text-secondary hover:bg-white/40"
+                ? "text-text-primary border-b border-taupe-700"
+                : "text-text-muted hover:text-text-secondary"
             }`}
           >
-            Sign Up
+            SIGN UP
           </button>
         </div>
-      </div>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Elegant Form */}
+        <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto space-y-6">
         {!isLogin && (
           <div>
-            <label className="block text-sm font-medium mb-3 text-text-secondary">Full Name</label>
             <input
               type="text"
-              placeholder="Enter your full name"
-              className={`w-full px-5 py-4 text-base rounded-2xl border glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary placeholder-text-light ${
-                errors.name ? "border-red-400" : "border-cream-300"
+              placeholder="Full Name"
+              className={`w-full px-0 py-3 text-base bg-transparent border-0 border-b-2 focus:outline-none focus:ring-0 transition-all duration-300 text-text-primary placeholder-text-light font-light ${
+                errors.name ? "border-red-400" : "border-taupe-300 focus:border-taupe-600"
               }`}
               value={formData.name}
               onChange={(e) => handleInputChange("name", e.target.value)}
             />
-            {errors.name && <p className="text-red-500 text-sm mt-2">{errors.name}</p>}
+            {errors.name && <p className="text-red-500 text-xs mt-1 font-light">{errors.name}</p>}
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-medium mb-3 text-text-secondary">Username</label>
           <input
             type="text"
-            placeholder={isLogin ? "Enter your username" : "Choose a username"}
-            className={`w-full px-5 py-4 text-base rounded-2xl border glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary placeholder-text-light ${
-              errors.username ? "border-red-400" : "border-cream-300"
+            placeholder="Username"
+            className={`w-full px-0 py-3 text-base bg-transparent border-0 border-b-2 focus:outline-none focus:ring-0 transition-all duration-300 text-text-primary placeholder-text-light font-light ${
+              errors.username ? "border-red-400" : "border-taupe-300 focus:border-taupe-600"
             }`}
             value={formData.username}
             onChange={(e) => handleInputChange("username", e.target.value)}
           />
-          {errors.username && <p className="text-red-500 text-sm mt-2">{errors.username}</p>}
+          {errors.username && <p className="text-red-500 text-xs mt-1 font-light">{errors.username}</p>}
         </div>
 
         {!isLogin && (
           <div>
-            <label className="block text-sm font-medium mb-3 text-text-secondary">Email</label>
             <input
               type="email"
-              placeholder="Enter your email address"
-              className={`w-full px-5 py-4 text-base rounded-2xl border glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary placeholder-text-light ${
-                errors.email ? "border-red-400" : "border-cream-300"
+              placeholder="Email"
+              className={`w-full px-0 py-3 text-base bg-transparent border-0 border-b-2 focus:outline-none focus:ring-0 transition-all duration-300 text-text-primary placeholder-text-light font-light ${
+                errors.email ? "border-red-400" : "border-taupe-300 focus:border-taupe-600"
               }`}
               value={formData.email}
               onChange={(e) => handleInputChange("email", e.target.value)}
             />
-            {errors.email && <p className="text-red-500 text-sm mt-2">{errors.email}</p>}
+            {errors.email && <p className="text-red-500 text-xs mt-1 font-light">{errors.email}</p>}
           </div>
         )}
 
         <div>
-          <div className="flex justify-between items-center mb-3">
-            <label className="block text-sm font-medium text-text-secondary">Password</label>
-            {isLogin && (
-              <button
-                type="button"
-                onClick={() => window.location.href = '/forgot-password'}
-                className="text-xs text-taupe-500 hover:text-taupe-600 transition-colors"
-              >
-                Forgot?
-              </button>
-            )}
-          </div>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
-              className={`w-full px-5 py-4 pr-12 text-base rounded-2xl border glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary placeholder-text-light ${
-                errors.password ? "border-red-400" : "border-cream-300"
+              placeholder="Password"
+              className={`w-full px-0 py-3 pr-10 text-base bg-transparent border-0 border-b-2 focus:outline-none focus:ring-0 transition-all duration-300 text-text-primary placeholder-text-light font-light ${
+                errors.password ? "border-red-400" : "border-taupe-300 focus:border-taupe-600"
               }`}
               value={formData.password}
               onChange={(e) => handleInputChange("password", e.target.value)}
@@ -236,32 +227,31 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-text-light hover:text-text-secondary transition-colors duration-200"
+              className="absolute right-0 top-1/2 -translate-y-1/2 text-text-light hover:text-text-secondary transition-colors duration-200"
             >
               {showPassword ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L12 12m6.121-6.121L21 21m-3.879-6.121l-4.242-4.242" />
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L12 12m6.121-6.121L21 21m-3.879-6.121l-4.242-4.242" />
                 </svg>
               ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
               )}
             </button>
           </div>
-          {errors.password && <p className="text-red-500 text-sm mt-2">{errors.password}</p>}
+          {errors.password && <p className="text-red-500 text-xs mt-1 font-light">{errors.password}</p>}
         </div>
 
         {!isLogin && (
           <div>
-            <label className="block text-sm font-medium mb-3 text-text-secondary">Confirm Password</label>
             <div className="relative">
               <input
                 type={showConfirmPassword ? "text" : "password"}
-                placeholder="Confirm your password"
-                className={`w-full px-5 py-4 pr-12 text-base rounded-2xl border glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary placeholder-text-light ${
-                  errors.confirmPassword ? "border-red-400" : "border-cream-300"
+                placeholder="Confirm Password"
+                className={`w-full px-0 py-3 pr-10 text-base bg-transparent border-0 border-b-2 focus:outline-none focus:ring-0 transition-all duration-300 text-text-primary placeholder-text-light font-light ${
+                  errors.confirmPassword ? "border-red-400" : "border-taupe-300 focus:border-taupe-600"
                 }`}
                 value={formData.confirmPassword}
                 onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
@@ -269,27 +259,27 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-text-light hover:text-text-secondary transition-colors duration-200"
+                className="absolute right-0 top-1/2 -translate-y-1/2 text-text-light hover:text-text-secondary transition-colors duration-200"
               >
                 {showConfirmPassword ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L12 12m6.121-6.121L21 21m-3.879-6.121l-4.242-4.242" />
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L12 12m6.121-6.121L21 21m-3.879-6.121l-4.242-4.242" />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                 )}
               </button>
             </div>
-            {errors.confirmPassword && <p className="text-red-500 text-sm mt-2">{errors.confirmPassword}</p>}
+            {errors.confirmPassword && <p className="text-red-500 text-xs mt-1 font-light">{errors.confirmPassword}</p>}
           </div>
         )}
 
         {!isLogin && (
-          <div>
-            <div className="flex items-start space-x-3">
+          <div className="mt-6">
+            <div className="flex items-center space-x-3">
               <input
                 type="checkbox"
                 id="ageVerification"
@@ -300,97 +290,86 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
                     setErrors(prev => ({ ...prev, ageVerified: '' }))
                   }
                 }}
-                className={`mt-1 w-4 h-4 text-taupe-600 border-2 rounded focus:ring-taupe-400 focus:ring-2 ${
-                  errors.ageVerified ? "border-red-400" : "border-cream-300"
+                className={`w-4 h-4 text-taupe-600 border-2 rounded focus:ring-0 focus:ring-offset-0 transition-all ${
+                  errors.ageVerified ? "border-red-400" : "border-taupe-400"
                 }`}
               />
-              <label htmlFor="ageVerification" className="text-sm text-text-secondary leading-relaxed">
+              <label htmlFor="ageVerification" className="text-xs text-text-muted font-light leading-relaxed">
                 I verify that I am at least 13 years old
               </label>
             </div>
-            {errors.ageVerified && <p className="text-red-500 text-sm mt-2">{errors.ageVerified}</p>}
+            {errors.ageVerified && <p className="text-red-500 text-xs mt-1 font-light">{errors.ageVerified}</p>}
           </div>
         )}
 
         {errors.general && (
-          <div className="glass-card rounded-2xl p-4 border border-red-300">
-            <p className="text-red-600 text-sm text-center">{errors.general}</p>
+          <div className="mt-4 p-3 bg-red-50/50 border border-red-200 rounded-lg">
+            <p className="text-red-600 text-xs text-center font-light">{errors.general}</p>
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full gradient-primary text-white py-4 rounded-2xl font-medium hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-8"
-        >
-          {isLoading ? (
-            <div className="flex items-center justify-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          {/* Elegant Submit Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full mt-12 py-4 bg-gray-900 text-white text-sm font-light tracking-widest uppercase rounded-full hover:bg-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {isLogin ? "Signing In..." : "Creating Account..."}
+              </div>
+            ) : (
+              isLogin ? "Sign In" : "Create Account"
+            )}
+          </button>
+        </form>
+
+        {/* Forgot Password Link */}
+        {isLogin && (
+          <div className="text-center mt-6">
+            <button
+              type="button"
+              onClick={() => window.location.href = '/forgot-password'}
+              className="text-xs text-text-muted hover:text-text-secondary transition-colors font-light"
+            >
+              Forgot Password?
+            </button>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="text-center mt-8 max-w-sm mx-auto">
+          <p className="text-text-muted text-xs font-light">
+            {isLogin ? "Don't have an account? " : "Already have an account? "}
+            <button
+              type="button"
+              onClick={() => {
+                setIsLogin(!isLogin)
+                setErrors({})
+                setAgeVerified(false)
+              }}
+              className="text-taupe-600 hover:text-taupe-700 transition-colors underline"
+            >
+              {isLogin ? "Sign Up" : "Sign In"}
+            </button>
+          </p>
+          
+          {/* Support Link */}
+          <div className="mt-8 pb-8">
+            <a
+              href="/support"
+              className="inline-flex items-center text-text-muted hover:text-text-secondary transition-colors text-xs font-light"
+            >
+              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              {isLogin ? "Signing In..." : "Creating Account..."}
-            </div>
-          ) : (
-            isLogin ? "Sign In" : "Create Account"
-          )}
-        </button>
-      </form>
-
-      {/* Forgot Password - Prominent Button */}
-      {isLogin && (
-        <div className="text-center mt-6">
-          <button
-            type="button"
-            onClick={() => window.location.href = '/forgot-password'}
-            className="w-full glass-card border border-taupe-300 text-taupe-600 py-3 px-4 rounded-2xl font-medium hover:bg-taupe-50 hover:border-taupe-400 hover:text-taupe-700 transition-all duration-200 soft-shadow-sm"
-          >
-            <svg className="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3a1 1 0 011-1h2.586l6.243-6.243C11.978 9.587 12.488 9.5 13 9.5a6 6 0 016-2.5z" />
-            </svg>
-            Forgot your password?
-          </button>
-        </div>
-      )}
-
-      {/* Divider */}
-      {isLogin && (
-        <div className="flex items-center mt-6 mb-4">
-          <div className="flex-1 border-t border-cream-300"></div>
-          <span className="px-4 text-text-muted text-xs">OR</span>
-          <div className="flex-1 border-t border-cream-300"></div>
-        </div>
-      )}
-
-      {/* Footer */}
-      <div className="text-center mt-4">
-        <p className="text-text-muted text-sm">
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <button
-            type="button"
-            onClick={() => {
-              setIsLogin(!isLogin)
-              setErrors({})
-              setAgeVerified(false)
-            }}
-            className="text-taupe-600 font-medium hover:text-taupe-700 transition-colors"
-          >
-            {isLogin ? "Sign up" : "Sign in"}
-          </button>
-        </p>
-        
-        {/* Support Link */}
-        <div className="mt-6 pt-4 border-t border-cream-300">
-          <p className="text-text-muted text-xs mb-2">Need help?</p>
-          <a
-            href="/support"
-            className="inline-flex items-center text-taupe-500 hover:text-taupe-600 transition-colors text-sm"
-          >
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Contact Support
-          </a>
+              Need Help?
+            </a>
+          </div>
         </div>
       </div>
     </div>

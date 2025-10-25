@@ -227,6 +227,16 @@ body {
   -webkit-line-clamp: 3;
 }
 
+/* Elegant Auth Page Styles */
+.letterspacing-tight {
+  letter-spacing: -0.02em;
+}
+
+input::placeholder {
+  font-weight: 300;
+  opacity: 0.6;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
