@@ -104,9 +104,9 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
   return (
     <div className="min-h-screen flex flex-col">
       {/* Black Top Section with Logo */}
-      <div className="bg-black pt-16 pb-20 px-6" style={{ background: 'linear-gradient(to bottom, #000000 0%, #0a0a0a 70%, transparent 100%)' }}>
+      <div className="bg-black pt-16 pb-20 px-6 animate-fade-in" style={{ background: 'linear-gradient(to bottom, #000000 0%, #0a0a0a 70%, transparent 100%)' }}>
         {/* App Icon - Seamlessly integrated with black background */}
-        <div className="mb-8 relative">
+        <div className="mb-8 relative animate-scale-in" style={{ animationDelay: '0.1s' }}>
           <div className="w-28 h-28 mx-auto relative">
             <Image
               src="/app-icon.png"
@@ -120,7 +120,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
         </div>
 
         {/* Elegant Welcome Text */}
-        <div className="text-center max-w-sm mx-auto">
+        <div className="text-center max-w-sm mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <h1 className="text-4xl font-extralight tracking-tight text-white mb-2 letterspacing-tight">
             {isLogin ? "Welcome" : "Let's Get Started"}
           </h1>
@@ -133,9 +133,9 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
       </div>
 
       {/* Beige Form Section with Curved Top */}
-      <div className="flex-1 bg-gradient-to-b from-cream-100 to-cream-200 -mt-10 rounded-t-[3rem] px-6 pt-12 pb-8">
+      <div className="flex-1 bg-gradient-to-b from-cream-100 to-cream-200 -mt-10 rounded-t-[3rem] px-6 pt-12 pb-8 animate-slide-up-delayed">
         {/* Minimalist Auth Toggle */}
-        <div className="mb-10 flex items-center justify-center space-x-10">
+        <div className="mb-10 flex items-center justify-center space-x-10 animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <button
             type="button"
             onClick={() => {
@@ -171,7 +171,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
         {/* Elegant Form */}
         <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto space-y-6">
         {!isLogin && (
-          <div>
+          <div className="animate-slide-up" style={{ animationDelay: '0.5s' }}>
             <input
               type="text"
               placeholder="Full Name"
@@ -185,7 +185,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
           </div>
         )}
 
-        <div>
+        <div className="animate-slide-up" style={{ animationDelay: isLogin ? '0.5s' : '0.6s' }}>
           <input
             type="text"
             placeholder="Username"
@@ -199,7 +199,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
         </div>
 
         {!isLogin && (
-          <div>
+          <div className="animate-slide-up" style={{ animationDelay: '0.7s' }}>
             <input
               type="email"
               placeholder="Email"
@@ -213,7 +213,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
           </div>
         )}
 
-        <div>
+        <div className="animate-slide-up" style={{ animationDelay: isLogin ? '0.6s' : '0.8s' }}>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
@@ -245,7 +245,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
         </div>
 
         {!isLogin && (
-          <div>
+          <div className="animate-slide-up" style={{ animationDelay: '0.9s' }}>
             <div className="relative">
               <input
                 type={showConfirmPassword ? "text" : "password"}
@@ -278,7 +278,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
         )}
 
         {!isLogin && (
-          <div className="mt-6">
+          <div className="mt-6 animate-slide-up" style={{ animationDelay: '1s' }}>
             <div className="flex items-center space-x-3">
               <input
                 type="checkbox"
@@ -312,7 +312,8 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full mt-12 py-4 bg-gray-900 text-white text-sm font-light tracking-widest uppercase rounded-full hover:bg-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+            className="w-full mt-12 py-4 bg-gray-900 text-white text-sm font-light tracking-widest uppercase rounded-full hover:bg-black hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl animate-slide-up"
+            style={{ animationDelay: isLogin ? '0.7s' : '1.1s' }}
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
@@ -330,7 +331,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
 
         {/* Forgot Password Link */}
         {isLogin && (
-          <div className="text-center mt-6">
+          <div className="text-center mt-6 animate-fade-in" style={{ animationDelay: '0.8s' }}>
             <button
               type="button"
               onClick={() => window.location.href = '/forgot-password'}
@@ -342,7 +343,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
         )}
 
         {/* Footer */}
-        <div className="text-center mt-8 max-w-sm mx-auto">
+        <div className="text-center mt-8 max-w-sm mx-auto animate-fade-in" style={{ animationDelay: isLogin ? '0.9s' : '1.2s' }}>
           <p className="text-text-muted text-xs font-light">
             {isLogin ? "Don't have an account? " : "Already have an account? "}
             <button
