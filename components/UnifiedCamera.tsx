@@ -154,9 +154,11 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         const baseFilter = 'brightness(1.05) contrast(1.05) saturate(1.1) blur(0.3px)'
         ctx.filter = additionalFilter ? `${baseFilter} ${additionalFilter}` : baseFilter
 
-        // Always flip the captured image to match the mirrored preview
-        ctx.translate(canvas.width, 0)
-        ctx.scale(-1, 1)
+        // Flip the captured image only for front-facing camera to correct the mirrored preview
+        if (facingMode === 'user') {
+          ctx.translate(canvas.width, 0)
+          ctx.scale(-1, 1)
+        }
 
         ctx.drawImage(videoRef.current, 0, 0)
 
