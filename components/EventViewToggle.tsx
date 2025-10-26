@@ -14,12 +14,12 @@ export default function EventViewToggle({
   onEventViewModeChange
 }: EventViewToggleProps) {
   return (
-    <div className="flex items-center space-x-3">
-      {/* Event View Mode Toggle */}
-      <div className="flex items-center glass-card rounded-full p-1">
+    <div className="flex items-center space-x-4">
+      {/* Event View Mode Toggle - More Spread Out */}
+      <div className="flex items-center glass-card rounded-full p-1.5 gap-1">
         <button
           onClick={() => onEventViewModeChange('all')}
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
+          className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
             eventViewMode === 'all' 
               ? 'gradient-primary text-white shadow-sm' 
               : 'text-text-secondary hover:bg-white/40'
@@ -29,7 +29,7 @@ export default function EventViewToggle({
         </button>
         <button
           onClick={() => onEventViewModeChange('created')}
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
+          className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
             eventViewMode === 'created' 
               ? 'gradient-primary text-white shadow-sm' 
               : 'text-text-secondary hover:bg-white/40'
@@ -39,7 +39,7 @@ export default function EventViewToggle({
         </button>
         <button
           onClick={() => onEventViewModeChange('joined')}
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
+          className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
             eventViewMode === 'joined' 
               ? 'gradient-primary text-white shadow-sm' 
               : 'text-text-secondary hover:bg-white/40'
@@ -53,13 +53,13 @@ export default function EventViewToggle({
       <button
         onClick={() => onManageModeToggle(!isManageMode)}
         className={`
-          relative inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+          relative inline-flex items-center px-4 py-1.5 rounded-full text-xs font-medium
           transition-all duration-300 hover-lift
           ${isManageMode ? "gradient-primary text-white shadow-lg" : "glass-card text-text-secondary hover:bg-white/60"}
         `}
       >
         <svg
-          className={`w-3 h-3 mr-1 transition-transform duration-300 ${isManageMode ? "rotate-180" : ""}`}
+          className={`w-3 h-3 mr-1.5 transition-transform duration-300 ${isManageMode ? "rotate-180" : ""}`}
           fill="currentColor"
           viewBox="0 0 20 20"
         >

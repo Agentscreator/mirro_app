@@ -466,12 +466,23 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
                     <video src={selectedMedia.data} className="media-preview rounded-2xl mx-auto mb-4" controls />
                   )}
                   <p className="text-sm text-text-secondary mb-6 font-normal">Media selected successfully!</p>
-                  <button
-                    onClick={() => setCurrentStep(2)}
-                    className="w-full gradient-primary text-white py-4 rounded-2xl font-medium hover:shadow-lg transition-all duration-200"
-                  >
-                    Continue
-                  </button>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => {
+                        setSelectedMedia(null)
+                        setShowCamera(false)
+                      }}
+                      className="flex-1 glass-card text-text-secondary py-4 rounded-2xl font-medium hover:bg-white/60 transition-all duration-200"
+                    >
+                      Change Media
+                    </button>
+                    <button
+                      onClick={() => setCurrentStep(2)}
+                      className="flex-1 gradient-primary text-white py-4 rounded-2xl font-medium hover:shadow-lg transition-all duration-200"
+                    >
+                      Continue
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
