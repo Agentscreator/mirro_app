@@ -163,27 +163,29 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
             </>
           ) : (
             <>
-              <button
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  await shareEvent(event.id, event.title);
-                }}
-                className="p-2 rounded-xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all duration-200"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path>
-                </svg>
-              </button>
+              {/* Report Button - Left */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowReportDialog(true);
                 }}
-                className="p-2 rounded-xl bg-red-500/20 backdrop-blur-sm text-white hover:bg-red-500/30 transition-all duration-200"
+                className="p-2.5 rounded-xl bg-red-500/30 backdrop-blur-md text-white hover:bg-red-500/40 transition-all duration-200 shadow-lg ring-1 ring-white/20"
                 title="Report event"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                </svg>
+              </button>
+              {/* Share Button - Right with Pulsing Animation */}
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  await shareEvent(event.id, event.title);
+                }}
+                className="p-2.5 rounded-xl bg-white/30 backdrop-blur-md text-white hover:bg-white/40 transition-all duration-200 shadow-lg ring-1 ring-white/20 animate-pulse-subtle"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                 </svg>
               </button>
             </>
