@@ -145,23 +145,23 @@ Mail: Gravity, Inc., 4050 Rocky Cir, Tampa, FL 33613
 For European users, additional rights and protections apply under GDPR, including rights to access, correct, delete, transfer, restrict, and object to processing of your personal information.`
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="glass-card rounded-2xl w-full max-w-md max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
+      <div className="bg-gradient-to-b from-cream-50 to-cream-100 rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden shadow-2xl animate-slide-up">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
-          <h2 className="text-xl font-normal text-text-primary">Settings</h2>
+        <div className="flex items-center justify-between px-8 py-6 border-b border-taupe-200/30">
+          <h2 className="text-2xl font-extralight text-text-primary tracking-wide">Settings</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors duration-200"
+            className="p-2 hover:bg-taupe-100/50 rounded-full transition-all duration-200"
           >
-            <svg className="w-5 h-5 text-text-secondary" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-5 h-5 text-text-muted" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+        <div className="px-8 py-6 overflow-y-auto max-h-[calc(90vh-120px)]">
           {showDeleteConfirmation ? (
             <div className="space-y-6">
               {/* Back button */}
@@ -227,109 +227,70 @@ For European users, additional rights and protections apply under GDPR, includin
               </div>
             </div>
           ) : !showPrivacyPolicy ? (
-            <div className="space-y-4">
-              {/* Privacy Policy */}
-              <button
-                onClick={() => setShowPrivacyPolicy(true)}
-                className="w-full flex items-center justify-between p-4 glass-card rounded-xl hover:bg-white/10 transition-all duration-200"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-taupe-400 to-taupe-500 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm8 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V8zm0 4a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1v-2z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-text-primary font-medium">Privacy Policy</p>
-                    <p className="text-text-secondary text-sm">View our privacy policy</p>
-                  </div>
-                </div>
-                <svg className="w-5 h-5 text-text-secondary" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-              </button>
-
-              {/* About */}
-              <div className="p-4 glass-card rounded-xl">
-                <div className="flex items-center space-x-3 mb-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-text-primary font-medium">About Mirro</p>
-                    <p className="text-text-secondary text-sm">Where beautiful events begin</p>
-                  </div>
-                </div>
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  Mirro helps you create beautiful, meaningful events with AI-enhanced tools. 
-                  Generate stunning event pages, manage attendees, and share your moments effortlessly.
-                  Visit <a href="https://www.mirro2.com" className="text-amber-600 hover:text-amber-700 underline" target="_blank" rel="noopener noreferrer">www.mirro2.com</a> for more information.
-                </p>
-              </div>
-
-              {/* Contact Support */}
+            <div className="space-y-3">
+              {/* Contact Support - First */}
               <a
                 href="/support"
-                className="block p-4 glass-card rounded-xl hover:bg-white/10 transition-all duration-200"
+                className="block p-5 bg-white/40 backdrop-blur-sm rounded-2xl hover:bg-white/60 transition-all duration-300 shadow-sm hover:shadow-md"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-500 rounded-lg flex items-center justify-center">
-                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 bg-taupe-700 rounded-xl flex items-center justify-center shadow-sm">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
                     <div>
-                      <p className="text-text-primary font-medium">Contact Support</p>
-                      <p className="text-text-secondary text-sm">Get help with your account or events</p>
+                      <p className="text-text-primary font-light text-base">Contact Support</p>
+                      <p className="text-text-muted text-xs font-light">Get help with your account</p>
                     </div>
                   </div>
-                  <svg className="w-5 h-5 text-text-secondary" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-text-muted" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                   </svg>
                 </div>
               </a>
 
-              {/* Support Information */}
-              <div className="p-4 glass-card rounded-xl">
-                <div className="flex items-center space-x-3 mb-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-500 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                    </svg>
+              {/* Privacy Policy */}
+              <button
+                onClick={() => setShowPrivacyPolicy(true)}
+                className="w-full p-5 bg-white/40 backdrop-blur-sm rounded-2xl hover:bg-white/60 transition-all duration-300 shadow-sm hover:shadow-md"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 bg-taupe-600 rounded-xl flex items-center justify-center shadow-sm">
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-text-primary font-light text-base">Privacy Policy</p>
+                      <p className="text-text-muted text-xs font-light">View our privacy policy</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-text-primary font-medium">Support Email</p>
-                    <p className="text-text-secondary text-sm">mirrosocial@gmail.com</p>
-                  </div>
+                  <svg className="w-5 h-5 text-text-muted" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  </svg>
                 </div>
-                <div className="text-text-secondary text-xs">
-                  <p>• Response within 24 hours</p>
-                  <p>• Technical support & account help</p>
-                  <p>• Feature requests & bug reports</p>
-                </div>
-              </div>
+              </button>
 
               {/* Danger Zone */}
-              <div className="mt-8 pt-6 border-t border-red-200">
-                <h3 className="text-sm font-medium text-red-600 mb-4">Danger Zone</h3>
+              <div className="mt-10 pt-6 border-t border-taupe-200/30">
+                <h3 className="text-xs font-light text-red-600 mb-3 tracking-wide uppercase">Danger Zone</h3>
                 <button
                   onClick={() => setShowDeleteConfirmation(true)}
-                  className="w-full flex items-center justify-between p-4 glass-card rounded-xl border-2 border-red-200 hover:border-red-300 hover:bg-red-50/50 transition-all duration-200"
+                  className="w-full flex items-center justify-between p-5 bg-red-50/50 backdrop-blur-sm rounded-2xl border border-red-200/50 hover:border-red-300 hover:bg-red-50 transition-all duration-300 shadow-sm"
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center shadow-sm">
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clipRule="evenodd" />
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 012-2h4a1 1 0 110 2v6a1 1 0 11-2 0V9a1 1 0 00-1-1H9a1 1 0 01-1-1z" clipRule="evenodd" />
                       </svg>
                     </div>
                     <div className="text-left">
-                      <p className="text-red-700 font-medium">Delete Account</p>
-                      <p className="text-red-600 text-sm">Permanently delete your account and data</p>
+                      <p className="text-red-700 font-light text-base">Delete Account</p>
+                      <p className="text-red-600 text-xs font-light">Permanently delete your data</p>
                     </div>
                   </div>
                   <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
