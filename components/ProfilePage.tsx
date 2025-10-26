@@ -123,6 +123,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
     const [isEventPreviewModalOpen, setIsEventPreviewModalOpen] = useState(false)
     const [previewEvent, setPreviewEvent] = useState<EventWithCreator | null>(null)
     const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+    const [isEditProfileMode, setIsEditProfileMode] = useState(false)
 
     // Fetch user data and events
     useEffect(() => {
@@ -363,6 +364,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                         const updatedUser = await response.json()
                         setUser(updatedUser)
                         setProfilePicture(newProfilePicture)
+                        setIsEditProfileMode(false)
 
                         // Update localStorage with new user data
                         localStorage.setItem('user', JSON.stringify(updatedUser))
@@ -550,8 +552,12 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                             </svg>
                         )}
                     </div>
-                    <label className="absolute bottom-6 right-0 w-8 h-8 bg-taupe-700 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <label className={`absolute bottom-6 right-0 bg-taupe-700 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 ${
+                        isEditProfileMode ? 'w-12 h-12 animate-bounce' : 'w-8 h-8'
+                    }`}>
+                        <svg className={`text-white transition-all duration-300 ${
+                            isEditProfileMode ? 'w-6 h-6' : 'w-4 h-4'
+                        }`} fill="currentColor" viewBox="0 0 20 20">
                             <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
                         </svg>
                         <input type="file" accept="image/*" className="hidden" onChange={handleProfilePictureUpload} />
@@ -602,8 +608,11 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                                 onClick={() => {
                                     setEditName(user.name)
                                     setIsEditingName(true)
+                                    setIsEditProfileMode(false)
                                 }}
-                                className="p-1 text-taupe-400 hover:text-taupe-600 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                                className={`p-1 text-taupe-400 hover:text-taupe-600 transition-all duration-300 ${
+                                    isEditProfileMode ? 'opacity-100 scale-150 animate-pulse text-taupe-600' : 'opacity-0 group-hover:opacity-100'
+                                }`}
                             >
                                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -679,8 +688,11 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                                 onClick={() => {
                                     setEditUsername(user.username)
                                     setIsEditingUsername(true)
+                                    setIsEditProfileMode(false)
                                 }}
-                                className="p-1 text-taupe-400 hover:text-taupe-600 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                                className={`p-1 text-taupe-400 hover:text-taupe-600 transition-all duration-300 ${
+                                    isEditProfileMode ? 'opacity-100 scale-150 animate-pulse text-taupe-600' : 'opacity-0 group-hover:opacity-100'
+                                }`}
                             >
                                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -711,10 +723,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
 
             {/* Events Section with Manage Toggle */}
             <div className="mb-8">
-                <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-base font-light text-text-secondary tracking-wide">
-                        {isManageMode ? "Manage Events" : "My Events"}
-                    </h3>
+                <div className="flex items-center justify-end mb-6">
                     <EventViewToggle
                         isManageMode={isManageMode}
                         onManageModeToggle={setIsManageMode}
@@ -797,6 +806,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                 onClose={() => setIsSettingsOpen(false)}
                 onAccountDeleted={onAccountDeleted}
                 onEditProfile={() => {
+                    setIsEditProfileMode(true)
                     // Scroll to top to show profile editing section
                     window.scrollTo({ top: 0, behavior: 'smooth' })
                 }}
