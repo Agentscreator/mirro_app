@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react"
 import { shareEvent } from "@/lib/utils"
 import { getVisualStylingAsync } from "@/lib/visual-styling-utils"
+import ReportDialog from "@/components/ReportDialog"
 
 interface Attendee {
   id: string
@@ -54,6 +55,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   const [visualStyling, setVisualStyling] = useState<any>(null)
   const [, setIsLoadingVisualStyling] = useState(false)
   const [showAttendeeList, setShowAttendeeList] = useState(false)
+  const [showReportDialog, setShowReportDialog] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   // Load visual styling data (from R2 or inline)
@@ -649,19 +651,46 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                 </div>
               )}
 
-              <button
-                onClick={handleShareEvent}
-                className="w-full bg-gradient-to-r from-taupe-600 to-taupe-700 py-3.5 rounded-2xl font-semibold text-white hover:from-taupe-700 hover:to-taupe-800 transition-all duration-300 flex items-center justify-center space-x-2.5 shadow-lg hover:shadow-xl active:scale-[0.98] ring-1 ring-taupe-800/20"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                </svg>
-                <span className="tracking-wide">Share Event</span>
-              </button>
+              {/* Report and Share Buttons */}
+              <div className="flex space-x-3">
+                {/* Report Button - Left Side */}
+                {currentUserId && event.createdBy !== currentUserId && (
+                  <button
+                    onClick={() => setShowReportDialog(true)}
+                    className="flex-shrink-0 w-14 h-14 bg-red-50 hover:bg-red-100 rounded-2xl flex items-center justify-center text-red-600 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 ring-1 ring-red-200/50"
+                    title="Report event"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                    </svg>
+                  </button>
+                )}
+
+                {/* Share Button - Right Side with Pulsing Animation */}
+                <button
+                  onClick={handleShareEvent}
+                  className="flex-1 bg-gradient-to-r from-taupe-600 to-taupe-700 py-3.5 rounded-2xl font-semibold text-white hover:from-taupe-700 hover:to-taupe-800 transition-all duration-300 flex items-center justify-center space-x-2.5 shadow-lg hover:shadow-xl active:scale-[0.98] ring-1 ring-taupe-800/20 animate-pulse-subtle"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
+                  <span className="tracking-wide">Share Event</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Report Dialog */}
+      <ReportDialog
+        open={showReportDialog}
+        onOpenChange={setShowReportDialog}
+        reporterId={currentUserId}
+        reportedEventId={event.id}
+        contentType="event"
+        contentName={event.title}
+      />
     </div>
   )
 }
