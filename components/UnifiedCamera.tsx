@@ -27,6 +27,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   const [additionalFilter, setAdditionalFilter] = useState<string>('')
   const [timerDelay, setTimerDelay] = useState<number>(0)
   const [countdown, setCountdown] = useState<number>(0)
+  const [isFlipping, setIsFlipping] = useState(false)
   const countdownTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -83,25 +84,33 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
 
   const flipCamera = async () => {
+    setIsFlipping(true)
     const newFacingMode = facingMode === 'user' ? 'environment' : 'user'
-    setFacingMode(newFacingMode)
-
-    // Stop current camera
-    stopCamera()
-
-    // Start camera with new facing mode
+    
+    // Start new camera before stopping old one to prevent white flash
     const result = await requestCameraPermission(mode === "video", newFacingMode);
 
     if (result.success && result.stream) {
+      // Stop old camera only after new one is ready
+      stopCamera()
+      
       streamRef.current = result.stream;
+      setFacingMode(newFacingMode)
+      
       if (videoRef.current) {
         videoRef.current.srcObject = result.stream;
         setupVideoElement(videoRef.current);
+        
+        // Wait for video to be ready before removing flip overlay
+        videoRef.current.onloadedmetadata = () => {
+          setTimeout(() => {
+            setIsFlipping(false)
+          }, 100)
+        }
       }
     } else {
       alert(result.error || "Unable to access camera.");
-      // Revert facing mode if failed
-      setFacingMode(facingMode)
+      setIsFlipping(false)
     }
   }
 
@@ -481,26 +490,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   ]
 
   return (
-    <div className="fixed inset-0 z-50 bg-cream-100 camera-view">
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: white;
-          cursor: pointer;
-          border: 2px solid #10b981;
-        }
-        .slider::-moz-range-thumb {
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: white;
-          cursor: pointer;
-          border: 2px solid #10b981;
-        }
-      `}</style>
+    <div className="fixed inset-0 z-50 bg-black camera-view">
       {/* Camera View */}
       <div className="relative w-full h-full video-container">
         <video
@@ -509,61 +499,80 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           playsInline
           muted
           webkit-playsinline="true"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-opacity duration-200"
           style={{
             transform: facingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)',
             filter: additionalFilter
-              ? `brightness(1.05) contrast(1.05) saturate(1.1) blur(0.3px) ${additionalFilter}`
-              : 'brightness(1.05) contrast(1.05) saturate(1.1) blur(0.3px)'
+              ? `brightness(1.08) contrast(1.08) saturate(1.15) ${additionalFilter}`
+              : 'brightness(1.08) contrast(1.08) saturate(1.15)',
+            opacity: isFlipping ? 0 : 1
           }}
         />
+        
+        {/* Flip transition overlay */}
+        {isFlipping && (
+          <div className="absolute inset-0 bg-black flex items-center justify-center">
+            <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+        )}
 
 
 
-        {/* Top Bar */}
-        <div className="absolute top-0 left-0 right-0 pt-16 px-6 pb-6 flex items-center justify-between camera-header camera-controls">
+        {/* Top Bar - Professional Design */}
+        <div className="absolute top-0 left-0 right-0 pt-14 px-5 pb-4 flex items-center justify-between z-10">
+          {/* Close Button */}
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/40 transition-all"
+            className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/50 transition-all shadow-lg active:scale-95"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
 
-          {/* Mode Toggle - Subtle */}
-          <div className="flex items-center space-x-2 bg-black/30 backdrop-blur-sm rounded-full px-4 py-2">
+          {/* Mode Toggle - Sleek Design */}
+          <div className="flex items-center bg-black/40 backdrop-blur-md rounded-full p-1 shadow-lg">
             <button
               onClick={() => setMode("photo")}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${mode === "photo" ? "bg-white text-text-primary" : "text-white/70"
-                }`}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                mode === "photo" 
+                  ? "bg-white text-gray-900 shadow-md" 
+                  : "text-white/80 hover:text-white"
+              }`}
             >
-              Photo
+              PHOTO
             </button>
             <button
               onClick={() => setMode("video")}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${mode === "video" ? "bg-white text-text-primary" : "text-white/70"
-                }`}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                mode === "video" 
+                  ? "bg-white text-gray-900 shadow-md" 
+                  : "text-white/80 hover:text-white"
+              }`}
             >
-              Video
+              VIDEO
             </button>
           </div>
 
-          <div className="w-10"></div>
+          {/* Flash/Settings placeholder for balance */}
+          <div className="w-11"></div>
         </div>
 
-        {/* Recording Timer */}
+        {/* Recording Timer - Professional */}
         {isRecording && (
-          <div className="absolute top-20 left-1/2 transform -translate-x-1/2">
-            <div className="bg-red-500 text-white px-4 py-2 rounded-full flex items-center space-x-2 shadow-lg">
-              <div className={`w-3 h-3 rounded-full bg-white ${isPaused ? "" : "animate-pulse"}`}></div>
-              <span className="font-medium">{formatTime(recordingTime)}</span>
+          <div className="absolute top-28 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="bg-red-600 text-white px-5 py-2.5 rounded-full flex items-center space-x-2.5 shadow-xl backdrop-blur-sm">
+              <div className={`w-2.5 h-2.5 rounded-full bg-white ${isPaused ? "" : "animate-pulse"}`}></div>
+              <span className="font-mono font-semibold text-base tracking-wider">{formatTime(recordingTime)}</span>
             </div>
           </div>
         )}
 
-        {/* Side Panel - Effects */}
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 space-y-3">
+        {/* Side Panel - Professional Controls */}
+        <div className="absolute right-5 top-1/2 transform -translate-y-1/2 space-y-4 z-10">
           {effects.map((effect) => (
             <button
               key={effect.id}
@@ -574,30 +583,32 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
                   setSelectedEffect(selectedEffect === effect.id ? null : effect.id)
                 }
               }}
-              className={`w-16 h-16 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center transition-all duration-200 ${(effect.id === "flip" && facingMode === "environment") || (selectedEffect === effect.id && effect.id !== "flip")
-                ? "bg-white/95 scale-105 text-text-primary shadow-xl border-2 border-sand-300"
-                : "bg-black/20 hover:bg-black/30 text-white/90 hover:text-white border border-white/20"
-                }`}
+              disabled={isFlipping && effect.id === "flip"}
+              className={`w-14 h-14 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center transition-all duration-200 active:scale-95 ${
+                (effect.id === "flip" && facingMode === "environment") || (selectedEffect === effect.id && effect.id !== "flip")
+                  ? "bg-white/95 text-gray-900 shadow-xl"
+                  : "bg-black/40 hover:bg-black/50 text-white shadow-lg"
+              } ${isFlipping && effect.id === "flip" ? "opacity-50" : ""}`}
             >
-              <div className="mb-1">{effect.icon}</div>
-              <span className="text-[9px] font-medium leading-tight text-center">{effect.name}</span>
+              <div className="scale-90">{effect.icon}</div>
             </button>
           ))}
         </div>
 
-        {/* Filter Selection Panel */}
+        {/* Filter Selection Panel - Professional */}
         {selectedEffect === "filter" && (
-          <div className="absolute bottom-32 left-0 right-0 px-4">
-            <div className="bg-black/40 backdrop-blur-md rounded-2xl p-4">
-              <div className="flex space-x-3 overflow-x-auto">
+          <div className="absolute bottom-36 left-0 right-0 px-5 z-10">
+            <div className="bg-black/50 backdrop-blur-xl rounded-3xl p-4 shadow-2xl">
+              <div className="flex space-x-3 overflow-x-auto pb-1 scrollbar-hide">
                 {filters.map((filter) => (
                   <button
                     key={filter.id}
                     onClick={() => setAdditionalFilter(filter.filter)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all ${additionalFilter === filter.filter
-                      ? "bg-white text-text-primary"
-                      : "bg-white/20 text-white hover:bg-white/30"
-                      }`}
+                    className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all active:scale-95 ${
+                      additionalFilter === filter.filter
+                        ? "bg-white text-gray-900 shadow-lg"
+                        : "bg-white/20 text-white hover:bg-white/30"
+                    }`}
                   >
                     {filter.name}
                   </button>
@@ -607,19 +618,20 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           </div>
         )}
 
-        {/* Timer Selection Panel */}
+        {/* Timer Selection Panel - Professional */}
         {selectedEffect === "timer" && (
-          <div className="absolute bottom-32 left-0 right-0 px-4">
-            <div className="bg-black/40 backdrop-blur-md rounded-2xl p-4">
-              <div className="flex space-x-3 overflow-x-auto">
+          <div className="absolute bottom-36 left-0 right-0 px-5 z-10">
+            <div className="bg-black/50 backdrop-blur-xl rounded-3xl p-4 shadow-2xl">
+              <div className="flex space-x-3 overflow-x-auto pb-1 scrollbar-hide">
                 {timerOptions.map((timer) => (
                   <button
                     key={timer.id}
                     onClick={() => setTimerDelay(timer.seconds)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all ${timerDelay === timer.seconds
-                      ? "bg-white text-text-primary"
-                      : "bg-white/20 text-white hover:bg-white/30"
-                      }`}
+                    className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all active:scale-95 ${
+                      timerDelay === timer.seconds
+                        ? "bg-white text-gray-900 shadow-lg"
+                        : "bg-white/20 text-white hover:bg-white/30"
+                    }`}
                   >
                     {timer.name}
                   </button>
@@ -638,58 +650,62 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           </div>
         )}
 
-        {/* Bottom Controls */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 pb-12 camera-footer camera-controls">
-          <div className="flex items-center justify-center space-x-8">
-            {/* Upload Button */}
+        {/* Bottom Controls - Professional Design */}
+        <div className="absolute bottom-0 left-0 right-0 pb-10 pt-6 px-6 z-10">
+          <div className="flex items-center justify-between max-w-md mx-auto">
+            {/* Gallery/Upload Button */}
             <button
               onClick={handleUpload}
-              className="flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm hover:bg-white transition-all shadow-lg rounded-2xl px-4 py-3 min-w-[80px] camera-button touch-target"
+              className="w-14 h-14 rounded-2xl bg-black/40 backdrop-blur-md hover:bg-black/50 transition-all shadow-lg flex items-center justify-center active:scale-95"
             >
-              <svg className="w-6 h-6 text-text-primary mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
-              <span className="text-xs font-medium text-text-primary">Upload</span>
             </button>
 
-            {/* Record/Capture Button - Darker Beige/Red */}
+            {/* Capture Button - Premium Design */}
             <button
               onClick={handleCapture}
-              className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all hover:scale-105 record-button touch-target"
-              style={{ backgroundColor: "#A67C6D" }}
+              className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all active:scale-95 shadow-2xl"
+              style={{ 
+                background: isRecording 
+                  ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' 
+                  : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%)',
+                border: '4px solid rgba(0, 0, 0, 0.3)'
+              }}
             >
               {mode === "photo" ? (
-                <div className="w-16 h-16 rounded-full bg-white"></div>
+                <div className="w-16 h-16 rounded-full bg-white shadow-inner"></div>
               ) : isRecording ? (
-                <div className="w-8 h-8 rounded bg-white"></div>
+                <div className="w-7 h-7 rounded-md bg-white shadow-inner"></div>
               ) : (
-                <div className="w-16 h-16 rounded-full bg-white"></div>
+                <div className="w-16 h-16 rounded-full bg-red-600 shadow-inner"></div>
               )}
             </button>
 
-            {/* Pause Button (only visible when recording) */}
-            {isRecording && (
+            {/* Pause/Placeholder Button */}
+            {isRecording ? (
               <button
                 onClick={togglePause}
-                className="w-14 h-14 rounded-2xl bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-all shadow-lg"
+                className="w-14 h-14 rounded-2xl bg-black/40 backdrop-blur-md hover:bg-black/50 transition-all shadow-lg flex items-center justify-center active:scale-95"
               >
                 {isPaused ? (
-                  <svg className="w-7 h-7 text-text-primary" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 ) : (
-                  <svg className="w-7 h-7 text-text-primary" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                   </svg>
                 )}
               </button>
+            ) : (
+              <div className="w-14"></div>
             )}
-            {!isRecording && <div className="w-14"></div>}
           </div>
         </div>
       </div>
