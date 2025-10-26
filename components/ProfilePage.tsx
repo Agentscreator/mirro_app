@@ -525,7 +525,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
     }, [eventViewMode, userEvents, joinedEvents])
 
     return (
-        <div className="px-6 py-2 pb-24">
+        <div className="px-6 py-2 pb-32">
             {/* Profile Header */}
             <div className="text-center mb-10 relative">
                 {/* Hamburger Menu Button */}

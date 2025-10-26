@@ -342,7 +342,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
 
   return (
     <>
-      <div className="px-6 py-6 pb-24">
+      <div className="px-6 py-6 pb-32">
         {/* Step Navigation */}
         <div className="mb-10">
           {/* Step Indicators */}
