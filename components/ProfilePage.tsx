@@ -523,9 +523,9 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
     }, [eventViewMode, userEvents, joinedEvents])
 
     return (
-        <div className="px-6 py-4 pb-24">
+        <div className="px-6 py-2 pb-24">
             {/* Profile Header */}
-            <div className="text-center mb-8 relative">
+            <div className="text-center mb-10 relative">
                 {/* Hamburger Menu Button */}
                 <button
                     onClick={() => setIsSettingsOpen(true)}
@@ -537,7 +537,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                 </button>
 
                 <div className="relative inline-block">
-                    <div className="w-24 h-24 glass-card rounded-full mx-auto mb-6 flex items-center justify-center soft-shadow hover-lift overflow-hidden">
+                    <div className="w-28 h-28 rounded-full mx-auto mb-6 flex items-center justify-center overflow-hidden bg-white/30 backdrop-blur-sm shadow-md">
                         {profilePicture ? (
                             <img src={profilePicture || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
@@ -550,7 +550,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                             </svg>
                         )}
                     </div>
-                    <label className="absolute bottom-6 right-0 w-8 h-8 bg-gradient-to-br from-taupe-400 to-taupe-500 rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
+                    <label className="absolute bottom-6 right-0 w-8 h-8 bg-taupe-700 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
                         <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
                         </svg>
@@ -597,7 +597,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                         </div>
                     ) : (
                         <div className="group flex items-center justify-center space-x-1">
-                            <h2 className="text-2xl font-normal text-text-primary">{user.name}</h2>
+                            <h2 className="text-2xl font-light text-text-primary tracking-wide">{user.name}</h2>
                             <button
                                 onClick={() => {
                                     setEditName(user.name)
@@ -690,21 +690,21 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                     )}
                 </div>
 
-                {/* Followers/Following */}
-                <div className="flex items-center justify-center space-x-6 mt-4">
+                {/* Subscribers/Subscriptions */}
+                <div className="flex items-center justify-center space-x-8 mt-6">
                     <button
                         onClick={() => setIsFollowersModalOpen(true)}
-                        className="text-center hover:bg-taupe-50 rounded-lg p-2 transition-colors duration-200"
+                        className="text-center transition-colors duration-200"
                     >
-                        <div className="text-lg font-medium text-text-primary">{user.followersCount || '0'}</div>
-                        <div className="text-xs text-text-muted font-normal">Followers</div>
+                        <div className="text-2xl font-extralight text-text-primary">{user.followersCount || '0'}</div>
+                        <div className="text-xs text-text-muted font-light tracking-wide">Subscribers</div>
                     </button>
                     <button
                         onClick={() => setIsFollowingModalOpen(true)}
-                        className="text-center hover:bg-taupe-50 rounded-lg p-2 transition-colors duration-200"
+                        className="text-center transition-colors duration-200"
                     >
-                        <div className="text-lg font-medium text-text-primary">{user.followingCount || '0'}</div>
-                        <div className="text-xs text-text-muted font-normal">Following</div>
+                        <div className="text-2xl font-extralight text-text-primary">{user.followingCount || '0'}</div>
+                        <div className="text-xs text-text-muted font-light tracking-wide">Subscriptions</div>
                     </button>
                 </div>
             </div>
@@ -712,7 +712,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
             {/* Events Section with Manage Toggle */}
             <div className="mb-8">
                 <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-medium text-text-secondary">
+                    <h3 className="text-base font-light text-text-secondary tracking-wide">
                         {isManageMode ? "Manage Events" : "My Events"}
                     </h3>
                     <EventViewToggle

@@ -8,31 +8,13 @@ interface BottomNavigationProps {
 export default function BottomNavigation({ currentPage, onPageChange }: BottomNavigationProps) {
   return (
     <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md">
-      <div className="glass-card mx-4 mb-4 rounded-3xl px-6 py-3 shadow-lg">
+      <div className="glass-card mx-4 mb-4 rounded-3xl px-8 py-4 shadow-lg">
         <div className="flex items-center justify-around">
           <button
-            onClick={() => onPageChange("profile")}
-            className={`flex flex-col items-center space-y-1 py-2 px-4 rounded-2xl transition-all duration-200 ${
-              currentPage === "profile"
-                ? "gradient-primary text-white shadow-md"
-                : "text-text-muted hover:text-text-secondary"
-            }`}
-          >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                clipRule="evenodd"
-              ></path>
-            </svg>
-            <span className="text-xs font-medium">Profile</span>
-          </button>
-
-          <button
             onClick={() => onPageChange("create")}
-            className={`flex flex-col items-center space-y-1 py-2 px-4 rounded-2xl transition-all duration-200 ${
+            className={`flex flex-col items-center space-y-1 py-2 px-6 rounded-2xl transition-all duration-200 ${
               currentPage === "create"
-                ? "gradient-primary text-white shadow-md"
+                ? "bg-taupe-800 text-white shadow-md"
                 : "text-text-muted hover:text-text-secondary"
             }`}
           >
@@ -43,18 +25,26 @@ export default function BottomNavigation({ currentPage, onPageChange }: BottomNa
                 clipRule="evenodd"
               ></path>
             </svg>
-            <span className="text-xs font-medium">Create</span>
+            <span className="text-xs font-light">Create</span>
           </button>
 
-          <a
-            href="/support"
-            className="flex flex-col items-center space-y-1 py-2 px-3 rounded-2xl transition-all duration-200 text-text-muted hover:text-text-secondary"
+          <button
+            onClick={() => onPageChange("profile")}
+            className={`flex flex-col items-center space-y-1 py-2 px-6 rounded-2xl transition-all duration-200 ${
+              currentPage === "profile"
+                ? "bg-taupe-800 text-white shadow-md"
+                : "text-text-muted hover:text-text-secondary"
+            }`}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                clipRule="evenodd"
+              ></path>
             </svg>
-            <span className="text-xs font-medium">Help</span>
-          </a>
+            <span className="text-xs font-light">Profile</span>
+          </button>
         </div>
       </div>
     </nav>
