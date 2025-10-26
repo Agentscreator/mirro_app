@@ -131,20 +131,8 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
       </div>
 
       <div className="relative h-full flex flex-col justify-between p-5 text-white">
-        {/* Top section with AI indicator and action buttons */}
-        <div className="flex justify-between items-start">
-          {/* AI Styling Indicator - Elegant Badge */}
-          {visualStyling && (
-            <div className="bg-gradient-to-r from-purple-500/90 to-pink-500/90 backdrop-blur-md rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-lg border border-white/20">
-              <div className="flex items-center space-x-1.5">
-                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"/>
-                </svg>
-                <span className="tracking-wide">AI</span>
-              </div>
-            </div>
-          )}
-          
+        {/* Top section with action buttons */}
+        <div className="flex justify-end items-start">
           <div className="flex space-x-2">
           {isManageMode && canEdit ? (
             <>

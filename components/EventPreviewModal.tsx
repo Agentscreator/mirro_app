@@ -434,20 +434,9 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
         <div className="h-[55%] overflow-y-auto">
           <div className="p-6 flex flex-col min-h-full">
             {/* Event Title with AI font styling */}
-            <div className="flex items-start justify-between mb-4">
-              <h2 className={`text-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-gray-900 tracking-tight flex-1`}>
-                {event.title}
-              </h2>
-              {/* AI Badge in Modal */}
-              {visualStyling && (
-                <div className="ml-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full px-3 py-1 text-xs font-semibold text-white shadow-md flex items-center space-x-1">
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" />
-                  </svg>
-                  <span>AI</span>
-                </div>
-              )}
-            </div>
+            <h2 className={`text-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-gray-900 tracking-tight mb-4`}>
+              {event.title}
+            </h2>
 
 
 
@@ -662,12 +651,12 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
               <button
                 onClick={handleShareEvent}
-                className="w-full bg-gray-100 py-3 rounded-2xl font-medium text-gray-700 hover:bg-gray-200 transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm"
+                className="w-full bg-gradient-to-r from-taupe-600 to-taupe-700 py-3.5 rounded-2xl font-semibold text-white hover:from-taupe-700 hover:to-taupe-800 transition-all duration-300 flex items-center justify-center space-x-2.5 shadow-lg hover:shadow-xl active:scale-[0.98] ring-1 ring-taupe-800/20"
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                 </svg>
-                <span>Share Event</span>
+                <span className="tracking-wide">Share Event</span>
               </button>
             </div>
           </div>
