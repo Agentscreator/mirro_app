@@ -15,6 +15,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedMedia, setSelectedMedia] = useState<{ type: string; data: string } | null>(null)
   const [showCamera, setShowCamera] = useState(false)
+  const [showUploadSuccess, setShowUploadSuccess] = useState(false)
   const [aiMethod, setAiMethod] = useState<string | null>(null)
   const [aiGeneratedContent, setAiGeneratedContent] = useState<string | null>(null)
   const [aiPromptInput, setAiPromptInput] = useState<string>("")
@@ -119,8 +120,13 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
   const handleCameraCapture = (data: string, type: "photo" | "video") => {
     setSelectedMedia({ type: type === "photo" ? "image" : "video", data })
     setShowCamera(false)
-    // Automatically move to AI generation step after media is uploaded
-    setCurrentStep(2)
+    
+    // Show success message for 2.5 seconds before moving to AI generation step
+    setShowUploadSuccess(true)
+    setTimeout(() => {
+      setShowUploadSuccess(false)
+      setCurrentStep(2)
+    }, 2500)
   }
 
   const handleAIMethodSelect = (method: string) => {
@@ -587,6 +593,23 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
       </div>
 
       {showCamera && <UnifiedCamera onCapture={handleCameraCapture} onClose={() => setShowCamera(false)} />}
+      
+      {/* Upload Success Modal */}
+      {showUploadSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-gradient-to-b from-cream-50 to-cream-100 rounded-3xl p-8 max-w-sm mx-4 shadow-2xl animate-slide-up">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-light text-text-primary mb-2">Media Uploaded!</h3>
+              <p className="text-text-secondary text-sm">Your {selectedMedia?.type} has been uploaded successfully</p>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

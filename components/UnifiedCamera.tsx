@@ -521,7 +521,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
 
         {/* Top Bar */}
-        <div className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between camera-header camera-controls">
+        <div className="absolute top-0 left-0 right-0 pt-16 px-6 pb-6 flex items-center justify-between camera-header camera-controls">
           <button
             onClick={onClose}
             className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/40 transition-all"
