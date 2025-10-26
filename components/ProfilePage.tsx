@@ -796,6 +796,10 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                 isOpen={isSettingsOpen}
                 onClose={() => setIsSettingsOpen(false)}
                 onAccountDeleted={onAccountDeleted}
+                onEditProfile={() => {
+                    // Scroll to top to show profile editing section
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                }}
             />
         </div>
     )

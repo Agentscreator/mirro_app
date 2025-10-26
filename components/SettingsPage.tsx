@@ -6,12 +6,14 @@ interface SettingsPageProps {
   isOpen: boolean
   onClose: () => void
   onAccountDeleted?: () => void
+  onEditProfile?: () => void
 }
 
-export default function SettingsPage({ isOpen, onClose, onAccountDeleted }: SettingsPageProps) {
+export default function SettingsPage({ isOpen, onClose, onAccountDeleted, onEditProfile }: SettingsPageProps) {
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false)
   const [showContactSupport, setShowContactSupport] = useState(false)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+  const [showEditProfile, setShowEditProfile] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
   const handleDeleteAccount = async () => {
@@ -227,9 +229,37 @@ For European users, additional rights and protections apply under GDPR, includin
                 </div>
               </div>
             </div>
-          ) : !showPrivacyPolicy && !showContactSupport ? (
+          ) : !showPrivacyPolicy && !showContactSupport && !showEditProfile ? (
             <div className="space-y-3">
-              {/* Contact Support - First */}
+              {/* Edit Profile */}
+              <button
+                onClick={() => {
+                  onClose()
+                  if (onEditProfile) {
+                    onEditProfile()
+                  }
+                }}
+                className="w-full p-5 bg-white/40 backdrop-blur-sm rounded-2xl hover:bg-white/60 transition-all duration-300 shadow-sm hover:shadow-md"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 bg-taupe-600 rounded-xl flex items-center justify-center shadow-sm">
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+                      </svg>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-text-primary font-light text-base">Edit Profile</p>
+                      <p className="text-text-muted text-xs font-light">Update your profile information</p>
+                    </div>
+                  </div>
+                  <svg className="w-5 h-5 text-text-muted" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </button>
+
+              {/* Contact Support */}
               <button
                 onClick={() => setShowContactSupport(true)}
                 className="w-full p-5 bg-white/40 backdrop-blur-sm rounded-2xl hover:bg-white/60 transition-all duration-300 shadow-sm hover:shadow-md"

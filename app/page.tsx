@@ -261,7 +261,7 @@ function EventsAppContent() {
       {/* Header */}
       <header className="px-6 pt-12 pb-6 flex items-center justify-between">
         <h1 className="text-xl font-light text-text-primary tracking-wide">
-          {currentPage === "profile" ? "My Events" : "Create Event"}
+          {currentPage === "create" ? "Create Event" : ""}
         </h1>
         <button
           onClick={handleLogout}
