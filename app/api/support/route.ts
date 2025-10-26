@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialize Resend only when needed
+let resend: Resend | null = null;
+
+function getResendClient(): Resend {
+  if (!resend) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send support request email
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: process.env.FROM_EMAIL,
       to: ['mirrosocial@gmail.com'],
       replyTo: email,
@@ -53,7 +61,7 @@ export async function POST(request: NextRequest) {
 
     // Send confirmation email to user
     try {
-      await resend.emails.send({
+      await getResendClient().emails.send({
         from: process.env.FROM_EMAIL,
         to: [email],
         subject: 'Support Request Received - Mirro',

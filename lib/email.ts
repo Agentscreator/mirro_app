@@ -1,7 +1,14 @@
 import { Resend } from 'resend';
 
-// Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialize Resend only when needed
+let resend: Resend | null = null;
+
+function getResendClient(): Resend {
+  if (!resend) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+}
 
 export async function sendWelcomeEmail(email: string, name: string): Promise<boolean> {
   try {
@@ -25,7 +32,7 @@ export async function sendWelcomeEmail(email: string, name: string): Promise<boo
     }
 
     // Send welcome email using Resend
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: process.env.FROM_EMAIL,
       to: [email],
       subject: 'Welcome to Mirro - Where Beautiful Events Begin',
@@ -74,7 +81,7 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
     console.log(`Attempting to send email from: ${process.env.FROM_EMAIL}`);
 
     // Send email using Resend
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: process.env.FROM_EMAIL,
       to: [email],
       subject: 'Reset Your Password - Mirro',
