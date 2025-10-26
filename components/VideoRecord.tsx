@@ -279,6 +279,9 @@ export default function VideoRecorder({ onComplete, onClose }: VideoRecorderProp
                             muted 
                             webkit-playsinline="true"
                             className="w-full h-full object-cover"
+                            style={{
+                                transform: facingMode === "environment" ? "scaleX(-1)" : "none"
+                            }}
                         />
 
                         {/* Recording Timer Overlay */}
