@@ -163,7 +163,20 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
             </>
           ) : (
             <>
-              {/* Share Button - Only button at top right with Pulsing Animation */}
+              {/* Report Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowReportDialog(true);
+                }}
+                className="p-2.5 rounded-xl bg-red-500/30 backdrop-blur-md text-white hover:bg-red-500/40 transition-all duration-200 shadow-lg ring-1 ring-white/20"
+                title="Report event"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                </svg>
+              </button>
+              {/* Share Button with Pulsing Animation */}
               <button
                 onClick={async (e) => {
                   e.stopPropagation();
@@ -234,33 +247,15 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
           </div>
           
           {event.location && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center text-xs text-white/90 drop-shadow-md font-medium">
-                <svg className="w-4 h-4 mr-1.5 opacity-90" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                    clipRule="evenodd"
-                  ></path>
-                </svg>
-                <span className="tracking-wide">{event.location}</span>
-              </div>
-              
-              {/* Report Button - Next to location (only show if not the creator) */}
-              {!canEdit && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowReportDialog(true);
-                  }}
-                  className="p-1.5 rounded-lg bg-red-500/20 backdrop-blur-sm text-white hover:bg-red-500/30 transition-all duration-200 shadow-sm"
-                  title="Report event"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
-                  </svg>
-                </button>
-              )}
+            <div className="flex items-center text-xs text-white/90 drop-shadow-md font-medium">
+              <svg className="w-4 h-4 mr-1.5 opacity-90" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                  clipRule="evenodd"
+                ></path>
+              </svg>
+              <span className="tracking-wide">{event.location}</span>
             </div>
           )}
         </div>
