@@ -8,32 +8,27 @@ interface BottomNavigationProps {
 export default function BottomNavigation({ currentPage, onPageChange }: BottomNavigationProps) {
   return (
     <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md">
-      <div className="glass-card mx-4 mb-4 rounded-3xl px-8 py-4 shadow-lg">
+      <div className="mx-6 mb-6 px-8 py-3 bg-taupe-800/95 backdrop-blur-md rounded-full shadow-xl">
         <div className="flex items-center justify-around">
           <button
-            onClick={() => onPageChange("create")}
-            className={`flex flex-col items-center space-y-1 py-2 px-6 rounded-2xl transition-all duration-200 ${
-              currentPage === "create"
-                ? "bg-taupe-800 text-white shadow-md"
-                : "text-text-muted hover:text-text-secondary"
+            onClick={() => onPageChange("profile")}
+            className={`p-3 rounded-full transition-all duration-300 ${
+              currentPage === "profile"
+                ? "bg-white text-taupe-800"
+                : "text-white/70 hover:text-white hover:bg-white/10"
             }`}
           >
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                clipRule="evenodd"
-              ></path>
+              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
             </svg>
-            <span className="text-xs font-light">Create</span>
           </button>
 
           <button
-            onClick={() => onPageChange("profile")}
-            className={`flex flex-col items-center space-y-1 py-2 px-6 rounded-2xl transition-all duration-200 ${
-              currentPage === "profile"
-                ? "bg-taupe-800 text-white shadow-md"
-                : "text-text-muted hover:text-text-secondary"
+            onClick={() => onPageChange("create")}
+            className={`p-3 rounded-full transition-all duration-300 ${
+              currentPage === "create"
+                ? "bg-white text-taupe-800"
+                : "text-white/70 hover:text-white hover:bg-white/10"
             }`}
           >
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -43,7 +38,6 @@ export default function BottomNavigation({ currentPage, onPageChange }: BottomNa
                 clipRule="evenodd"
               ></path>
             </svg>
-            <span className="text-xs font-light">Profile</span>
           </button>
         </div>
       </div>

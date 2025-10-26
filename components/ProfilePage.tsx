@@ -524,106 +524,56 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
 
     return (
         <div className="px-6 py-2 pb-24">
-            {/* Profile Header */}
-            <div className="text-center mb-10 relative">
-                {/* Hamburger Menu Button */}
+            {/* Hamburger Menu Button - Top Right */}
+            <div className="flex justify-end mb-6">
                 <button
                     onClick={() => setIsSettingsOpen(true)}
-                    className="absolute top-0 right-0 p-2 glass-card rounded-xl hover:bg-white/10 transition-all duration-200"
+                    className="p-2 hover:bg-taupe-100/30 rounded-full transition-all duration-200"
                 >
-                    <svg className="w-5 h-5 text-text-secondary" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-text-muted" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" />
                     </svg>
                 </button>
+            </div>
 
-                <div className="relative inline-block">
-                    <div className="w-28 h-28 rounded-full mx-auto mb-6 flex items-center justify-center overflow-hidden bg-white/30 backdrop-blur-sm shadow-md">
-                        {profilePicture ? (
-                            <img src={profilePicture || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
-                        ) : (
-                            <svg className="w-12 h-12 text-taupe-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    fillRule="evenodd"
-                                    d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                    clipRule="evenodd"
-                                ></path>
+            {/* Elegant User Card */}
+            <div className="mb-8 p-6 bg-gradient-to-br from-taupe-100/40 to-taupe-50/40 backdrop-blur-sm rounded-3xl shadow-sm">
+                <div className="flex items-center space-x-4">
+                    {/* Profile Picture */}
+                    <div className="relative">
+                        <div className="w-16 h-16 rounded-full overflow-hidden bg-white/50 shadow-sm">
+                            {profilePicture ? (
+                                <img src={profilePicture || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <svg className="w-8 h-8 text-taupe-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                            clipRule="evenodd"
+                                        ></path>
+                                    </svg>
+                                </div>
+                            )}
+                        </div>
+                        <label className="absolute -bottom-1 -right-1 w-6 h-6 bg-taupe-700 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
                             </svg>
-                        )}
+                            <input type="file" accept="image/*" className="hidden" onChange={handleProfilePictureUpload} />
+                        </label>
                     </div>
-                    <label className="absolute bottom-6 right-0 w-8 h-8 bg-taupe-700 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
-                        </svg>
-                        <input type="file" accept="image/*" className="hidden" onChange={handleProfilePictureUpload} />
-                    </label>
-                </div>
-                {/* Name editing */}
-                <div className="mb-2">
-                    {isEditingName ? (
-                        <div className="flex items-center justify-center space-x-2">
-                            <input
-                                type="text"
-                                value={editName}
-                                onChange={(e) => setEditName(e.target.value)}
-                                className="text-2xl font-normal text-text-primary bg-transparent border-b-2 border-taupe-300 focus:border-taupe-500 outline-none text-center"
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') handleNameEdit()
-                                    if (e.key === 'Escape') {
-                                        setEditName(user.name)
-                                        setIsEditingName(false)
-                                    }
-                                }}
-                                autoFocus
-                            />
-                            <button
-                                onClick={handleNameEdit}
-                                className="p-1 text-green-600 hover:text-green-700 transition-colors duration-200"
-                            >
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setEditName(user.name)
-                                    setIsEditingName(false)
-                                }}
-                                className="p-1 text-red-600 hover:text-red-700 transition-colors duration-200"
-                            >
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                </svg>
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="group flex items-center justify-center space-x-1">
-                            <h2 className="text-2xl font-light text-text-primary tracking-wide">{user.name}</h2>
-                            <button
-                                onClick={() => {
-                                    setEditName(user.name)
-                                    setIsEditingName(true)
-                                }}
-                                className="p-1 text-taupe-400 hover:text-taupe-600 opacity-0 group-hover:opacity-100 transition-all duration-300"
-                            >
-                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                </svg>
-                            </button>
-                        </div>
-                    )}
-                </div>
 
-                {/* Username editing */}
-                <div className="mb-4">
-                    {isEditingUsername ? (
-                        <div className="flex flex-col items-center space-y-3">
+                    {/* Username */}
+                    <div className="flex-1">
+                        {isEditingUsername ? (
                             <div className="flex items-center space-x-2">
-                                <span className="text-text-secondary">@</span>
+                                <span className="text-text-muted text-sm">@</span>
                                 <input
                                     type="text"
                                     value={editUsername}
                                     onChange={(e) => handleUsernameChange(e.target.value)}
-                                    className="text-text-secondary font-normal bg-transparent border-b-2 border-taupe-300 focus:border-taupe-500 outline-none text-center"
+                                    className="text-text-primary font-light text-lg bg-transparent border-b border-taupe-300 focus:border-taupe-600 outline-none"
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') handleUsernameEdit()
                                         if (e.key === 'Escape') {
@@ -656,65 +606,51 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                                     </svg>
                                 </button>
                             </div>
-                            {usernameChecking && (
-                                <p className="text-xs text-taupe-500 flex items-center space-x-1">
-                                    <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        ) : (
+                            <div className="group flex items-center space-x-2">
+                                <p className="text-text-primary font-light text-lg">@{user.username}</p>
+                                <button
+                                    onClick={() => {
+                                        setEditUsername(user.username)
+                                        setIsEditingUsername(true)
+                                    }}
+                                    className="p-1 text-taupe-400 hover:text-taupe-600 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                                >
+                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                     </svg>
-                                    <span>Checking...</span>
-                                </p>
-                            )}
-                            {usernameError && (
-                                <p className="text-xs text-red-500">{usernameError}</p>
-                            )}
-                            {!usernameChecking && !usernameError && editUsername !== user.username && editUsername.length >= 3 && (
-                                <p className="text-xs text-green-600">Available!</p>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="group flex items-center justify-center space-x-1">
-                            <p className="text-text-secondary font-normal">@{user.username}</p>
-                            <button
-                                onClick={() => {
-                                    setEditUsername(user.username)
-                                    setIsEditingUsername(true)
-                                }}
-                                className="p-1 text-taupe-400 hover:text-taupe-600 opacity-0 group-hover:opacity-100 transition-all duration-300"
-                            >
-                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                </svg>
-                            </button>
-                        </div>
-                    )}
-                </div>
+                                </button>
+                            </div>
+                        )}
+                        {usernameError && (
+                            <p className="text-xs text-red-500 mt-1">{usernameError}</p>
+                        )}
+                    </div>
 
-                {/* Subscribers/Subscriptions */}
-                <div className="flex items-center justify-center space-x-8 mt-6">
-                    <button
-                        onClick={() => setIsFollowersModalOpen(true)}
-                        className="text-center transition-colors duration-200"
-                    >
-                        <div className="text-2xl font-extralight text-text-primary">{user.followersCount || '0'}</div>
-                        <div className="text-xs text-text-muted font-light tracking-wide">Subscribers</div>
-                    </button>
-                    <button
-                        onClick={() => setIsFollowingModalOpen(true)}
-                        className="text-center transition-colors duration-200"
-                    >
-                        <div className="text-2xl font-extralight text-text-primary">{user.followingCount || '0'}</div>
-                        <div className="text-xs text-text-muted font-light tracking-wide">Subscriptions</div>
-                    </button>
+                    {/* Subscribers/Subscriptions */}
+                    <div className="flex items-center space-x-6">
+                        <button
+                            onClick={() => setIsFollowersModalOpen(true)}
+                            className="text-center transition-colors duration-200"
+                        >
+                            <div className="text-lg font-light text-text-primary">{user.followersCount || '0'}</div>
+                            <div className="text-xs text-text-muted font-light">Subscribers</div>
+                        </button>
+                        <div className="w-px h-8 bg-taupe-200"></div>
+                        <button
+                            onClick={() => setIsFollowingModalOpen(true)}
+                            className="text-center transition-colors duration-200"
+                        >
+                            <div className="text-lg font-light text-text-primary">{user.followingCount || '0'}</div>
+                            <div className="text-xs text-text-muted font-light">Subscriptions</div>
+                        </button>
+                    </div>
                 </div>
             </div>
 
             {/* Events Section with Manage Toggle */}
             <div className="mb-8">
-                <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-base font-light text-text-secondary tracking-wide">
-                        {isManageMode ? "Manage Events" : "My Events"}
-                    </h3>
+                <div className="flex items-center justify-end mb-6">
                     <EventViewToggle
                         isManageMode={isManageMode}
                         onManageModeToggle={setIsManageMode}
