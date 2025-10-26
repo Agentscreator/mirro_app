@@ -511,7 +511,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           webkit-playsinline="true"
           className="w-full h-full object-cover"
           style={{
-            transform: 'scaleX(-1)',
+            transform: facingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)',
             filter: additionalFilter
               ? `brightness(1.05) contrast(1.05) saturate(1.1) blur(0.3px) ${additionalFilter}`
               : 'brightness(1.05) contrast(1.05) saturate(1.1) blur(0.3px)'
