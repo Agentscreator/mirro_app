@@ -103,7 +103,7 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
 
   return (
     <div
-      className="relative rounded-3xl overflow-hidden soft-shadow hover-lift transition-all duration-300 cursor-pointer h-80"
+      className="relative rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer h-80 group"
       onClick={() => onPreview(event)}
     >
       <div className="absolute inset-0">
@@ -111,34 +111,36 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
           <img
             src={event.mediaUrl}
             alt={event.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : event.mediaUrl && event.mediaType === "video" ? (
           <video
             src={event.mediaUrl}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             muted
             loop
             autoPlay
           />
         ) : (
-          <div className={`w-full h-full ${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-br ${displayGradient}`}`} />
+          <div className={`w-full h-full ${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-br ${displayGradient}`} transition-transform duration-500 group-hover:scale-105`} />
         )}
-        {/* Dark gradient overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+        {/* Refined gradient overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        {/* Subtle inner border for premium feel */}
+        <div className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/10" />
       </div>
 
       <div className="relative h-full flex flex-col justify-between p-5 text-white">
         {/* Top section with AI indicator and action buttons */}
         <div className="flex justify-between items-start">
-          {/* AI Styling Indicator */}
+          {/* AI Styling Indicator - Elegant Badge */}
           {visualStyling && (
-            <div className="bg-white/20 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-medium text-white shadow-lg">
-              <div className="flex items-center space-x-1">
-                <svg className="w-3 h-3 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
+            <div className="bg-gradient-to-r from-purple-500/90 to-pink-500/90 backdrop-blur-md rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-lg border border-white/20">
+              <div className="flex items-center space-x-1.5">
+                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"/>
                 </svg>
-                <span>AI</span>
+                <span className="tracking-wide">AI</span>
               </div>
             </div>
           )}
@@ -203,31 +205,31 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
 
         {/* Bottom section with event details */}
         <div>
-          <h4 className="font-semibold text-xl mb-2 drop-shadow-lg">{event.title}</h4>
-          <p className="text-sm text-white/90 mb-3 font-normal leading-relaxed drop-shadow-md line-clamp-2">
+          <h4 className="font-semibold text-xl mb-2 drop-shadow-lg tracking-tight">{event.title}</h4>
+          <p className="text-sm text-white/95 mb-3 font-light leading-relaxed drop-shadow-md line-clamp-2">
             {event.description}
           </p>
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center text-xs text-white/80 drop-shadow-md">
-              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex items-center text-xs text-white/90 drop-shadow-md font-medium">
+              <svg className="w-4 h-4 mr-1.5 opacity-90" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
                   clipRule="evenodd"
                 ></path>
               </svg>
-              {event.date} • {formatTimeWithAMPM(event.time)}
+              <span className="tracking-wide">{event.date} • {formatTimeWithAMPM(event.time)}</span>
             </div>
             
-            {/* Attendees */}
+            {/* Attendees - Refined Design */}
             {event.attendeeCount && event.attendeeCount > 0 && (
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-2">
                 {event.attendees && event.attendees.length > 0 && (
-                  <div className="flex -space-x-1">
+                  <div className="flex -space-x-2">
                     {event.attendees.slice(0, 3).map((attendee, index) => (
                       <div
                         key={attendee.id}
-                        className="w-6 h-6 rounded-full border border-white overflow-hidden shadow-sm"
+                        className="w-7 h-7 rounded-full border-2 border-white overflow-hidden shadow-md ring-1 ring-black/10"
                         style={{ zIndex: 10 - index }}
                       >
                         {attendee.profilePicture ? (
@@ -237,8 +239,8 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gray-400 flex items-center justify-center">
-                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+                            <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                             </svg>
                           </div>
@@ -247,7 +249,7 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
                     ))}
                   </div>
                 )}
-                <span className="text-xs text-white/80">
+                <span className="text-xs text-white/90 font-medium tracking-wide">
                   {event.attendeeCount} attending
                 </span>
               </div>
@@ -255,15 +257,15 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
           </div>
           
           {event.location && (
-            <div className="flex items-center text-xs text-white/80 drop-shadow-md">
-              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex items-center text-xs text-white/90 drop-shadow-md font-medium">
+              <svg className="w-4 h-4 mr-1.5 opacity-90" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
                   clipRule="evenodd"
                 ></path>
               </svg>
-              {event.location}
+              <span className="tracking-wide">{event.location}</span>
             </div>
           )}
         </div>

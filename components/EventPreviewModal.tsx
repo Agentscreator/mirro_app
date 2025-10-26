@@ -69,8 +69,8 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
           // Fall back to parsing inline visual styling
           if (event.visualStyling) {
             try {
-              const parsed = typeof event.visualStyling === 'string' 
-                ? JSON.parse(event.visualStyling) 
+              const parsed = typeof event.visualStyling === 'string'
+                ? JSON.parse(event.visualStyling)
                 : event.visualStyling;
               setVisualStyling(parsed);
             } catch (parseError) {
@@ -268,8 +268,8 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   const hasMoreAttendees = attendeesToShow.length > maxVisibleAvatars
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="relative rounded-3xl max-w-sm w-full h-[85vh] overflow-hidden soft-shadow bg-white">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
+      <div className="relative rounded-3xl max-w-sm w-full h-[85vh] overflow-hidden shadow-2xl bg-white animate-slide-up ring-1 ring-black/5">
 
 
         {/* Media Section - Upper portion */}
@@ -420,13 +420,13 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
           )}
         </div>
 
-        {/* Close Button */}
+        {/* Close Button - Refined */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-200 shadow-lg"
+          className="absolute top-5 right-5 z-10 w-11 h-11 bg-black/40 backdrop-blur-xl rounded-full flex items-center justify-center text-white hover:bg-black/60 transition-all duration-200 shadow-xl active:scale-95 ring-1 ring-white/20"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
@@ -434,33 +434,44 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
         <div className="h-[55%] overflow-y-auto">
           <div className="p-6 flex flex-col min-h-full">
             {/* Event Title with AI font styling */}
-            <h2 className={`text-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-gray-800 mb-4`}>
-              {event.title}
-            </h2>
+            <div className="flex items-start justify-between mb-4">
+              <h2 className={`text-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-gray-900 tracking-tight flex-1`}>
+                {event.title}
+              </h2>
+              {/* AI Badge in Modal */}
+              {visualStyling && (
+                <div className="ml-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full px-3 py-1 text-xs font-semibold text-white shadow-md flex items-center space-x-1">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" />
+                  </svg>
+                  <span>AI</span>
+                </div>
+              )}
+            </div>
 
 
 
             {/* Date, Location, and Attendees */}
             <div className="flex items-center justify-between mb-4">
-              {/* Date Box with AI color theming */}
-              <div className={`${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-br ${displayGradient}`} rounded-2xl p-3 text-center shadow-lg relative`}>
+              {/* Date Box with AI color theming - Refined */}
+              <div className={`${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-br ${displayGradient}`} rounded-2xl p-4 text-center shadow-xl relative ring-1 ring-black/10`}>
                 {/* Dark overlay for better text contrast */}
-                <div className="absolute inset-0 bg-black/20 rounded-2xl"></div>
+                <div className="absolute inset-0 bg-black/25 rounded-2xl"></div>
                 <div className="relative z-10 text-white">
-                  <div className="text-2xl font-bold drop-shadow-sm">{day}</div>
-                  <div className="text-xs font-medium drop-shadow-sm">{month}</div>
+                  <div className="text-3xl font-bold drop-shadow-md tracking-tight">{day}</div>
+                  <div className="text-xs font-semibold drop-shadow-sm uppercase tracking-wider mt-0.5">{month}</div>
                 </div>
               </div>
 
-              {/* Event Details */}
+              {/* Event Details - Refined Typography */}
               <div className="flex-1 mx-4">
-                <div className="text-sm text-gray-800 font-medium mb-1">
+                <div className="text-sm text-gray-900 font-semibold mb-1.5 tracking-tight">
                   {event.location || "Location TBD"}
                 </div>
-                <div className="text-xs text-gray-600">
+                <div className="text-xs text-gray-600 font-medium mb-0.5">
                   Venue: {event.location?.split(",")[0] || "TBD"}
                 </div>
-                <div className="text-xs text-gray-600">{formatTimeWithAMPM(event.time)}</div>
+                <div className="text-xs text-gray-500 font-medium">{formatTimeWithAMPM(event.time)}</div>
               </div>
 
               {/* Attendees - Clickable to expand */}
@@ -473,7 +484,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                   {attendeesToShow.slice(0, maxVisibleAvatars).map((attendee, index) => (
                     <div
                       key={attendee.id}
-                      className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-lg"
+                      className="w-11 h-11 rounded-full border-2 border-white overflow-hidden shadow-xl ring-1 ring-black/10"
                       style={{ zIndex: 10 - index }}
                     >
                       {attendee.profilePicture ? (
@@ -483,7 +494,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gray-400 flex items-center justify-center">
+                        <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
                           <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                           </svg>
@@ -493,10 +504,10 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                   ))}
                   {hasMoreAttendees && (
                     <div
-                      className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center shadow-lg"
+                      className="w-11 h-11 rounded-full border-2 border-white bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center shadow-xl ring-1 ring-black/10"
                       style={{ zIndex: 5 }}
                     >
-                      <span className="text-xs font-semibold text-gray-700">
+                      <span className="text-xs font-bold text-gray-700">
                         +{attendeesToShow.length - maxVisibleAvatars}
                       </span>
                     </div>
@@ -516,7 +527,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                       className="fixed inset-0 z-40"
                       onClick={() => setShowAttendeeList(false)}
                     />
-                    
+
                     {/* Dropdown Panel */}
                     <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl z-50 overflow-hidden border border-gray-100 animate-in fade-in slide-in-from-top-2 duration-200">
                       {/* Header */}
@@ -539,9 +550,8 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                         {attendeesToShow.map((attendee, index) => (
                           <div
                             key={attendee.id}
-                            className={`px-4 py-3 flex items-center space-x-3 hover:bg-gray-50 transition-colors ${
-                              index !== attendeesToShow.length - 1 ? 'border-b border-gray-100' : ''
-                            }`}
+                            className={`px-4 py-3 flex items-center space-x-3 hover:bg-gray-50 transition-colors ${index !== attendeesToShow.length - 1 ? 'border-b border-gray-100' : ''
+                              }`}
                           >
                             {/* Avatar */}
                             <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 shadow-sm">
@@ -598,13 +608,12 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                 <button
                   onClick={handleJoinEvent}
                   disabled={isJoining || (event.createdBy === currentUserId && isJoined)}
-                  className={`w-full py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
-                    event.createdBy === currentUserId 
-                      ? 'bg-green-100 text-green-700 cursor-default'
-                      : isJoined
-                        ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200'
-                        : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]'
-                  }`}
+                  className={`w-full py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${event.createdBy === currentUserId
+                    ? 'bg-green-100 text-green-700 cursor-default'
+                    : isJoined
+                      ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200'
+                      : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]'
+                    }`}
                 >
                   {isJoining ? (
                     <div className="flex items-center justify-center space-x-2">
