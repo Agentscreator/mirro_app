@@ -14,7 +14,7 @@ interface CreateEventPageProps {
 export default function CreateEventPage({ onEventCreated }: CreateEventPageProps) {
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedMedia, setSelectedMedia] = useState<{ type: string; data: string } | null>(null)
-  const [showCamera, setShowCamera] = useState(false)
+  const [showCamera, setShowCamera] = useState(true) // Open camera immediately
   const [showUploadSuccess, setShowUploadSuccess] = useState(false)
   const [aiMethod, setAiMethod] = useState<string | null>(null)
   const [aiGeneratedContent, setAiGeneratedContent] = useState<string | null>(null)
