@@ -490,7 +490,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   ]
 
   return (
-    <div className="fixed inset-0 z-50 bg-black camera-view">
+    <div className="fixed inset-0 z-[100] bg-black camera-view">
       {/* Camera View */}
       <div className="relative w-full h-full video-container">
         <video

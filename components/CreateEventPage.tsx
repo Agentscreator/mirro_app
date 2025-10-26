@@ -607,7 +607,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
       
       {/* Upload Success Modal */}
       {showUploadSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-gradient-to-b from-cream-50 to-cream-100 rounded-3xl p-8 max-w-sm mx-4 shadow-2xl animate-slide-up">
             <div className="text-center">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
