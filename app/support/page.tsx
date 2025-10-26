@@ -1,62 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { Toaster } from '@/components/ui/sonner';
 import Link from 'next/link';
 
 export default function SupportPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-    category: 'general'
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const response = await fetch('/api/support', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        toast.success('Support request sent successfully! We\'ll get back to you soon.');
-        setFormData({
-          name: '',
-          email: '',
-          subject: '',
-          message: '',
-          category: 'general'
-        });
-      } else {
-        toast.error(result.message || 'Failed to send support request. Please try again.');
-      }
-    } catch (error) {
-      console.error('Support form error:', error);
-      toast.error('Something went wrong. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
   return (
     <div 
       className="max-w-md mx-auto min-h-screen shadow-xl"
@@ -66,153 +12,71 @@ export default function SupportPage() {
       <header className="px-6 py-6 flex items-center justify-between">
         <Link 
           href="/" 
-          className="p-2 glass-card rounded-xl hover:bg-white/10 transition-all duration-200"
+          className="p-2 bg-white/40 backdrop-blur-sm rounded-xl hover:bg-white/60 transition-all duration-200"
         >
           <svg className="w-5 h-5 text-text-secondary" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-xl font-normal text-text-primary">Support</h1>
+        <h1 className="text-xl font-light text-text-primary">Contact Support</h1>
         <div className="w-9"></div> {/* Spacer for centering */}
       </header>
 
       {/* Content */}
-      <div className="px-6 pb-6 space-y-6">
-        {/* Support Info */}
-        <div className="glass-card rounded-2xl p-4 hover-lift">
-          <div className="flex items-center space-x-3 mb-3">
-            <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <div className="px-6 pb-6 space-y-4">
+        {/* Email Support Card */}
+        <div className="p-6 bg-white/50 backdrop-blur-sm rounded-2xl shadow-sm">
+          <div className="flex items-start space-x-4">
+            <div className="w-12 h-12 bg-taupe-700 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
               </svg>
             </div>
-            <div>
-              <p className="font-medium text-text-primary">Email Support</p>
-              <p className="text-sm text-text-secondary">mirrosocial@gmail.com</p>
+            <div className="flex-1">
+              <h3 className="text-base font-light text-text-primary mb-1">Email Support</h3>
+              <a href="mailto:mirrosocial@gmail.com" className="text-taupe-700 text-sm font-light hover:underline">
+                mirrosocial@gmail.com
+              </a>
+              <p className="text-xs text-text-muted font-light mt-2">Response within 24 hours</p>
             </div>
           </div>
-          <p className="text-xs text-text-muted">Response within 24 hours</p>
         </div>
 
-        {/* Contact Form */}
-        <div className="glass-card rounded-2xl p-6">
-          <h2 className="text-lg font-medium text-text-primary mb-4">Send a Message</h2>
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">Name *</label>
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 glass-card rounded-xl border-0 text-text-primary placeholder-text-light focus:ring-2 focus:ring-taupe-400 transition-all duration-200"
-                  placeholder="Your name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">Email *</label>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 glass-card rounded-xl border-0 text-text-primary placeholder-text-light focus:ring-2 focus:ring-taupe-400 transition-all duration-200"
-                  placeholder="your@email.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">Category</label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 glass-card rounded-xl border-0 text-text-primary focus:ring-2 focus:ring-taupe-400 transition-all duration-200"
-              >
-                <option value="general">General Support</option>
-                <option value="technical">Technical Issue</option>
-                <option value="account">Account Help</option>
-                <option value="events">Event Creation</option>
-                <option value="mobile">Mobile App</option>
-                <option value="billing">Billing & Payments</option>
-                <option value="feature">Feature Request</option>
-                <option value="bug">Bug Report</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">Subject *</label>
-              <input
-                type="text"
-                name="subject"
-                required
-                value={formData.subject}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 glass-card rounded-xl border-0 text-text-primary placeholder-text-light focus:ring-2 focus:ring-taupe-400 transition-all duration-200"
-                placeholder="Brief description"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">Message *</label>
-              <textarea
-                name="message"
-                required
-                value={formData.message}
-                onChange={handleInputChange}
-                rows={4}
-                className="w-full px-4 py-3 glass-card rounded-xl border-0 text-text-primary placeholder-text-light focus:ring-2 focus:ring-taupe-400 transition-all duration-200 resize-none"
-                placeholder="Describe your issue or question..."
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full gradient-primary text-white py-4 rounded-xl font-medium hover-lift disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2"
-            >
-              {isSubmitting ? (
-                <>
-                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Sending...</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
-                  <span>Send Message</span>
-                </>
-              )}
-            </button>
-          </form>
+        {/* Support Info */}
+        <div className="p-6 bg-white/30 backdrop-blur-sm rounded-2xl">
+          <h3 className="text-sm font-light text-text-primary mb-3">How We Can Help</h3>
+          <ul className="space-y-2 text-xs text-text-muted font-light">
+            <li className="flex items-start space-x-2">
+              <span className="text-taupe-600 mt-0.5">•</span>
+              <span>Technical support & troubleshooting</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-taupe-600 mt-0.5">•</span>
+              <span>Account & profile assistance</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-taupe-600 mt-0.5">•</span>
+              <span>Event creation & management help</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-taupe-600 mt-0.5">•</span>
+              <span>Feature requests & feedback</span>
+            </li>
+            <li className="flex items-start space-x-2">
+              <span className="text-taupe-600 mt-0.5">•</span>
+              <span>Bug reports & issues</span>
+            </li>
+          </ul>
         </div>
 
-        {/* About */}
-        <div className="glass-card rounded-2xl p-4 text-center">
-          <h3 className="font-medium text-text-primary mb-2">About Mirro</h3>
-          <p className="text-sm text-text-secondary leading-relaxed mb-3">
-            Where beautiful events begin. We help you create meaningful moments with elegant, AI-enhanced tools.
+        {/* Quick Tip */}
+        <div className="p-4 bg-amber-50/50 backdrop-blur-sm rounded-2xl border border-amber-200/30">
+          <p className="text-xs text-amber-900 font-light leading-relaxed">
+            <span className="font-normal">💡 Tip:</span> Include your username and a detailed description of your issue for faster assistance.
           </p>
-          <a 
-            href="https://www.mirro2.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-taupe-600 hover:text-taupe-700 text-sm underline transition-colors"
-          >
-            www.mirro2.com
-          </a>
         </div>
       </div>
-      <Toaster />
     </div>
   );
 }
