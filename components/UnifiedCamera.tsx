@@ -86,21 +86,21 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   const flipCamera = async () => {
     setIsFlipping(true)
     const newFacingMode = facingMode === 'user' ? 'environment' : 'user'
-    
+
     // Start new camera before stopping old one to prevent white flash
     const result = await requestCameraPermission(mode === "video", newFacingMode);
 
     if (result.success && result.stream) {
       // Stop old camera only after new one is ready
       stopCamera()
-      
+
       streamRef.current = result.stream;
       setFacingMode(newFacingMode)
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = result.stream;
         setupVideoElement(videoRef.current);
-        
+
         // Wait for video to be ready before removing flip overlay
         videoRef.current.onloadedmetadata = () => {
           setTimeout(() => {
@@ -508,7 +508,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
             opacity: isFlipping ? 0 : 1
           }}
         />
-        
+
         {/* Flip transition overlay */}
         {isFlipping && (
           <div className="absolute inset-0 bg-black flex items-center justify-center">
@@ -537,21 +537,19 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           <div className="flex items-center bg-black/40 backdrop-blur-md rounded-full p-1 shadow-lg">
             <button
               onClick={() => setMode("photo")}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
-                mode === "photo" 
-                  ? "bg-white text-gray-900 shadow-md" 
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${mode === "photo"
+                  ? "bg-white text-gray-900 shadow-md"
                   : "text-white/80 hover:text-white"
-              }`}
+                }`}
             >
               PHOTO
             </button>
             <button
               onClick={() => setMode("video")}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
-                mode === "video" 
-                  ? "bg-white text-gray-900 shadow-md" 
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${mode === "video"
+                  ? "bg-white text-gray-900 shadow-md"
                   : "text-white/80 hover:text-white"
-              }`}
+                }`}
             >
               VIDEO
             </button>
@@ -584,11 +582,10 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
                 }
               }}
               disabled={isFlipping && effect.id === "flip"}
-              className={`w-14 h-14 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center transition-all duration-200 active:scale-95 ${
-                (effect.id === "flip" && facingMode === "environment") || (selectedEffect === effect.id && effect.id !== "flip")
+              className={`w-14 h-14 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center transition-all duration-200 active:scale-95 ${(effect.id === "flip" && facingMode === "environment") || (selectedEffect === effect.id && effect.id !== "flip")
                   ? "bg-white/95 text-gray-900 shadow-xl"
                   : "bg-black/40 hover:bg-black/50 text-white shadow-lg"
-              } ${isFlipping && effect.id === "flip" ? "opacity-50" : ""}`}
+                } ${isFlipping && effect.id === "flip" ? "opacity-50" : ""}`}
             >
               <div className="scale-90">{effect.icon}</div>
             </button>
@@ -604,11 +601,10 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
                   <button
                     key={filter.id}
                     onClick={() => setAdditionalFilter(filter.filter)}
-                    className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all active:scale-95 ${
-                      additionalFilter === filter.filter
+                    className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all active:scale-95 ${additionalFilter === filter.filter
                         ? "bg-white text-gray-900 shadow-lg"
                         : "bg-white/20 text-white hover:bg-white/30"
-                    }`}
+                      }`}
                   >
                     {filter.name}
                   </button>
@@ -627,11 +623,10 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
                   <button
                     key={timer.id}
                     onClick={() => setTimerDelay(timer.seconds)}
-                    className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all active:scale-95 ${
-                      timerDelay === timer.seconds
+                    className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all active:scale-95 ${timerDelay === timer.seconds
                         ? "bg-white text-gray-900 shadow-lg"
                         : "bg-white/20 text-white hover:bg-white/30"
-                    }`}
+                      }`}
                   >
                     {timer.name}
                   </button>
@@ -671,9 +666,9 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
             <button
               onClick={handleCapture}
               className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all active:scale-95 shadow-2xl"
-              style={{ 
-                background: isRecording 
-                  ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' 
+              style={{
+                background: isRecording
+                  ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
                   : 'linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%)',
                 border: '4px solid rgba(0, 0, 0, 0.3)'
               }}
