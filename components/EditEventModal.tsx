@@ -128,6 +128,53 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
     }
   }
 
+  // Function to upload custom thumbnail
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !event) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    // Check file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB')
+      return
+    }
+
+    setIsRegeneratingThumbnail(true)
+    try {
+      // Upload to server
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 'image')
+
+      const uploadResponse = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (uploadResponse.ok) {
+        const uploadResult = await uploadResponse.json()
+        // Update event with new thumbnail
+        setEvent({ ...event, thumbnailUrl: uploadResult.url })
+        alert('Thumbnail uploaded successfully!')
+      } else {
+        alert('Failed to upload thumbnail')
+      }
+    } catch (error) {
+      console.error('Error uploading thumbnail:', error)
+      alert('Error uploading thumbnail')
+    } finally {
+      setIsRegeneratingThumbnail(false)
+      // Reset input
+      e.target.value = ''
+    }
+  }
+
   // Function to regenerate background
   const handleRegenerateBackground = async () => {
     if (!event) return
@@ -260,7 +307,7 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
         alert('Please log in to edit events')
         return
       }
-      
+
       const user = JSON.parse(storedUser)
       const response = await fetch('/api/events', {
         method: 'PUT',
@@ -276,6 +323,8 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
           location: eventData.location,
           icon: null, // No icon system
           gradient: 'bg-gray-50', // Simple neutral background
+          thumbnailUrl: event.thumbnailUrl,
+          backgroundUrl: event.backgroundUrl,
           userId: user.id,
         }),
       })
@@ -360,6 +409,20 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
                       <div className="bg-gray-50 rounded-xl overflow-hidden p-2 border border-gray-200">
                         <div className="flex items-center gap-2 mb-1.5">
                           <span className="text-xs text-gray-500 flex-1">Card Thumbnail</span>
+                          <label
+                            htmlFor="thumbnail-upload"
+                            className="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-all duration-200 cursor-pointer"
+                          >
+                            Upload
+                            <input
+                              id="thumbnail-upload"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleThumbnailUpload}
+                              disabled={isRegeneratingThumbnail}
+                              className="hidden"
+                            />
+                          </label>
                           <button
                             type="button"
                             onClick={handleRegenerateThumbnail}

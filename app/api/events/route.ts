@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const { eventId, title, description, date, time, location, icon, gradient, userId } = await request.json();
+    const { eventId, title, description, date, time, location, icon, gradient, thumbnailUrl, backgroundUrl, userId } = await request.json();
 
     if (!eventId || !userId) {
       return NextResponse.json({ error: 'Event ID and User ID are required' }, { status: 400 });
@@ -138,6 +138,8 @@ export async function PUT(request: NextRequest) {
       location,
       icon,
       gradient,
+      thumbnailUrl,
+      backgroundUrl,
     }, userId);
 
     return NextResponse.json({

@@ -302,21 +302,36 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
       <div className="relative rounded-3xl max-w-sm w-full h-[85vh] overflow-hidden shadow-2xl animate-slide-up ring-1 ring-black/5">
         {/* AI Generated Background - Full Modal */}
-        {event.backgroundUrl && (
+        {event.backgroundUrl ? (
           <div className="absolute inset-0 z-0">
             <img
               src={event.backgroundUrl}
               alt="Event background"
               className="w-full h-full object-cover"
             />
-            {/* Overlay for readability */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60"></div>
+            {/* Multi-layer gradient overlay for depth and readability */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70"></div>
+            <div className="absolute inset-0 bg-gradient-to-tr from-purple-900/20 via-transparent to-blue-900/20"></div>
           </div>
-        )}
-
-        {/* Fallback background if no AI background */}
-        {!event.backgroundUrl && (
-          <div className="absolute inset-0 z-0 bg-white"></div>
+        ) : event.thumbnailUrl ? (
+          // If no background but thumbnail exists, use thumbnail as stylized background
+          <div className="absolute inset-0 z-0">
+            <img
+              src={event.thumbnailUrl}
+              alt="Event background"
+              className="w-full h-full object-cover scale-110 blur-2xl"
+            />
+            {/* Heavier overlay for blurred thumbnail background */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-transparent to-blue-900/30"></div>
+            {/* Add noise texture for premium feel */}
+            <div className="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=')]"></div>
+          </div>
+        ) : (
+          // Fallback: Elegant gradient background
+          <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-100 via-gray-50 to-white">
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-50/50 via-transparent to-purple-50/50"></div>
+          </div>
         )}
 
         {/* User Media Section - Smaller, top portion */}
@@ -477,8 +492,10 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
         {/* Content Section - Lower portion */}
         <div className="relative h-[70%] overflow-y-auto z-10">
-          {/* Frosted glass background for content */}
-          <div className="absolute inset-0 bg-white/85 backdrop-blur-xl"></div>
+          {/* Frosted glass background for content - Enhanced for better visibility */}
+          <div className="absolute inset-0 bg-white/90 backdrop-blur-2xl shadow-inner"></div>
+          {/* Subtle gradient overlay on glass for depth */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-transparent pointer-events-none"></div>
 
           <div className="relative p-6 flex flex-col min-h-full">
             {/* Event Title with AI font styling */}

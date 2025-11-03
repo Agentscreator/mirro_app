@@ -304,14 +304,16 @@ export async function updateEvent(eventId: string, eventData: {
   location?: string;
   icon?: string;
   gradient?: string;
+  thumbnailUrl?: string;
+  backgroundUrl?: string;
 }, userId: string) {
   // First check if the user owns this event
   const [existingEvent] = await db.select().from(events).where(eq(events.id, eventId));
-  
+
   if (!existingEvent) {
     throw new Error('Event not found');
   }
-  
+
   if (existingEvent.createdBy !== userId) {
     throw new Error('You can only edit your own events');
   }
@@ -323,7 +325,7 @@ export async function updateEvent(eventId: string, eventData: {
     })
     .where(eq(events.id, eventId))
     .returning();
-  
+
   return updatedEvent;
 }
 
