@@ -1,4 +1,4 @@
-"use client" 
+"use client"
 
 import React, { useState } from "react"
 
@@ -40,13 +40,13 @@ export default function SettingsPage({ isOpen, onClose, onAccountDeleted, onEdit
       if (response.ok) {
         // Clear local storage
         localStorage.removeItem('user')
-        
+
         // Close settings and trigger logout
         onClose()
         if (onAccountDeleted) {
           onAccountDeleted()
         }
-        
+
         alert('Your account has been deleted successfully.')
       } else {
         const errorData = await response.json()
