@@ -25,6 +25,7 @@ interface Event {
   gradient: string | null
   mediaUrl?: string | null
   mediaType?: string | null
+  thumbnailUrl?: string | null
   visualStyling?: string | null
   visualStylingUrl?: string | null
   attendees?: Attendee[]
@@ -107,7 +108,13 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
       onClick={() => onPreview(event)}
     >
       <div className="absolute inset-0">
-        {event.mediaUrl && event.mediaType === "image" ? (
+        {event.thumbnailUrl ? (
+          <img
+            src={event.thumbnailUrl}
+            alt={event.title}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : event.mediaUrl && event.mediaType === "image" ? (
           <img
             src={event.mediaUrl}
             alt={event.title}
