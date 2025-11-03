@@ -14,6 +14,7 @@ interface CreateEventPageProps {
 export default function CreateEventPage({ onEventCreated }: CreateEventPageProps) {
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedMedia, setSelectedMedia] = useState<{ type: string; data: string } | null>(null)
+  const [thumbnailImage, setThumbnailImage] = useState<string | null>(null) // Separate thumbnail
   const [showCamera, setShowCamera] = useState(true) // Open camera immediately
   const [showUploadSuccess, setShowUploadSuccess] = useState(false)
   const [aiMethod, setAiMethod] = useState<string | null>(null)
@@ -21,7 +22,8 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
   const [aiPromptInput, setAiPromptInput] = useState<string>("")
   const [isUploading, setIsUploading] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false)
+  const [isGeneratingThumbnail, setIsGeneratingThumbnail] = useState(false)
+  const [hasGeneratedThumbnail, setHasGeneratedThumbnail] = useState(false) // Track if thumbnail was generated
   const [eventData, setEventData] = useState({
     title: "",
     description: "",
@@ -134,10 +136,16 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     setAiMethod(method)
   }
 
-  // Function to generate AI thumbnail
+  // Function to generate AI thumbnail (separate from media)
   const generateAIThumbnail = async (title: string, description: string, location: string) => {
-    setIsGeneratingImage(true)
+    // Prevent multiple simultaneous generations
+    if (isGeneratingThumbnail || hasGeneratedThumbnail) {
+      return false
+    }
+
+    setIsGeneratingThumbnail(true)
     try {
+      console.log('Generating AI thumbnail for:', title)
       const response = await fetch('/api/generate-event-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -146,17 +154,19 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
       
       if (response.ok) {
         const data = await response.json()
-        setSelectedMedia({ type: 'image', data: data.imageUrl })
+        setThumbnailImage(data.imageUrl)
+        setHasGeneratedThumbnail(true)
+        console.log('Thumbnail generated successfully')
         return true
       } else {
-        console.error('Failed to generate AI image')
+        console.error('Failed to generate AI thumbnail')
         return false
       }
     } catch (error) {
-      console.error('Error generating AI image:', error)
+      console.error('Error generating AI thumbnail:', error)
       return false
     } finally {
-      setIsGeneratingImage(false)
+      setIsGeneratingThumbnail(false)
     }
   }
 
@@ -184,9 +194,11 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     // Go directly to step 3 (edit) after AI generation
     setCurrentStep(3)
     
-    // Generate AI thumbnail in background if no media uploaded
-    if (!selectedMedia && parsed.title) {
-      generateAIThumbnail(parsed.title, parsed.description, parsed.location)
+    // Generate AI thumbnail in background (only once)
+    if (!hasGeneratedThumbnail && parsed.title) {
+      setTimeout(() => {
+        generateAIThumbnail(parsed.title, parsed.description, parsed.location)
+      }, 500)
     }
   }
 
@@ -307,6 +319,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         gradient: eventData.visualStyling?.styling?.gradient || 'bg-gray-50',
         mediaUrl: mediaUrl, // Now using R2 URLs instead of data URLs
         mediaType: mediaType,
+        thumbnailUrl: thumbnailImage, // AI-generated thumbnail for event cards
         createdBy: user.id,
         visualStyling: eventData.visualStyling,
       }
@@ -535,72 +548,92 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
 
         {currentStep === 3 && (
           <div className="space-y-4">
-            {/* Event Preview Card - Similar to EventPreviewModal */}
+            {/* AI Thumbnail Preview (for event cards) */}
+            {thumbnailImage && (
+              <div className="bg-white rounded-2xl overflow-hidden shadow-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-semibold text-gray-700">Event Card Thumbnail</h3>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setHasGeneratedThumbnail(false)
+                      generateAIThumbnail(eventData.title, eventData.description, eventData.location)
+                    }}
+                    disabled={isGeneratingThumbnail}
+                    className="text-xs px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all duration-200 disabled:opacity-50"
+                  >
+                    {isGeneratingThumbnail ? 'Regenerating...' : 'Regenerate'}
+                  </button>
+                </div>
+                <img src={thumbnailImage} alt="Event thumbnail" className="w-full h-32 object-cover rounded-xl" />
+                <p className="text-xs text-gray-500 mt-2">This will appear on event cards and previews</p>
+              </div>
+            )}
+
+            {/* Generate Thumbnail Button (if not generated yet) */}
+            {!thumbnailImage && !isGeneratingThumbnail && (
+              <button
+                type="button"
+                onClick={() => generateAIThumbnail(eventData.title, eventData.description, eventData.location)}
+                disabled={!eventData.title}
+                className="w-full p-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="font-semibold">Generate Event Card Thumbnail</span>
+                </div>
+              </button>
+            )}
+
+            {/* Thumbnail Generation Loading */}
+            {isGeneratingThumbnail && (
+              <div className="bg-white rounded-2xl p-6 text-center shadow-lg">
+                <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                <p className="text-sm font-medium text-gray-700">Creating unique thumbnail...</p>
+                <p className="text-xs text-gray-500 mt-1">This may take 10-15 seconds</p>
+              </div>
+            )}
+
+            {/* Event Preview Card */}
             <div className="bg-white rounded-3xl overflow-hidden shadow-xl">
-              {/* Media Section */}
+              {/* Media Section (User's actual photo/video) */}
               <div className="relative h-64 overflow-hidden">
                 {selectedMedia && selectedMedia.type === "image" ? (
                   <img
                     src={selectedMedia.data || "/placeholder.svg"}
                     className="w-full h-full object-cover"
-                    alt="Event"
+                    alt="Event media"
                   />
                 ) : selectedMedia && selectedMedia.type === "video" ? (
                   <video src={selectedMedia.data} className="w-full h-full object-cover" controls />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center">
-                    {isGeneratingImage ? (
-                      <div className="text-center text-white">
-                        <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                        <p className="text-sm font-medium">Generating AI thumbnail...</p>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => generateAIThumbnail(eventData.title, eventData.description, eventData.location)}
-                        disabled={!eventData.title}
-                        className="px-6 py-3 bg-white/90 backdrop-blur-sm rounded-xl hover:bg-white transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <div className="flex items-center gap-2">
-                          <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          <span className="text-gray-900 font-semibold">Generate AI Thumbnail</span>
-                        </div>
-                      </button>
-                    )}
+                    <div className="text-center text-white">
+                      <svg className="w-12 h-12 mx-auto mb-2 opacity-50" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                      </svg>
+                      <p className="text-sm font-medium">No media added</p>
+                      <p className="text-xs opacity-75 mt-1">Optional: Add photo or video</p>
+                    </div>
                   </div>
                 )}
                 
-                {/* Media Action Buttons Overlay */}
-                <div className="absolute top-4 right-4 flex gap-2">
+                {/* Add/Replace Media Button */}
+                <div className="absolute top-4 right-4">
                   <button
                     type="button"
                     onClick={() => {
-                      setSelectedMedia(null)
                       setShowCamera(true)
                     }}
                     className="p-2.5 bg-white/90 backdrop-blur-sm rounded-xl hover:bg-white transition-all duration-200 shadow-lg"
-                    title="Replace media"
+                    title={selectedMedia ? "Replace media" : "Add media"}
                   >
                     <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => generateAIThumbnail(eventData.title, eventData.description, eventData.location)}
-                    disabled={isGeneratingImage || !eventData.title}
-                    className="p-2.5 bg-purple-500/90 backdrop-blur-sm rounded-xl hover:bg-purple-600 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                    title={isGeneratingImage ? "Generating..." : "Generate AI thumbnail"}
-                  >
-                    {isGeneratingImage ? (
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    )}
                   </button>
                 </div>
               </div>
