@@ -799,6 +799,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                 }}
                 event={previewEvent}
                 currentUserId={user.id}
+                onJoinStatusChange={handleEventUpdated}
             />
 
             <SettingsPage
