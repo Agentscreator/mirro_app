@@ -255,6 +255,7 @@ export async function createEvent(eventData: {
   gradient?: string;
   mediaUrl?: string;
   mediaType?: string;
+  thumbnailUrl?: string;
   visualStyling?: any;
   visualStylingUrl?: string;
   createdBy: string;
@@ -269,6 +270,7 @@ export async function createEvent(eventData: {
     gradient: eventData.gradient || 'bg-gray-50',
     mediaUrl: eventData.mediaUrl,
     mediaType: eventData.mediaType,
+    thumbnailUrl: eventData.thumbnailUrl || null,
     visualStyling: eventData.visualStyling ? JSON.stringify(eventData.visualStyling) : null,
     createdBy: eventData.createdBy,
   };
