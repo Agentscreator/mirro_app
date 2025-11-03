@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
+// Configure route to use edge runtime for faster responses
+export const runtime = 'nodejs';
+export const maxDuration = 10; // 10 seconds max (reduced from default)
+
 // Lazy initialize OpenAI only when needed
 let openai: OpenAI | null = null;
 
@@ -8,6 +12,7 @@ function getOpenAIClient(): OpenAI {
   if (!openai) {
     openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
+      timeout: 8000, // 8 second timeout for OpenAI API calls
     });
   }
   return openai;
@@ -51,15 +56,23 @@ export async function POST(request: NextRequest) {
 
     console.log(`Generating ${type} image with DALL-E 3 for:`, title);
 
-    // Generate image using DALL-E 3
-    const response = await getOpenAIClient().images.generate({
-      model: "dall-e-3",
-      prompt: prompt,
-      n: 1,
-      size: "1024x1024",
-      quality: "standard",
-      style: "vivid"
-    });
+    // Generate image using DALL-E 3 with aggressive timeout
+    // Note: DALL-E 3 typically takes 5-15 seconds, we're setting an aggressive limit
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Image generation timeout')), 8000)
+    );
+
+    const response = await Promise.race([
+      getOpenAIClient().images.generate({
+        model: "dall-e-3",
+        prompt: prompt,
+        n: 1,
+        size: "1024x1024",
+        quality: "standard", // Use standard quality for faster generation
+        style: "vivid"
+      }),
+      timeoutPromise
+    ]) as OpenAI.Images.ImagesResponse;
 
     const imageUrl = response.data[0]?.url;
 

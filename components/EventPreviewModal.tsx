@@ -301,7 +301,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
       <div className="relative rounded-3xl max-w-sm w-full h-[85vh] overflow-hidden shadow-2xl animate-slide-up ring-1 ring-black/5">
-        {/* AI Generated Background - Full Modal */}
+        {/* Full Screen Stylized Background - Inspired by Thumbnail */}
         {event.backgroundUrl ? (
           <div className="absolute inset-0 z-0">
             <img
@@ -309,33 +309,31 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
               alt="Event background"
               className="w-full h-full object-cover"
             />
-            {/* Multi-layer gradient overlay for depth and readability */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70"></div>
-            <div className="absolute inset-0 bg-gradient-to-tr from-purple-900/20 via-transparent to-blue-900/20"></div>
+            {/* Gradient overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
           </div>
         ) : event.thumbnailUrl ? (
-          // If no background but thumbnail exists, use thumbnail as stylized background
+          // If no background, use thumbnail as artistic blurred background
           <div className="absolute inset-0 z-0">
             <img
               src={event.thumbnailUrl}
               alt="Event background"
-              className="w-full h-full object-cover scale-110 blur-2xl"
+              className="w-full h-full object-cover scale-125 blur-3xl"
             />
-            {/* Heavier overlay for blurred thumbnail background */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-transparent to-blue-900/30"></div>
-            {/* Add noise texture for premium feel */}
-            <div className="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=')]"></div>
+            {/* Strong overlay for better text readability on blurred background */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70"></div>
+            {/* Subtle color wash for artistic effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20"></div>
           </div>
         ) : (
           // Fallback: Elegant gradient background
-          <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-100 via-gray-50 to-white">
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-50/50 via-transparent to-purple-50/50"></div>
+          <div className="absolute inset-0 z-0 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
           </div>
         )}
 
-        {/* User Media Section - Smaller, top portion */}
-        <div className="relative h-[30%] overflow-hidden rounded-t-3xl z-10">
+        {/* Optional: User Media Section at top (can be removed if not needed) */}
+        <div className="relative h-[25%] overflow-hidden rounded-t-3xl z-10">
           {event.mediaUrl && event.mediaType === "image" ? (
             <img
               src={event.mediaUrl}
@@ -490,16 +488,11 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
           </svg>
         </button>
 
-        {/* Content Section - Lower portion */}
-        <div className="relative h-[70%] overflow-y-auto z-10">
-          {/* Frosted glass background for content - Enhanced for better visibility */}
-          <div className="absolute inset-0 bg-white/90 backdrop-blur-2xl shadow-inner"></div>
-          {/* Subtle gradient overlay on glass for depth */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-transparent pointer-events-none"></div>
-
+        {/* Content Section - Overlaid on background */}
+        <div className="relative h-[75%] overflow-y-auto z-10">
           <div className="relative p-6 flex flex-col min-h-full">
-            {/* Event Title with AI font styling */}
-            <h2 className={`text-3xl ${visualStyling?.styling?.font || 'font-bold'} text-gray-900 tracking-tight mb-4 drop-shadow-sm`}>
+            {/* Event Title with AI font styling - White text with shadow for readability */}
+            <h2 className={`text-4xl ${visualStyling?.styling?.font || 'font-bold'} text-white tracking-tight mb-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]`}>
               {event.title}
             </h2>
 
@@ -507,41 +500,39 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
             {/* Date, Location, and Attendees */}
             <div className="flex items-start gap-3 mb-5">
-              {/* Date Box with AI color theming - Refined */}
-              <div className={`${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-br ${displayGradient}`} rounded-2xl p-3.5 text-center shadow-lg relative ring-1 ring-black/10 flex-shrink-0`}>
-                {/* Dark overlay for better text contrast */}
-                <div className="absolute inset-0 bg-black/25 rounded-2xl"></div>
+              {/* Date Box with semi-transparent white background */}
+              <div className="bg-white/20 backdrop-blur-md rounded-2xl p-3.5 text-center shadow-lg relative ring-1 ring-white/30 flex-shrink-0">
                 <div className="relative z-10 text-white">
-                  <div className="text-3xl font-bold drop-shadow-md tracking-tight leading-none">{day}</div>
-                  <div className="text-xs font-semibold drop-shadow-sm uppercase tracking-wider mt-1">{month}</div>
+                  <div className="text-3xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-tight leading-none">{day}</div>
+                  <div className="text-xs font-semibold drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] uppercase tracking-wider mt-1">{month}</div>
                 </div>
               </div>
 
-              {/* Event Details - Refined Typography */}
+              {/* Event Details - White text with shadows */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start gap-1.5 mb-2">
-                  <svg className="w-4 h-4 text-gray-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 text-white/90 mt-0.5 flex-shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                   </svg>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm text-gray-900 font-semibold tracking-tight truncate">
+                    <div className="text-sm text-white font-semibold tracking-tight truncate drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
                       {event.location || "Location TBD"}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 mb-2">
-                  <svg className="w-4 h-4 text-gray-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 text-white/90 flex-shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                   </svg>
-                  <div className="text-sm text-gray-700 font-medium">{formatTimeWithAMPM(event.time)}</div>
+                  <div className="text-sm text-white/95 font-medium drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">{formatTimeWithAMPM(event.time)}</div>
                 </div>
                 {/* Attendees Count */}
                 {event.attendeeCount && event.attendeeCount > 0 && (
                   <div className="flex items-center gap-1.5">
-                    <svg className="w-4 h-4 text-gray-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-white/90 flex-shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                     </svg>
-                    <div className="text-sm text-gray-700 font-medium">{event.attendeeCount} attending</div>
+                    <div className="text-sm text-white/95 font-medium drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">{event.attendeeCount} attending</div>
                   </div>
                 )}
               </div>
@@ -665,16 +656,16 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
             {/* Description */}
             {event.description && (
-              <div className="mb-5 bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">About</h3>
-                <p className="text-sm text-gray-700 leading-relaxed">{event.description}</p>
+              <div className="mb-5 bg-white/15 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-lg">
+                <h3 className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">About</h3>
+                <p className="text-sm text-white/95 leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">{event.description}</p>
               </div>
             )}
 
             {/* Media Gallery */}
             {mediaGallery.length > 0 && (
               <div className="mb-5">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Event Photos & Videos</h3>
+                <h3 className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-3 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Event Photos & Videos</h3>
                 <div className="flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 snap-x snap-mandatory scrollbar-hide">
                   {mediaGallery.map((item, index) => (
                     <button
@@ -701,7 +692,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
             )}
 
             {/* Action Buttons */}
-            <div className="space-y-3 mt-6 sticky bottom-0 bg-white/90 backdrop-blur-lg pt-4 -mx-6 px-6 pb-2 border-t border-gray-200/50">
+            <div className="space-y-3 mt-6 sticky bottom-0 bg-black/30 backdrop-blur-xl pt-4 -mx-6 px-6 pb-2 border-t border-white/20">
               {currentUserId ? (
                 <>
                   {/* Primary Action Button - Join/Leave/Hosting */}
