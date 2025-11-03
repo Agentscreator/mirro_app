@@ -14,6 +14,7 @@ interface EventWithCreator extends Omit<Event, 'icon'> {
     creatorUsername?: string
     icon?: React.ReactNode | string
     gradient: string | null
+    thumbnailUrl: string | null
     attendees?: Attendee[]
     attendeeCount?: number
 }
@@ -51,6 +52,7 @@ interface DatabaseEvent {
     gradient?: string | null
     mediaUrl?: string | null
     mediaType?: string | null
+    thumbnailUrl?: string | null
     visualStyling?: string | null
     visualStylingUrl?: string | null
     createdBy: string
@@ -80,6 +82,7 @@ interface EventCardData {
     gradient: string | null
     mediaUrl?: string | null
     mediaType?: string | null
+    thumbnailUrl?: string | null
     visualStyling?: string | null
     visualStylingUrl?: string | null
     creatorName?: string
@@ -220,6 +223,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
             gradient: event.gradient || 'from-gray-400 to-gray-600',
             mediaUrl: event.mediaUrl || null,
             mediaType: event.mediaType || null,
+            thumbnailUrl: event.thumbnailUrl || null,
             visualStyling: event.visualStyling || null,
             visualStylingUrl: event.visualStylingUrl || null,
             creatorName: event.creatorName,
@@ -517,7 +521,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
             default:
                 // Combine and deduplicate events (user might be both creator and participant)
                 const allEvents = [...userEvents, ...joinedEvents]
-                const uniqueEvents = allEvents.filter((event, index, self) => 
+                const uniqueEvents = allEvents.filter((event, index, self) =>
                     index === self.findIndex(e => e.id === event.id)
                 )
                 return uniqueEvents.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
@@ -552,12 +556,10 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                             </svg>
                         )}
                     </div>
-                    <label className={`absolute bottom-6 right-0 bg-taupe-700 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 ${
-                        isEditProfileMode ? 'w-12 h-12 animate-bounce' : 'w-8 h-8'
-                    }`}>
-                        <svg className={`text-white transition-all duration-300 ${
-                            isEditProfileMode ? 'w-6 h-6' : 'w-4 h-4'
-                        }`} fill="currentColor" viewBox="0 0 20 20">
+                    <label className={`absolute bottom-6 right-0 bg-taupe-700 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 ${isEditProfileMode ? 'w-12 h-12 animate-bounce' : 'w-8 h-8'
+                        }`}>
+                        <svg className={`text-white transition-all duration-300 ${isEditProfileMode ? 'w-6 h-6' : 'w-4 h-4'
+                            }`} fill="currentColor" viewBox="0 0 20 20">
                             <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
                         </svg>
                         <input type="file" accept="image/*" className="hidden" onChange={handleProfilePictureUpload} />
@@ -610,9 +612,8 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                                     setIsEditingName(true)
                                     setIsEditProfileMode(false)
                                 }}
-                                className={`p-1 text-taupe-400 hover:text-taupe-600 transition-all duration-300 ${
-                                    isEditProfileMode ? 'opacity-100 scale-150 animate-pulse text-taupe-600' : 'opacity-0 group-hover:opacity-100'
-                                }`}
+                                className={`p-1 text-taupe-400 hover:text-taupe-600 transition-all duration-300 ${isEditProfileMode ? 'opacity-100 scale-150 animate-pulse text-taupe-600' : 'opacity-0 group-hover:opacity-100'
+                                    }`}
                             >
                                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -690,9 +691,8 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                                     setIsEditingUsername(true)
                                     setIsEditProfileMode(false)
                                 }}
-                                className={`p-1 text-taupe-400 hover:text-taupe-600 transition-all duration-300 ${
-                                    isEditProfileMode ? 'opacity-100 scale-150 animate-pulse text-taupe-600' : 'opacity-0 group-hover:opacity-100'
-                                }`}
+                                className={`p-1 text-taupe-400 hover:text-taupe-600 transition-all duration-300 ${isEditProfileMode ? 'opacity-100 scale-150 animate-pulse text-taupe-600' : 'opacity-0 group-hover:opacity-100'
+                                    }`}
                             >
                                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
