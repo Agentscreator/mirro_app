@@ -83,18 +83,7 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
   }
 
   const handleGenerate = async () => {
-    let textToUse = ""
-    
-    if (method === "import" && extractedText) {
-      // For import method, combine extracted text with user input
-      textToUse = extractedText
-      if (input.trim()) {
-        textToUse += "\n\nAdditional context: " + input.trim()
-      }
-    } else {
-      textToUse = input.trim()
-    }
-    
+    const textToUse = input.trim()
     if (!textToUse) return
 
     setIsGenerating(true)
@@ -129,27 +118,40 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
 
   const getPlaceholder = () => {
     switch (method) {
-      case "generate":
-        return "Describe your event in one line..."
-      case "paste":
-        return "Paste your event details here..."
-      case "import":
-        return extractedText ? "Anything else you want me to know? What event would you like me to do with this file?" : ""
+      case "single-day":
+        return "e.g., 'Coffee meetup downtown on Saturday at 3pm' or 'Product launch at tech center'"
+      case "multi-day":
+        return "e.g., 'Three-day music festival starting June 15th' or 'Week-long coding bootcamp'"
+      case "repeating":
+        return "e.g., 'Weekly yoga class every Tuesday at 6pm' or 'Monthly book club meetings'"
       default:
-        return "Enter details..."
+        return "Describe your event..."
     }
   }
 
   const getTitle = () => {
     switch (method) {
-      case "generate":
-        return "Generate Event"
-      case "paste":
-        return "Paste Event Details"
-      case "import":
-        return "Import Event"
+      case "single-day":
+        return "Single Day Event"
+      case "multi-day":
+        return "Multi-Day Event"
+      case "repeating":
+        return "Repeating Event"
       default:
         return "Create Event"
+    }
+  }
+
+  const getDescription = () => {
+    switch (method) {
+      case "single-day":
+        return "Describe your one-time event. Include the date, time, and location if known."
+      case "multi-day":
+        return "Describe your multi-day event. Include start/end dates and what attendees can expect."
+      case "repeating":
+        return "Describe your recurring event. Include the schedule (e.g., weekly, monthly) and timing."
+      default:
+        return "AI will help you create amazing event content"
     }
   }
 
@@ -167,101 +169,26 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
 
       <div className="mb-10 text-center">
         <h2 className="text-2xl font-normal text-text-primary mb-3">{getTitle()}</h2>
-        <p className="text-text-secondary font-normal">AI will help you create amazing event content</p>
+        <p className="text-text-secondary font-normal">{getDescription()}</p>
       </div>
 
       <div className="space-y-6">
-        {method === "import" && (
-          <div className="space-y-4">
-            {/* File Upload Section */}
-            <div className="glass-card rounded-2xl p-6 border-2 border-dashed border-cream-300">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*,.txt,.doc,.docx,.ppt,.pptx,.pdf"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-              
-              {!uploadedFile ? (
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-cream-300 to-cream-400 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-taupe-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                  </div>
-                  <h3 className="font-medium mb-2 text-text-primary">Upload File</h3>
-                  <p className="text-sm text-text-secondary mb-4">
-                    Upload a file to extract event details
-                  </p>
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-6 py-2 bg-taupe-100 text-taupe-700 rounded-xl hover:bg-taupe-200 transition-colors font-medium"
-                  >
-                    Choose File
-                  </button>
-                  <p className="text-xs text-text-light mt-2">
-                    Supports: Images, Text files, Word documents, PowerPoint presentations, PDF files
-                  </p>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-green-100 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <h3 className="font-medium mb-2 text-text-primary">File Uploaded</h3>
-                  <p className="text-sm text-text-secondary mb-4">
-                    {uploadedFile.name}
-                  </p>
-                  <button
-                    onClick={() => {
-                      setUploadedFile(null)
-                      setExtractedText("")
-                      setInput("")
-                    }}
-                    className="px-4 py-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
-                  >
-                    Remove File
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {isExtracting && (
-              <div className="text-center py-4">
-                <div className="inline-flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-taupe-600" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span className="text-text-secondary">Extracting text from file...</span>
-                </div>
-              </div>
-            )}
-
-          </div>
-        )}
-
         <div>
           <textarea
             placeholder={getPlaceholder()}
-            rows={method === "paste" ? 8 : 4}
+            rows={6}
             className="w-full px-5 py-4 text-base rounded-2xl border border-cream-300 glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 resize-none text-text-primary placeholder-text-light"
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
-          {method === "import" && extractedText && (
-            <p className="text-xs text-text-light mt-2">
-              File content extracted successfully. Add any additional details above.
-            </p>
-          )}
+          <p className="text-xs text-text-light mt-2">
+            Be as detailed or brief as you'd like - AI will fill in the gaps
+          </p>
         </div>
 
         <button
           onClick={handleGenerate}
-          disabled={(method === "import" ? !extractedText : !input.trim()) || isGenerating || isExtracting}
+          disabled={!input.trim() || isGenerating}
           className="w-full gradient-primary text-white py-4 rounded-2xl font-medium hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
           {isGenerating ? (

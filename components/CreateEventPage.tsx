@@ -152,7 +152,13 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
       const response = await fetch('/api/generate-event-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, location, type: 'thumbnail' }),
+        body: JSON.stringify({
+          title,
+          description,
+          location,
+          type: 'thumbnail',
+          visualStyling: eventData.visualStyling
+        }),
       })
 
       if (response.ok) {
@@ -186,7 +192,13 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
       const response = await fetch('/api/generate-event-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, location, type: 'background' }),
+        body: JSON.stringify({
+          title,
+          description,
+          location,
+          type: 'background',
+          visualStyling: eventData.visualStyling
+        }),
       })
 
       if (response.ok) {

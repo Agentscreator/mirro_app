@@ -15,20 +15,38 @@ function getOpenAIClient(): OpenAI {
 
 export async function POST(request: NextRequest) {
   try {
-    const { title, description, location, type = 'thumbnail' } = await request.json();
+    const { title, description, location, type = 'thumbnail', visualStyling } = await request.json();
 
     if (!title) {
       return NextResponse.json({ error: 'Event title is required' }, { status: 400 });
     }
 
+    // Extract styling context from visualStyling
+    let styleContext = '';
+    if (visualStyling) {
+      const theme = visualStyling.theme || '';
+      const colors = visualStyling.styling?.gradient || '';
+      const mood = visualStyling.mood || '';
+
+      if (theme) styleContext += `Theme: ${theme}. `;
+      if (mood) styleContext += `Mood: ${mood}. `;
+      if (colors && typeof colors === 'string') {
+        // Extract color names from gradient classes
+        const colorMatch = colors.match(/(purple|blue|green|red|yellow|pink|indigo|teal|orange|gray)/gi);
+        if (colorMatch) {
+          styleContext += `Primary colors: ${colorMatch.join(', ')}. `;
+        }
+      }
+    }
+
     // Create different prompts based on type
     let prompt: string;
     if (type === 'background') {
-      // For modal backgrounds - more atmospheric and immersive
-      prompt = `Create an immersive, atmospheric background image for an event titled: "${title}". ${description ? `The event is about: ${description}.` : ''} ${location ? `Location: ${location}.` : ''} Style: Cinematic, wide-angle, ambient, suitable as a full-screen background. No text or words. Focus on mood and atmosphere.`;
+      // For modal backgrounds - more atmospheric and immersive, incorporating event styling
+      prompt = `Create an immersive, atmospheric background image for an event titled: "${title}". ${description ? `The event is about: ${description}.` : ''} ${location ? `Location: ${location}.` : ''} ${styleContext}Style: Cinematic, wide-angle, ambient, professional, suitable as a full-screen background. No text or words. Focus on mood and atmosphere that matches the event's theme.`;
     } else {
-      // For thumbnails - more compact and eye-catching
-      prompt = `Create a vibrant, professional event thumbnail image for: "${title}". ${description ? `The event is about: ${description}.` : ''} ${location ? `Location: ${location}.` : ''} Style: Modern, colorful, eye-catching, suitable for social media. No text or words in the image.`;
+      // For thumbnails - more compact and eye-catching, incorporating event styling
+      prompt = `Create a vibrant, professional event thumbnail image for: "${title}". ${description ? `The event is about: ${description}.` : ''} ${location ? `Location: ${location}.` : ''} ${styleContext}Style: Modern, colorful, eye-catching, suitable for social media and event cards. No text or words in the image. Make it visually appealing and match the event's theme.`;
     }
 
     console.log(`Generating ${type} image with DALL-E 3 for:`, title);

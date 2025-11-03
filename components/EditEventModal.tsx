@@ -12,6 +12,9 @@ interface Event {
   location: string
   icon?: string
   gradient?: string
+  thumbnailUrl?: string | null
+  backgroundUrl?: string | null
+  visualStyling?: any
   createdBy: string
 }
 
@@ -26,6 +29,8 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [event, setEvent] = useState<Event | null>(null)
+  const [isRegeneratingThumbnail, setIsRegeneratingThumbnail] = useState(false)
+  const [isRegeneratingBackground, setIsRegeneratingBackground] = useState(false)
   const [eventData, setEventData] = useState({
     title: "",
     description: "",
@@ -67,7 +72,73 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
     }
   }
 
-  // Removed icon/gradient type system - events now use media or simple placeholder
+  // Function to regenerate thumbnail
+  const handleRegenerateThumbnail = async () => {
+    if (!event) return
+
+    setIsRegeneratingThumbnail(true)
+    try {
+      const response = await fetch('/api/generate-event-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: eventData.title,
+          description: eventData.description,
+          location: eventData.location,
+          type: 'thumbnail',
+          visualStyling: event.visualStyling
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        // Update event with new thumbnail
+        setEvent({ ...event, thumbnailUrl: data.imageUrl })
+        alert('Thumbnail regenerated successfully!')
+      } else {
+        alert('Failed to regenerate thumbnail')
+      }
+    } catch (error) {
+      console.error('Error regenerating thumbnail:', error)
+      alert('Error regenerating thumbnail')
+    } finally {
+      setIsRegeneratingThumbnail(false)
+    }
+  }
+
+  // Function to regenerate background
+  const handleRegenerateBackground = async () => {
+    if (!event) return
+
+    setIsRegeneratingBackground(true)
+    try {
+      const response = await fetch('/api/generate-event-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: eventData.title,
+          description: eventData.description,
+          location: eventData.location,
+          type: 'background',
+          visualStyling: event.visualStyling
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        // Update event with new background
+        setEvent({ ...event, backgroundUrl: data.imageUrl })
+        alert('Background regenerated successfully!')
+      } else {
+        alert('Failed to regenerate background')
+      }
+    } catch (error) {
+      console.error('Error regenerating background:', error)
+      alert('Error regenerating background')
+    } finally {
+      setIsRegeneratingBackground(false)
+    }
+  }
 
   const handleSave = async () => {
     if (!eventData.title || !eventData.description || !eventData.date || !eventData.time || !eventData.location) {
@@ -162,7 +233,48 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
               handleSave()
             }}
           >
-            {/* Event type selector removed - simplified design */}
+            {/* AI Generated Images Section */}
+            {(event?.thumbnailUrl || event?.backgroundUrl) && (
+              <div className="space-y-3 pb-4 border-b border-cream-200">
+                <h3 className="text-sm font-semibold text-text-primary">AI Generated Images</h3>
+
+                {/* Thumbnail Preview */}
+                {event?.thumbnailUrl && (
+                  <div className="bg-white rounded-2xl overflow-hidden shadow-md p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-gray-600">Event Card Thumbnail</span>
+                      <button
+                        type="button"
+                        onClick={handleRegenerateThumbnail}
+                        disabled={isRegeneratingThumbnail}
+                        className="text-xs px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isRegeneratingThumbnail ? 'Regenerating...' : 'Regenerate'}
+                      </button>
+                    </div>
+                    <img src={event.thumbnailUrl} alt="Event thumbnail" className="w-full h-24 object-cover rounded-xl" />
+                  </div>
+                )}
+
+                {/* Background Preview */}
+                {event?.backgroundUrl && (
+                  <div className="bg-white rounded-2xl overflow-hidden shadow-md p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-gray-600">Event Modal Background</span>
+                      <button
+                        type="button"
+                        onClick={handleRegenerateBackground}
+                        disabled={isRegeneratingBackground}
+                        className="text-xs px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isRegeneratingBackground ? 'Regenerating...' : 'Regenerate'}
+                      </button>
+                    </div>
+                    <img src={event.backgroundUrl} alt="Event background" className="w-full h-24 object-cover rounded-xl" />
+                  </div>
+                )}
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium mb-2 text-text-secondary">Event Title</label>
