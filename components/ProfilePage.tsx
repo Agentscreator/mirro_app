@@ -233,8 +233,8 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
 
     // Create a wrapper function that matches EventCard's expected signature
     const handleEventCardPreview = (event: { id: string; title: string; description: string; date: string; time: string; location?: string; createdBy: string; icon: React.ReactNode; gradient: string | null; mediaUrl?: string | null; mediaType?: string | null; attendees?: Attendee[]; attendeeCount?: number }) => {
-        // Find the full EventCardData from our state
-        const fullEvent = userEvents.find(e => e.id === event.id)
+        // Find the full EventCardData from our state - check both created and joined events
+        const fullEvent = userEvents.find(e => e.id === event.id) || joinedEvents.find(e => e.id === event.id)
         if (fullEvent) {
             handlePreviewEvent(fullEvent)
         }
