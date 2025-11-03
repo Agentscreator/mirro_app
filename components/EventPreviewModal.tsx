@@ -594,36 +594,68 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
             )}
 
             {/* Action Buttons */}
-            <div className="space-y-3 mt-6 sticky bottom-0 bg-white pt-4 -mx-6 px-6">
+            <div className="space-y-3 mt-6 sticky bottom-0 bg-white pt-4 -mx-6 px-6 pb-2">
               {currentUserId ? (
-                <button
-                  onClick={handleJoinEvent}
-                  disabled={isJoining || (event.createdBy === currentUserId && isJoined)}
-                  className={`w-full py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${event.createdBy === currentUserId
-                    ? 'bg-green-100 text-green-700 cursor-default'
-                    : isJoined
-                      ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200'
-                      : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]'
-                    }`}
-                >
-                  {isJoining ? (
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                      <span>{isJoined ? 'Leaving...' : 'Joining...'}</span>
-                    </div>
-                  ) : event.createdBy === currentUserId ? (
-                    <div className="flex items-center justify-center space-x-2">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                <>
+                  {/* Primary Action Button - Join/Leave/Hosting */}
+                  <button
+                    onClick={handleJoinEvent}
+                    disabled={isJoining || (event.createdBy === currentUserId && isJoined)}
+                    className={`w-full py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${event.createdBy === currentUserId
+                      ? 'bg-green-100 text-green-700 cursor-default'
+                      : isJoined
+                        ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200'
+                        : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]'
+                      }`}
+                  >
+                    {isJoining ? (
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                        <span>{isJoined ? 'Leaving...' : 'Joining...'}</span>
+                      </div>
+                    ) : event.createdBy === currentUserId ? (
+                      <div className="flex items-center justify-center space-x-2">
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        <span>Hosting Event</span>
+                      </div>
+                    ) : (
+                      isJoined ? 'Leave Event' : 'Join Event'
+                    )}
+                  </button>
+
+                  {/* Secondary Actions - Share and Report */}
+                  <div className="flex gap-3">
+                    {/* Share Button */}
+                    <button
+                      onClick={handleShareEvent}
+                      className="flex-1 bg-gradient-to-r from-taupe-600 to-taupe-700 py-3 rounded-2xl font-semibold text-white hover:from-taupe-700 hover:to-taupe-800 transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                       </svg>
-                      <span>Hosting Event</span>
-                    </div>
-                  ) : (
-                    isJoined ? 'Leave Event' : 'Join Event'
-                  )}
-                </button>
+                      <span>Share</span>
+                    </button>
+
+                    {/* Report Button - Only show if not the creator */}
+                    {event.createdBy !== currentUserId && (
+                      <button
+                        onClick={() => setShowReportDialog(true)}
+                        className="flex-shrink-0 px-4 py-3 bg-red-50 hover:bg-red-100 rounded-2xl flex items-center justify-center gap-2 text-red-600 transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 font-semibold"
+                        title="Report event"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                        </svg>
+                        <span>Report</span>
+                      </button>
+                    )}
+                  </div>
+                </>
               ) : (
-                <div className="space-y-3">
+                <>
+                  {/* Auth Buttons for Non-logged in Users */}
                   <button
                     onClick={() => {
                       if (onSignUpRequest) {
@@ -648,35 +680,19 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                   >
                     Sign In
                   </button>
-                </div>
-              )}
 
-              {/* Report and Share Buttons */}
-              <div className="flex space-x-3">
-                {/* Report Button - Left Side */}
-                {currentUserId && event.createdBy !== currentUserId && (
+                  {/* Share Button for Non-logged in Users */}
                   <button
-                    onClick={() => setShowReportDialog(true)}
-                    className="flex-shrink-0 w-14 h-14 bg-red-50 hover:bg-red-100 rounded-2xl flex items-center justify-center text-red-600 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 ring-1 ring-red-200/50"
-                    title="Report event"
+                    onClick={handleShareEvent}
+                    className="w-full bg-gradient-to-r from-taupe-600 to-taupe-700 py-3 rounded-2xl font-semibold text-white hover:from-taupe-700 hover:to-taupe-800 transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                     </svg>
+                    <span>Share Event</span>
                   </button>
-                )}
-
-                {/* Share Button - Right Side with Pulsing Animation */}
-                <button
-                  onClick={handleShareEvent}
-                  className="flex-1 bg-gradient-to-r from-taupe-600 to-taupe-700 py-3.5 rounded-2xl font-semibold text-white hover:from-taupe-700 hover:to-taupe-800 transition-all duration-300 flex items-center justify-center space-x-2.5 shadow-lg hover:shadow-xl active:scale-[0.98] ring-1 ring-taupe-800/20 animate-pulse-subtle"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                  </svg>
-                  <span className="tracking-wide">Share Event</span>
-                </button>
-              </div>
+                </>
+              )}
             </div>
           </div>
         </div>
