@@ -15,6 +15,7 @@ interface EventWithCreator extends Omit<Event, 'icon'> {
     icon?: React.ReactNode | string
     gradient: string | null
     thumbnailUrl: string | null
+    backgroundUrl: string | null
     attendees?: Attendee[]
     attendeeCount?: number
 }
@@ -29,6 +30,31 @@ const getEventPlaceholder = () => {
         </div>
     );
 };
+
+// Helper function to transform database events to component format
+const transformDatabaseEvent = (event: DatabaseEvent): EventCardData => ({
+    id: event.id,
+    title: event.title,
+    description: event.description,
+    date: event.date,
+    time: event.time,
+    location: event.location,
+    createdBy: event.createdBy,
+    icon: getEventPlaceholder(),
+    gradient: event.gradient || "from-gray-400 to-gray-600",
+    mediaUrl: event.mediaUrl,
+    mediaType: event.mediaType,
+    thumbnailUrl: event.thumbnailUrl,
+    backgroundUrl: event.backgroundUrl,
+    visualStyling: event.visualStyling,
+    visualStylingUrl: event.visualStylingUrl,
+    creatorName: event.creatorName,
+    creatorUsername: event.creatorUsername,
+    attendees: event.attendees,
+    attendeeCount: event.attendeeCount,
+    createdAt: new Date(event.createdAt),
+    updatedAt: new Date(event.createdAt)
+});
 
 interface User {
     id: string
@@ -53,6 +79,7 @@ interface DatabaseEvent {
     mediaUrl?: string | null
     mediaType?: string | null
     thumbnailUrl?: string | null
+    backgroundUrl?: string | null
     visualStyling?: string | null
     visualStylingUrl?: string | null
     createdBy: string
@@ -83,6 +110,7 @@ interface EventCardData {
     mediaUrl?: string | null
     mediaType?: string | null
     thumbnailUrl?: string | null
+    backgroundUrl?: string | null
     visualStyling?: string | null
     visualStylingUrl?: string | null
     creatorName?: string
@@ -161,6 +189,8 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                     gradient: event.gradient || "from-gray-400 to-gray-600",
                     mediaUrl: event.mediaUrl,
                     mediaType: event.mediaType,
+                    thumbnailUrl: event.thumbnailUrl,
+                    backgroundUrl: event.backgroundUrl,
                     visualStyling: event.visualStyling,
                     visualStylingUrl: event.visualStylingUrl,
                     creatorName: event.creatorName,
@@ -224,6 +254,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
             mediaUrl: event.mediaUrl || null,
             mediaType: event.mediaType || null,
             thumbnailUrl: event.thumbnailUrl || null,
+            backgroundUrl: event.backgroundUrl || null,
             visualStyling: event.visualStyling || null,
             visualStylingUrl: event.visualStylingUrl || null,
             creatorName: event.creatorName,
@@ -269,6 +300,8 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                     gradient: event.gradient || "from-gray-400 to-gray-600",
                     mediaUrl: event.mediaUrl,
                     mediaType: event.mediaType,
+                    thumbnailUrl: event.thumbnailUrl,
+                    backgroundUrl: event.backgroundUrl,
                     visualStyling: event.visualStyling,
                     visualStylingUrl: event.visualStylingUrl,
                     creatorName: event.creatorName,

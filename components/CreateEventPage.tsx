@@ -23,7 +23,10 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
   const [isUploading, setIsUploading] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
   const [isGeneratingThumbnail, setIsGeneratingThumbnail] = useState(false)
+  const [isGeneratingBackground, setIsGeneratingBackground] = useState(false)
   const [hasGeneratedThumbnail, setHasGeneratedThumbnail] = useState(false) // Track if thumbnail was generated
+  const [hasGeneratedBackground, setHasGeneratedBackground] = useState(false) // Track if background was generated
+  const [backgroundImage, setBackgroundImage] = useState<string | null>(null) // Separate background
   const [eventData, setEventData] = useState({
     title: "",
     description: "",
@@ -149,9 +152,9 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
       const response = await fetch('/api/generate-event-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, location }),
+        body: JSON.stringify({ title, description, location, type: 'thumbnail' }),
       })
-      
+
       if (response.ok) {
         const data = await response.json()
         setThumbnailImage(data.imageUrl)
@@ -167,6 +170,40 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
       return false
     } finally {
       setIsGeneratingThumbnail(false)
+    }
+  }
+
+  // Function to generate AI background (for event preview modal)
+  const generateAIBackground = async (title: string, description: string, location: string) => {
+    // Prevent multiple simultaneous generations
+    if (isGeneratingBackground || hasGeneratedBackground) {
+      return false
+    }
+
+    setIsGeneratingBackground(true)
+    try {
+      console.log('Generating AI background for:', title)
+      const response = await fetch('/api/generate-event-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description, location, type: 'background' }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setBackgroundImage(data.imageUrl)
+        setHasGeneratedBackground(true)
+        console.log('Background generated successfully')
+        return true
+      } else {
+        console.error('Failed to generate AI background')
+        return false
+      }
+    } catch (error) {
+      console.error('Error generating AI background:', error)
+      return false
+    } finally {
+      setIsGeneratingBackground(false)
     }
   }
 
@@ -193,12 +230,17 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     
     // Go directly to step 3 (edit) after AI generation
     setCurrentStep(3)
-    
-    // Generate AI thumbnail in background (only once)
+
+    // Generate AI thumbnail and background in background (only once each)
     if (!hasGeneratedThumbnail && parsed.title) {
       setTimeout(() => {
         generateAIThumbnail(parsed.title, parsed.description, parsed.location)
       }, 500)
+    }
+    if (!hasGeneratedBackground && parsed.title) {
+      setTimeout(() => {
+        generateAIBackground(parsed.title, parsed.description, parsed.location)
+      }, 1000) // Stagger to avoid hitting rate limits
     }
   }
 
@@ -320,6 +362,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         mediaUrl: mediaUrl, // Now using R2 URLs instead of data URLs
         mediaType: mediaType,
         thumbnailUrl: thumbnailImage, // AI-generated thumbnail for event cards
+        backgroundUrl: backgroundImage, // AI-generated background for event preview modal
         createdBy: user.id,
         visualStyling: eventData.visualStyling,
       }
@@ -350,10 +393,14 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         // Reset form
         setCurrentStep(1)
         setSelectedMedia(null)
+        setThumbnailImage(null)
+        setBackgroundImage(null)
+        setHasGeneratedThumbnail(false)
+        setHasGeneratedBackground(false)
         setAiMethod(null)
         setAiGeneratedContent(null)
         setEventData({ title: "", description: "", date: "", time: "", location: "", visualStyling: null })
-        
+
         // Notify parent component to refresh events
         if (onEventCreated) {
           onEventCreated()

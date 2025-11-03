@@ -172,11 +172,13 @@ export async function POST(request: NextRequest) {
       // Continue without visual styling if it fails
     }
 
-    // Generate AI image if requested and no media was uploaded
+    // Generate AI images if requested and no media was uploaded
     if (generateImage) {
       try {
-        console.log('Generating AI thumbnail for event:', eventData.title);
-        const imageResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/generate-event-image`, {
+        console.log('Generating AI images for event:', eventData.title);
+        
+        // Generate thumbnail
+        const thumbnailResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/generate-event-image`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -185,19 +187,42 @@ export async function POST(request: NextRequest) {
             title: eventData.title,
             description: eventData.description,
             location: eventData.location,
+            type: 'thumbnail',
           }),
         });
 
-        if (imageResponse.ok) {
-          const imageData = await imageResponse.json();
-          eventData.aiGeneratedImage = imageData.imageUrl;
+        if (thumbnailResponse.ok) {
+          const thumbnailData = await thumbnailResponse.json();
+          eventData.aiGeneratedImage = thumbnailData.imageUrl;
           console.log('AI thumbnail generated successfully');
         } else {
-          console.error('Failed to generate AI image:', await imageResponse.text());
+          console.error('Failed to generate AI thumbnail:', await thumbnailResponse.text());
+        }
+
+        // Generate background for modal
+        const backgroundResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/generate-event-image`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title: eventData.title,
+            description: eventData.description,
+            location: eventData.location,
+            type: 'background',
+          }),
+        });
+
+        if (backgroundResponse.ok) {
+          const backgroundData = await backgroundResponse.json();
+          eventData.aiGeneratedBackground = backgroundData.imageUrl;
+          console.log('AI background generated successfully');
+        } else {
+          console.error('Failed to generate AI background:', await backgroundResponse.text());
         }
       } catch (imageError) {
-        console.error('Error generating AI image:', imageError);
-        // Continue without AI image if it fails
+        console.error('Error generating AI images:', imageError);
+        // Continue without AI images if it fails
       }
     }
 

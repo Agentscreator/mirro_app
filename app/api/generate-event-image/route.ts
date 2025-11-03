@@ -15,16 +15,23 @@ function getOpenAIClient(): OpenAI {
 
 export async function POST(request: NextRequest) {
   try {
-    const { title, description, location } = await request.json();
+    const { title, description, location, type = 'thumbnail' } = await request.json();
 
     if (!title) {
       return NextResponse.json({ error: 'Event title is required' }, { status: 400 });
     }
 
-    // Create a detailed prompt for DALL-E 3
-    const prompt = `Create a vibrant, professional event thumbnail image for: "${title}". ${description ? `The event is about: ${description}.` : ''} ${location ? `Location: ${location}.` : ''} Style: Modern, colorful, eye-catching, suitable for social media. No text or words in the image.`;
+    // Create different prompts based on type
+    let prompt: string;
+    if (type === 'background') {
+      // For modal backgrounds - more atmospheric and immersive
+      prompt = `Create an immersive, atmospheric background image for an event titled: "${title}". ${description ? `The event is about: ${description}.` : ''} ${location ? `Location: ${location}.` : ''} Style: Cinematic, wide-angle, ambient, suitable as a full-screen background. No text or words. Focus on mood and atmosphere.`;
+    } else {
+      // For thumbnails - more compact and eye-catching
+      prompt = `Create a vibrant, professional event thumbnail image for: "${title}". ${description ? `The event is about: ${description}.` : ''} ${location ? `Location: ${location}.` : ''} Style: Modern, colorful, eye-catching, suitable for social media. No text or words in the image.`;
+    }
 
-    console.log('Generating image with DALL-E 3 for:', title);
+    console.log(`Generating ${type} image with DALL-E 3 for:`, title);
 
     // Generate image using DALL-E 3
     const response = await getOpenAIClient().images.generate({

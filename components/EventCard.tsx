@@ -121,13 +121,23 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : event.mediaUrl && event.mediaType === "video" ? (
-          <video
-            src={event.mediaUrl}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            muted
-            loop
-            autoPlay
-          />
+          // Show a static thumbnail for videos instead of playing them
+          <div className="relative w-full h-full">
+            <video
+              src={event.mediaUrl}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              muted
+              playsInline
+            />
+            {/* Play icon overlay to indicate it's a video */}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+              <div className="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl">
+                <svg className="w-8 h-8 text-gray-800 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+            </div>
+          </div>
         ) : (
           <div className={`w-full h-full ${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-br ${displayGradient}`} transition-transform duration-500 group-hover:scale-105`} />
         )}

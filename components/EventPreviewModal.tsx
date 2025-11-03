@@ -24,6 +24,8 @@ interface Event {
   gradient: string | null
   mediaUrl?: string | null
   mediaType?: string | null
+  thumbnailUrl?: string | null
+  backgroundUrl?: string | null
   visualStyling?: string | null
   visualStylingUrl?: string | null
   creatorName?: string
@@ -276,7 +278,13 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
         {/* Media Section - Upper portion */}
         <div className="relative h-[45%] overflow-hidden rounded-t-3xl">
-          {event.mediaUrl && event.mediaType === "image" ? (
+          {event.backgroundUrl ? (
+            <img
+              src={event.backgroundUrl}
+              alt={event.title}
+              className="w-full h-full object-cover"
+            />
+          ) : event.mediaUrl && event.mediaType === "image" ? (
             <img
               src={event.mediaUrl}
               alt={event.title}

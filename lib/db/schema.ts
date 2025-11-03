@@ -33,6 +33,7 @@ export const events = pgTable('events', {
   mediaUrl: text('media_url'), // Store media file URL
   mediaType: text('media_type'), // Store media type (image/video)
   thumbnailUrl: text('thumbnail_url'), // Store AI-generated thumbnail URL for event cards
+  backgroundUrl: text('background_url'), // Store AI-generated background URL for event preview modal
   visualStyling: text('visual_styling'), // Store AI-generated visual styling as JSON (for small data)
   visualStylingUrl: text('visual_styling_url'), // Store R2 URL for large visual styling data
   createdBy: uuid('created_by').notNull().references(() => users.id),
