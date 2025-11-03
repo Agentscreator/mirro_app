@@ -36,6 +36,7 @@ export const events = pgTable('events', {
   backgroundUrl: text('background_url'), // Store AI-generated background URL for event preview modal
   visualStyling: text('visual_styling'), // Store AI-generated visual styling as JSON (for small data)
   visualStylingUrl: text('visual_styling_url'), // Store R2 URL for large visual styling data
+  mediaGallery: text('media_gallery'), // Store array of additional media URLs as JSON [{url: string, type: 'image'|'video', uploadedAt: timestamp, uploadedBy: userId}]
   createdBy: uuid('created_by').notNull().references(() => users.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

@@ -12,6 +12,13 @@ interface Attendee {
   profilePicture?: string | null
 }
 
+interface MediaGalleryItem {
+  url: string
+  type: 'image' | 'video'
+  uploadedAt: string
+  uploadedBy: string
+}
+
 interface Event {
   id: string
   title: string
@@ -28,6 +35,7 @@ interface Event {
   backgroundUrl?: string | null
   visualStyling?: string | null
   visualStylingUrl?: string | null
+  mediaGallery?: MediaGalleryItem[] | null | string
   creatorName?: string
   creatorUsername?: string
   attendees?: Attendee[]
@@ -58,6 +66,8 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   const [, setIsLoadingVisualStyling] = useState(false)
   const [showAttendeeList, setShowAttendeeList] = useState(false)
   const [showReportDialog, setShowReportDialog] = useState(false)
+  const [lightboxMedia, setLightboxMedia] = useState<MediaGalleryItem | null>(null)
+  const [mediaGallery, setMediaGallery] = useState<MediaGalleryItem[]>([])
   const videoRef = useRef<HTMLVideoElement>(null)
 
   // Load visual styling data (from R2 or inline)
@@ -91,6 +101,23 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
       loadVisualStyling()
     }
   }, [event, isOpen])
+
+  // Load media gallery
+  useEffect(() => {
+    if (event?.mediaGallery) {
+      try {
+        const gallery = typeof event.mediaGallery === 'string'
+          ? JSON.parse(event.mediaGallery)
+          : event.mediaGallery
+        setMediaGallery(gallery || [])
+      } catch (e) {
+        console.error('Error parsing media gallery:', e)
+        setMediaGallery([])
+      }
+    } else {
+      setMediaGallery([])
+    }
+  }, [event])
 
   // Use AI-generated gradient if available, otherwise fall back to default
   const displayGradient = visualStyling?.styling?.gradient || event?.gradient || 'from-gray-400 to-gray-600'
@@ -273,22 +300,32 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="relative rounded-3xl max-w-sm w-full h-[85vh] overflow-hidden shadow-2xl bg-white animate-slide-up ring-1 ring-black/5">
-
-
-        {/* Media Section - Upper portion */}
-        <div className="relative h-[45%] overflow-hidden rounded-t-3xl">
-          {event.backgroundUrl ? (
+      <div className="relative rounded-3xl max-w-sm w-full h-[85vh] overflow-hidden shadow-2xl animate-slide-up ring-1 ring-black/5">
+        {/* AI Generated Background - Full Modal */}
+        {event.backgroundUrl && (
+          <div className="absolute inset-0 z-0">
             <img
               src={event.backgroundUrl}
-              alt={event.title}
+              alt="Event background"
               className="w-full h-full object-cover"
             />
-          ) : event.mediaUrl && event.mediaType === "image" ? (
+            {/* Overlay for readability */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60"></div>
+          </div>
+        )}
+
+        {/* Fallback background if no AI background */}
+        {!event.backgroundUrl && (
+          <div className="absolute inset-0 z-0 bg-white"></div>
+        )}
+
+        {/* User Media Section - Smaller, top portion */}
+        <div className="relative h-[30%] overflow-hidden rounded-t-3xl z-10">
+          {event.mediaUrl && event.mediaType === "image" ? (
             <img
               src={event.mediaUrl}
               alt={event.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover opacity-90"
             />
           ) : event.mediaUrl && event.mediaType === "video" ? (
             <div
@@ -425,9 +462,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                 </div>
               )}
             </div>
-          ) : (
-            <div className={`w-full h-full ${displayGradient.includes('bg-gradient') ? displayGradient : `bg-gradient-to-br ${displayGradient}`}`} />
-          )}
+          ) : null}
         </div>
 
         {/* Close Button - Refined */}
@@ -441,10 +476,13 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
         </button>
 
         {/* Content Section - Lower portion */}
-        <div className="h-[55%] overflow-y-auto">
-          <div className="p-6 flex flex-col min-h-full">
+        <div className="relative h-[70%] overflow-y-auto z-10">
+          {/* Frosted glass background for content */}
+          <div className="absolute inset-0 bg-white/85 backdrop-blur-xl"></div>
+
+          <div className="relative p-6 flex flex-col min-h-full">
             {/* Event Title with AI font styling */}
-            <h2 className={`text-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-gray-900 tracking-tight mb-4`}>
+            <h2 className={`text-3xl ${visualStyling?.styling?.font || 'font-bold'} text-gray-900 tracking-tight mb-4 drop-shadow-sm`}>
               {event.title}
             </h2>
 
@@ -616,8 +654,37 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
               </div>
             )}
 
+            {/* Media Gallery */}
+            {mediaGallery.length > 0 && (
+              <div className="mb-5">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Event Photos & Videos</h3>
+                <div className="flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 snap-x snap-mandatory scrollbar-hide">
+                  {mediaGallery.map((item, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setLightboxMedia(item)}
+                      className="relative flex-shrink-0 w-32 h-32 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 snap-start group"
+                    >
+                      {item.type === 'image' ? (
+                        <img src={item.url} alt="Gallery" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                      ) : (
+                        <>
+                          <video src={item.url} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                            <svg className="w-8 h-8 text-white drop-shadow" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                            </svg>
+                          </div>
+                        </>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Action Buttons */}
-            <div className="space-y-3 mt-6 sticky bottom-0 bg-white pt-4 -mx-6 px-6 pb-2">
+            <div className="space-y-3 mt-6 sticky bottom-0 bg-white/90 backdrop-blur-lg pt-4 -mx-6 px-6 pb-2 border-t border-gray-200/50">
               {currentUserId ? (
                 <>
                   {/* Primary Action Button - Join/Leave/Hosting */}
@@ -730,6 +797,40 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
         contentType="event"
         contentName={event.title}
       />
+
+      {/* Media Lightbox */}
+      {lightboxMedia && (
+        <div
+          className="fixed inset-0 bg-black/95 z-[60] flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setLightboxMedia(null)}
+        >
+          <button
+            onClick={() => setLightboxMedia(null)}
+            className="absolute top-4 right-4 w-12 h-12 bg-white/10 backdrop-blur-xl rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all duration-200 z-10"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <div className="relative max-w-4xl max-h-[90vh] w-full" onClick={(e) => e.stopPropagation()}>
+            {lightboxMedia.type === 'image' ? (
+              <img
+                src={lightboxMedia.url}
+                alt="Full size"
+                className="w-full h-full object-contain rounded-lg"
+              />
+            ) : (
+              <video
+                src={lightboxMedia.url}
+                controls
+                autoPlay
+                className="w-full h-full object-contain rounded-lg"
+              />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

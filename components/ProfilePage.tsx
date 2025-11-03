@@ -16,6 +16,7 @@ interface EventWithCreator extends Omit<Event, 'icon'> {
     gradient: string | null
     thumbnailUrl: string | null
     backgroundUrl: string | null
+    mediaGallery: string | null
     attendees?: Attendee[]
     attendeeCount?: number
 }
@@ -48,6 +49,7 @@ const transformDatabaseEvent = (event: DatabaseEvent): EventCardData => ({
     backgroundUrl: event.backgroundUrl,
     visualStyling: event.visualStyling,
     visualStylingUrl: event.visualStylingUrl,
+    mediaGallery: event.mediaGallery,
     creatorName: event.creatorName,
     creatorUsername: event.creatorUsername,
     attendees: event.attendees,
@@ -82,6 +84,7 @@ interface DatabaseEvent {
     backgroundUrl?: string | null
     visualStyling?: string | null
     visualStylingUrl?: string | null
+    mediaGallery?: string | null
     createdBy: string
     createdAt: string
     creatorName?: string
@@ -113,6 +116,7 @@ interface EventCardData {
     backgroundUrl?: string | null
     visualStyling?: string | null
     visualStylingUrl?: string | null
+    mediaGallery?: string | null
     creatorName?: string
     creatorUsername?: string
     attendees?: Attendee[]
@@ -193,6 +197,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                     backgroundUrl: event.backgroundUrl,
                     visualStyling: event.visualStyling,
                     visualStylingUrl: event.visualStylingUrl,
+                    mediaGallery: event.mediaGallery,
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
                     attendees: event.attendees,
@@ -257,6 +262,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
             backgroundUrl: event.backgroundUrl || null,
             visualStyling: event.visualStyling || null,
             visualStylingUrl: event.visualStylingUrl || null,
+            mediaGallery: event.mediaGallery || null,
             creatorName: event.creatorName,
             creatorUsername: event.creatorUsername,
             attendees: event.attendees,
@@ -304,6 +310,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                     backgroundUrl: event.backgroundUrl,
                     visualStyling: event.visualStyling,
                     visualStylingUrl: event.visualStylingUrl,
+                    mediaGallery: event.mediaGallery,
                     creatorName: event.creatorName,
                     creatorUsername: event.creatorUsername,
                     attendees: event.attendees,
