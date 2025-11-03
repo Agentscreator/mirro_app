@@ -145,7 +145,7 @@ function extractTitleFromText(text: string): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const { input, method } = await request.json();
+    const { input, method, generateImage } = await request.json();
 
     if (!input || !method) {
       return NextResponse.json({ error: 'Input and method are required' }, { status: 400 });
@@ -170,6 +170,35 @@ export async function POST(request: NextRequest) {
     } catch (visualError) {
       console.error('Error getting visual styling:', visualError);
       // Continue without visual styling if it fails
+    }
+
+    // Generate AI image if requested and no media was uploaded
+    if (generateImage) {
+      try {
+        console.log('Generating AI thumbnail for event:', eventData.title);
+        const imageResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/generate-event-image`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title: eventData.title,
+            description: eventData.description,
+            location: eventData.location,
+          }),
+        });
+
+        if (imageResponse.ok) {
+          const imageData = await imageResponse.json();
+          eventData.aiGeneratedImage = imageData.imageUrl;
+          console.log('AI thumbnail generated successfully');
+        } else {
+          console.error('Failed to generate AI image:', await imageResponse.text());
+        }
+      } catch (imageError) {
+        console.error('Error generating AI image:', imageError);
+        // Continue without AI image if it fails
+      }
     }
 
     return NextResponse.json(eventData);

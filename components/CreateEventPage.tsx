@@ -138,6 +138,14 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     setAiPromptInput(input)
     const parsed = JSON.parse(content)
     
+    // If AI generated an image and user hasn't uploaded media, use the AI image
+    if (parsed.aiGeneratedImage && !selectedMedia) {
+      setSelectedMedia({
+        type: 'image',
+        data: parsed.aiGeneratedImage
+      })
+    }
+    
     // Set all extracted data including date, time, location, and visual styling
     setEventData({
       title: parsed.title || "",
@@ -502,103 +510,164 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         )}
 
         {currentStep === 3 && (
-          <div>
-            <div className="mb-10 text-center">
-              <h2 className="text-2xl font-normal text-text-primary mb-3">Preview & Edit Details</h2>
-              <p className="text-text-secondary font-normal">Review and finalize your event</p>
-            </div>
-
-
-
-            {/* Media Preview */}
-            <div className="glass-card rounded-3xl p-6 mb-6 soft-shadow">
-              {selectedMedia && selectedMedia.type === "image" && (
-                <img
-                  src={selectedMedia.data || "/placeholder.svg"}
-                  className="w-full h-48 object-cover rounded-xl mb-4"
-                  alt="Event"
-                />
-              )}
-              {selectedMedia && selectedMedia.type === "video" && (
-                <video src={selectedMedia.data} className="w-full h-48 object-cover rounded-xl mb-4" controls />
-              )}
-            </div>
-
-            {/* Editable Event Details */}
-            <form
-              className="space-y-6"
-              onSubmit={(e) => {
-                e.preventDefault()
-                handlePublish()
-              }}
-            >
-              <div>
-                <label className="block text-sm font-medium mb-3 text-text-secondary">Event Title *</label>
-                <input
-                  type="text"
-                  placeholder="Enter event title"
-                  required
-                  className="w-full px-5 py-4 text-base rounded-2xl border border-cream-300 glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary placeholder-text-light"
-                  value={eventData.title}
-                  onChange={(e) => setEventData({ ...eventData, title: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-3 text-text-secondary">Description *</label>
-                <textarea
-                  placeholder="Describe your event..."
-                  rows={6}
-                  required
-                  className="w-full px-5 py-4 text-base rounded-2xl border border-cream-300 glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 resize-none text-text-primary placeholder-text-light"
-                  value={eventData.description}
-                  onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-3 text-text-secondary">Date *</label>
-                  <input
-                    type="date"
-                    required
-                    className="w-full px-4 py-3 text-sm rounded-xl border border-cream-300 glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary"
-                    value={eventData.date}
-                    onChange={(e) => setEventData({ ...eventData, date: e.target.value })}
+          <div className="space-y-4">
+            {/* Event Preview Card - Similar to EventPreviewModal */}
+            <div className="bg-white rounded-3xl overflow-hidden shadow-xl">
+              {/* Media Section */}
+              <div className="relative h-64 overflow-hidden">
+                {selectedMedia && selectedMedia.type === "image" ? (
+                  <img
+                    src={selectedMedia.data || "/placeholder.svg"}
+                    className="w-full h-full object-cover"
+                    alt="Event"
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-3 text-text-secondary">Time *</label>
-                  <input
-                    type="time"
-                    required
-                    className="w-full px-4 py-3 text-sm rounded-xl border border-cream-300 glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary"
-                    value={eventData.time}
-                    onChange={(e) => setEventData({ ...eventData, time: e.target.value })}
-                  />
+                ) : selectedMedia && selectedMedia.type === "video" ? (
+                  <video src={selectedMedia.data} className="w-full h-full object-cover" controls />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600" />
+                )}
+                
+                {/* Media Action Buttons Overlay */}
+                <div className="absolute top-4 right-4 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedMedia(null)
+                      setShowCamera(true)
+                    }}
+                    className="p-2.5 bg-white/90 backdrop-blur-sm rounded-xl hover:bg-white transition-all duration-200 shadow-lg"
+                    title="Replace media"
+                  >
+                    <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                  {selectedMedia?.data.startsWith('http') && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setIsUploading(true)
+                        try {
+                          const response = await fetch('/api/generate-event-image', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              title: eventData.title,
+                              description: eventData.description,
+                              location: eventData.location,
+                            }),
+                          })
+                          if (response.ok) {
+                            const data = await response.json()
+                            setSelectedMedia({ type: 'image', data: data.imageUrl })
+                          }
+                        } catch (error) {
+                          console.error('Error regenerating image:', error)
+                          alert('Failed to regenerate image')
+                        } finally {
+                          setIsUploading(false)
+                        }
+                      }}
+                      disabled={isUploading}
+                      className="p-2.5 bg-purple-500/90 backdrop-blur-sm rounded-xl hover:bg-purple-600 transition-all duration-200 shadow-lg disabled:opacity-50"
+                      title="Regenerate AI thumbnail"
+                    >
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-3 text-text-secondary">Location *</label>
-                <input
-                  type="text"
-                  placeholder="Enter event location"
-                  required
-                  className="w-full px-4 py-3 text-sm rounded-xl border border-cream-300 glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary placeholder-text-light"
-                  value={eventData.location}
-                  onChange={(e) => setEventData({ ...eventData, location: e.target.value })}
-                />
-              </div>
+              {/* Content Section */}
+              <div className="p-6 space-y-5">
+                {/* Title Input */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Event Title</label>
+                  <input
+                    type="text"
+                    placeholder="Enter event title"
+                    required
+                    className="w-full px-4 py-3 text-lg font-semibold rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                    value={eventData.title}
+                    onChange={(e) => setEventData({ ...eventData, title: e.target.value })}
+                  />
+                </div>
 
-              <button
-                type="submit"
-                disabled={isPublishing || isUploading}
-                className="w-full gradient-primary text-white py-4 rounded-2xl font-medium hover:shadow-lg transition-all duration-200 mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isUploading ? "Uploading Media..." : isPublishing ? "Publishing Event..." : "Publish Event"}
-              </button>
-            </form>
+                {/* Date, Time, Location - Compact Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Date</label>
+                    <input
+                      type="date"
+                      required
+                      className="w-full px-3 py-2.5 text-sm rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 text-gray-900"
+                      value={eventData.date}
+                      onChange={(e) => setEventData({ ...eventData, date: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Time</label>
+                    <input
+                      type="time"
+                      required
+                      className="w-full px-3 py-2.5 text-sm rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 text-gray-900"
+                      value={eventData.time}
+                      onChange={(e) => setEventData({ ...eventData, time: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                {/* Location Input */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Location</label>
+                  <input
+                    type="text"
+                    placeholder="Enter event location"
+                    required
+                    className="w-full px-4 py-3 text-sm rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 text-gray-900 placeholder-gray-400"
+                    value={eventData.location}
+                    onChange={(e) => setEventData({ ...eventData, location: e.target.value })}
+                  />
+                </div>
+
+                {/* Description Input */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Description</label>
+                  <textarea
+                    placeholder="Describe your event..."
+                    rows={4}
+                    required
+                    className="w-full px-4 py-3 text-sm rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 resize-none text-gray-900 placeholder-gray-400"
+                    value={eventData.description}
+                    onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
+                  />
+                </div>
+
+                {/* Publish Button */}
+                <button
+                  type="button"
+                  onClick={handlePublish}
+                  disabled={isPublishing || isUploading}
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 rounded-2xl font-semibold hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
+                >
+                  {isUploading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Processing...</span>
+                    </div>
+                  ) : isPublishing ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Publishing Event...</span>
+                    </div>
+                  ) : (
+                    "Publish Event"
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

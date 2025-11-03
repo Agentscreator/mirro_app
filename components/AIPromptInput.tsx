@@ -108,6 +108,7 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
         body: JSON.stringify({
           input: textToUse,
           method: method,
+          generateImage: true, // Always generate AI image during event creation
         }),
       })
 
