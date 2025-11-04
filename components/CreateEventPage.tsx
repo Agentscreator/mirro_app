@@ -3,6 +3,7 @@ import { useState } from "react"
 import UnifiedCamera from "./UnifiedCamera"
 import AIGenerationStep from "./AIGenerationStep"
 import AIPromptInput from "./AIPromptInput"
+import MediaGalleryManager, { MediaItem } from "./MediaGalleryManager"
 import { compressVideo, compressImage, formatFileSize } from "@/lib/media-utils"
 import { prepareEventData } from "@/lib/event-upload-utils"
 
@@ -14,6 +15,7 @@ interface CreateEventPageProps {
 export default function CreateEventPage({ onEventCreated }: CreateEventPageProps) {
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedMedia, setSelectedMedia] = useState<{ type: string; data: string } | null>(null)
+  const [mediaGallery, setMediaGallery] = useState<MediaItem[]>([]) // NEW: Multiple media support
   const [thumbnailImage, setThumbnailImage] = useState<string | null>(null) // Separate thumbnail
   const [showCamera, setShowCamera] = useState(true) // Open camera immediately
   const [showUploadSuccess, setShowUploadSuccess] = useState(false)
@@ -65,7 +67,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     
     switch (currentStep) {
       case 1:
-        newStepStates.step1.completed = !!selectedMedia
+        newStepStates.step1.completed = mediaGallery.length > 0
         break
       case 2:
         newStepStates.step2.completed = !!aiGeneratedContent
@@ -107,7 +109,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     let maxStep = 1
     
     // Step 2 is reachable if media is selected
-    if (selectedMedia) {
+    if (mediaGallery.length > 0) {
       maxStep = 2
     }
     
@@ -124,15 +126,48 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
   }
 
   const handleCameraCapture = (data: string, type: "photo" | "video") => {
-    setSelectedMedia({ type: type === "photo" ? "image" : "video", data })
+    const mediaType = type === "photo" ? "image" : "video"
+    
+    // Add to gallery
+    const newMediaItem: MediaItem = {
+      id: `media-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type: mediaType,
+      data: data,
+      uploadedAt: new Date().toISOString()
+    }
+    
+    setMediaGallery(prev => [...prev, newMediaItem])
+    setSelectedMedia({ type: mediaType, data }) // Keep for backward compatibility
     setShowCamera(false)
     
     // Show success message for 2.5 seconds before moving to AI generation step
     setShowUploadSuccess(true)
     setTimeout(() => {
       setShowUploadSuccess(false)
-      setCurrentStep(2)
+      // Only auto-advance to step 2 if this is the first media
+      if (mediaGallery.length === 0) {
+        setCurrentStep(2)
+      }
     }, 2500)
+  }
+  
+  const handleAddMoreMedia = () => {
+    setShowCamera(true)
+  }
+  
+  const handleRemoveMedia = (id: string) => {
+    setMediaGallery(prev => prev.filter(item => item.id !== id))
+    // Update selectedMedia to the first remaining item or null
+    const remaining = mediaGallery.filter(item => item.id !== id)
+    if (remaining.length > 0) {
+      setSelectedMedia({ type: remaining[0].type, data: remaining[0].data })
+    } else {
+      setSelectedMedia(null)
+    }
+  }
+  
+  const handleReorderMedia = (reorderedMedia: MediaItem[]) => {
+    setMediaGallery(reorderedMedia)
   }
 
   const handleAIMethodSelect = (method: string) => {
@@ -275,23 +310,34 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
 
       const user = JSON.parse(storedUser)
       
-      // Handle media upload - ALWAYS upload data URLs to avoid 413 errors
-      let mediaUrl = selectedMedia?.data
-      let mediaType = selectedMedia?.type
+      // Handle media gallery upload - Upload all media items
+      setIsUploading(true)
+      const uploadedGallery: any[] = []
       
-      if (selectedMedia && selectedMedia.data.startsWith('data:')) {
-        setIsUploading(true)
-        console.log('Processing media for upload...')
-        
+      for (const mediaItem of mediaGallery) {
         try {
+          // Skip if already uploaded (has URL)
+          if (mediaItem.data.startsWith('http')) {
+            uploadedGallery.push({
+              url: mediaItem.data,
+              type: mediaItem.type,
+              uploadedAt: mediaItem.uploadedAt,
+              uploadedBy: user.id
+            })
+            continue
+          }
+          
+          // Upload data URL
+          console.log(`Processing ${mediaItem.type} for upload...`)
+          
           // Convert data URL to blob
-          const response = await fetch(selectedMedia.data)
+          const response = await fetch(mediaItem.data)
           let blob = await response.blob()
           
-          console.log(`Original ${selectedMedia.type} file size: ${formatFileSize(blob.size)}`)
+          console.log(`Original ${mediaItem.type} file size: ${formatFileSize(blob.size)}`)
           
           // Convert blob to File for compression
-          const originalFile = new File([blob], `media.${selectedMedia.type === 'video' ? 'webm' : 'jpg'}`, {
+          const originalFile = new File([blob], `media.${mediaItem.type === 'video' ? 'webm' : 'jpg'}`, {
             type: blob.type,
             lastModified: Date.now()
           })
@@ -301,7 +347,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
           if (blob.size > 5 * 1024 * 1024) { // 5MB threshold
             console.log('File is large, compressing...')
             try {
-              if (selectedMedia.type === 'video') {
+              if (mediaItem.type === 'video') {
                 finalFile = await compressVideo(originalFile, 4) // Target 4MB
               } else {
                 finalFile = await compressImage(originalFile, 2, 0.7) // Target 2MB, 70% quality
@@ -309,47 +355,48 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
               console.log(`Compressed file size: ${formatFileSize(finalFile.size)}`)
             } catch (compressionError) {
               console.warn('Compression failed, using original:', compressionError)
-              // Continue with original file
             }
           }
           
           // Final size check
           if (finalFile.size > 10 * 1024 * 1024) {
-            alert(`Media file is still too large (${formatFileSize(finalFile.size)}). Maximum size is 10MB. Please try a shorter video or smaller image.`)
+            alert(`Media file is too large (${formatFileSize(finalFile.size)}). Maximum size is 10MB.`)
             setIsUploading(false)
             setIsPublishing(false)
             return
           }
           
-          console.log(`Uploading ${selectedMedia.type} file (${formatFileSize(finalFile.size)})...`)
+          console.log(`Uploading ${mediaItem.type} file (${formatFileSize(finalFile.size)})...`)
           
           // Upload to server
           const formData = new FormData()
           formData.append('file', finalFile)
-          formData.append('type', selectedMedia.type)
+          formData.append('type', mediaItem.type)
           
           const uploadResponse = await fetch('/api/upload', {
             method: 'POST',
             body: formData
           })
           
-          setIsUploading(false)
-          
           if (uploadResponse.ok) {
             const uploadResult = await uploadResponse.json()
-            mediaUrl = uploadResult.url
-            console.log('Successfully uploaded media:', mediaUrl)
+            uploadedGallery.push({
+              url: uploadResult.url,
+              type: mediaItem.type,
+              uploadedAt: mediaItem.uploadedAt,
+              uploadedBy: user.id
+            })
+            console.log('Successfully uploaded media:', uploadResult.url)
           } else {
             const errorText = await uploadResponse.text()
             console.error('Upload failed:', uploadResponse.status, errorText)
             
             if (uploadResponse.status === 413) {
-              alert("Media file is too large. Please try a smaller file or shorter video.")
-            } else if (uploadResponse.status === 404) {
-              alert("Upload service is not available. Please try again later.")
+              alert("Media file is too large. Please try a smaller file.")
             } else {
               alert("Failed to upload media. Please try again.")
             }
+            setIsUploading(false)
             setIsPublishing(false)
             return
           }
@@ -362,6 +409,12 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         }
       }
       
+      setIsUploading(false)
+      
+      // Keep backward compatibility - use first media item as primary
+      const mediaUrl = uploadedGallery.length > 0 ? uploadedGallery[0].url : null
+      const mediaType = uploadedGallery.length > 0 ? uploadedGallery[0].type : null
+      
       // Prepare event data with Vercel Blob storage for large content
       const rawEventPayload = {
         title: eventData.title,
@@ -371,8 +424,9 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         location: eventData.location,
         icon: undefined,
         gradient: eventData.visualStyling?.styling?.gradient || 'bg-gray-50',
-        mediaUrl: mediaUrl, // Now using R2 URLs instead of data URLs
+        mediaUrl: mediaUrl, // Now using R2 URLs instead of data URLs (backward compatibility)
         mediaType: mediaType,
+        mediaGallery: uploadedGallery.length > 0 ? JSON.stringify(uploadedGallery) : null, // NEW: Multi-media support
         thumbnailUrl: thumbnailImage, // AI-generated thumbnail for event cards
         backgroundUrl: backgroundImage, // AI-generated background for event preview modal
         createdBy: user.id,
@@ -405,6 +459,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         // Reset form
         setCurrentStep(1)
         setSelectedMedia(null)
+        setMediaGallery([]) // Reset media gallery
         setThumbnailImage(null)
         setBackgroundImage(null)
         setHasGeneratedThumbnail(false)
@@ -456,7 +511,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
                 const maxReachableStep = getMaxReachableStep()
                 const isClickable = step <= maxReachableStep
                 const isActive = currentStep >= step
-                const isCompleted = currentStep > step && (step === 1 ? selectedMedia : step === 2 ? aiGeneratedContent : false)
+                const isCompleted = currentStep > step && (step === 1 ? mediaGallery.length > 0 : step === 2 ? aiGeneratedContent : false)
                 
                 return (
                   <div key={step} className="flex items-center">
@@ -532,10 +587,10 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
           <div>
             <div className="mb-10 text-center">
               <h2 className="text-2xl font-normal text-text-primary mb-3">Add Media</h2>
-              <p className="text-text-secondary font-normal">Capture or upload media for your event</p>
+              <p className="text-text-secondary font-normal">Capture or upload photos and videos for your event</p>
             </div>
 
-            {!selectedMedia && (
+            {mediaGallery.length === 0 ? (
               <button
                 onClick={handleMediaStep}
                 className="w-full glass-card rounded-3xl p-12 text-center hover:bg-white/60 transition-all duration-200 soft-shadow hover-lift"
@@ -554,40 +609,24 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
                   Capture photos or videos, or upload from gallery
                 </p>
               </button>
-            )}
-
-            {selectedMedia && (
-              <div className="glass-card rounded-3xl p-6 soft-shadow">
-                <div className="text-center">
-                  {selectedMedia.type === "image" && (
-                    <img
-                      src={selectedMedia.data || "/placeholder.svg"}
-                      className="media-preview rounded-2xl mx-auto mb-4"
-                      alt="Preview"
-                    />
-                  )}
-                  {selectedMedia.type === "video" && (
-                    <video src={selectedMedia.data} className="media-preview rounded-2xl mx-auto mb-4" controls />
-                  )}
-                  <p className="text-sm text-text-secondary mb-6 font-normal">Media selected successfully!</p>
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={() => {
-                        setSelectedMedia(null)
-                        setShowCamera(false)
-                      }}
-                      className="flex-1 glass-card text-text-secondary py-4 rounded-2xl font-medium hover:bg-white/60 transition-all duration-200"
-                    >
-                      Change Media
-                    </button>
-                    <button
-                      onClick={() => setCurrentStep(2)}
-                      className="flex-1 gradient-primary text-white py-4 rounded-2xl font-medium hover:shadow-lg transition-all duration-200"
-                    >
-                      Continue
-                    </button>
-                  </div>
-                </div>
+            ) : (
+              <div className="glass-card rounded-3xl p-6 soft-shadow space-y-4">
+                {/* Media Gallery Manager */}
+                <MediaGalleryManager
+                  media={mediaGallery}
+                  onAddMedia={handleAddMoreMedia}
+                  onRemoveMedia={handleRemoveMedia}
+                  onReorder={handleReorderMedia}
+                  maxItems={10}
+                />
+                
+                {/* Continue Button */}
+                <button
+                  onClick={() => setCurrentStep(2)}
+                  className="w-full gradient-primary text-white py-4 rounded-2xl font-medium hover:shadow-lg transition-all duration-200"
+                >
+                  Continue to AI Generation
+                </button>
               </div>
             )}
           </div>
@@ -615,16 +654,16 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
 
             {/* Event Preview Card */}
             <div className="bg-white rounded-3xl overflow-hidden shadow-xl">
-              {/* Media Section (User's actual photo/video) */}
+              {/* Media Section - Show first media item as hero */}
               <div className="relative h-64 overflow-hidden">
-                {selectedMedia && selectedMedia.type === "image" ? (
+                {mediaGallery.length > 0 && mediaGallery[0].type === "image" ? (
                   <img
-                    src={selectedMedia.data || "/placeholder.svg"}
+                    src={mediaGallery[0].data}
                     className="w-full h-full object-cover"
                     alt="Event media"
                   />
-                ) : selectedMedia && selectedMedia.type === "video" ? (
-                  <video src={selectedMedia.data} className="w-full h-full object-cover" controls />
+                ) : mediaGallery.length > 0 && mediaGallery[0].type === "video" ? (
+                  <video src={mediaGallery[0].data} className="w-full h-full object-cover" controls />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center">
                     <div className="text-center text-white">
@@ -637,19 +676,28 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
                   </div>
                 )}
                 
-                {/* Add/Replace Media Button */}
+                {/* Media count badge */}
+                {mediaGallery.length > 1 && (
+                  <div className="absolute top-4 left-4 px-3 py-1.5 bg-black/60 backdrop-blur-sm text-white text-sm font-semibold rounded-full flex items-center gap-1.5">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                    </svg>
+                    {mediaGallery.length} items
+                  </div>
+                )}
+                
+                {/* Manage Media Button */}
                 <div className="absolute top-4 right-4">
                   <button
                     type="button"
                     onClick={() => {
-                      setShowCamera(true)
+                      setCurrentStep(1)
                     }}
                     className="p-2.5 bg-white/90 backdrop-blur-sm rounded-xl hover:bg-white transition-all duration-200 shadow-lg"
-                    title={selectedMedia ? "Replace media" : "Add media"}
+                    title="Manage media gallery"
                   >
                     <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </button>
                 </div>

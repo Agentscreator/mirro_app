@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const { title, description, date, time, location, icon, gradient, mediaUrl, mediaType, thumbnailUrl, backgroundUrl, createdBy, visualStyling } = body;
+    const { title, description, date, time, location, icon, gradient, mediaUrl, mediaType, mediaGallery, thumbnailUrl, backgroundUrl, createdBy, visualStyling } = body;
 
     if (!title || !description || !date || !time || !location || !createdBy) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -89,6 +89,7 @@ export async function POST(request: NextRequest) {
       gradient,
       mediaUrl,
       mediaType,
+      mediaGallery, // NEW: Multi-media gallery support
       thumbnailUrl,
       backgroundUrl,
       createdBy,

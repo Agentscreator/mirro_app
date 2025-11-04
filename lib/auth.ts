@@ -257,7 +257,9 @@ export async function createEvent(eventData: {
   gradient?: string;
   mediaUrl?: string;
   mediaType?: string;
+  mediaGallery?: string; // NEW: Multi-media gallery support (JSON string)
   thumbnailUrl?: string;
+  backgroundUrl?: string;
   visualStyling?: any;
   visualStylingUrl?: string;
   createdBy: string;
@@ -272,7 +274,9 @@ export async function createEvent(eventData: {
     gradient: eventData.gradient || 'bg-gray-50',
     mediaUrl: eventData.mediaUrl,
     mediaType: eventData.mediaType,
+    mediaGallery: eventData.mediaGallery || null, // NEW: Multi-media gallery
     thumbnailUrl: eventData.thumbnailUrl || null,
+    backgroundUrl: eventData.backgroundUrl || null,
     visualStyling: eventData.visualStyling ? JSON.stringify(eventData.visualStyling) : null,
     createdBy: eventData.createdBy,
   };
