@@ -86,8 +86,10 @@ export async function getUserEvents(userId: string) {
     mediaUrl: events.mediaUrl,
     mediaType: events.mediaType,
     thumbnailUrl: events.thumbnailUrl,
+    backgroundUrl: events.backgroundUrl,
     visualStyling: events.visualStyling,
     visualStylingUrl: events.visualStylingUrl,
+    mediaGallery: events.mediaGallery,
     createdBy: events.createdBy,
     createdAt: events.createdAt,
     creatorName: users.name,
@@ -345,8 +347,11 @@ export async function getEventById(eventId: string) {
       gradient: events.gradient,
       mediaUrl: events.mediaUrl,
       mediaType: events.mediaType,
+      thumbnailUrl: events.thumbnailUrl,
+      backgroundUrl: events.backgroundUrl,
       visualStyling: events.visualStyling,
       visualStylingUrl: events.visualStylingUrl,
+      mediaGallery: events.mediaGallery,
       createdBy: events.createdBy,
       createdAt: events.createdAt,
       updatedAt: events.updatedAt,
@@ -571,7 +576,7 @@ export async function getEventParticipants(eventId: string) {
 }
 
 export async function getUserParticipatingEvents(userId: string) {
-  return await db
+  const eventsData = await db
     .select({
       id: events.id,
       title: events.title,
@@ -584,17 +589,54 @@ export async function getUserParticipatingEvents(userId: string) {
       mediaUrl: events.mediaUrl,
       mediaType: events.mediaType,
       thumbnailUrl: events.thumbnailUrl,
+      backgroundUrl: events.backgroundUrl,
+      visualStyling: events.visualStyling,
+      visualStylingUrl: events.visualStylingUrl,
+      mediaGallery: events.mediaGallery,
       createdBy: events.createdBy,
       createdAt: events.createdAt,
       updatedAt: events.updatedAt,
       creatorName: users.name,
       creatorUsername: users.username,
+      creatorProfilePicture: users.profilePicture,
       joinedAt: eventParticipants.joinedAt,
     })
     .from(eventParticipants)
     .innerJoin(events, eq(eventParticipants.eventId, events.id))
     .leftJoin(users, eq(events.createdBy, users.id))
     .where(eq(eventParticipants.userId, userId));
+
+  // Get attendees for each event
+  const eventsWithAttendees = await Promise.all(
+    eventsData.map(async (event) => {
+      const participants = await getEventParticipants(event.id);
+
+      // Include creator as an attendee if they're not already in participants
+      const creatorAsAttendee = {
+        id: event.createdBy,
+        name: event.creatorName || 'Unknown',
+        username: event.creatorUsername || 'unknown',
+        profilePicture: event.creatorProfilePicture || null,
+        joinedAt: event.createdAt,
+      };
+
+      // Check if creator is already in participants list
+      const isCreatorInParticipants = participants.some(p => p.id === event.createdBy);
+
+      // Combine creator and participants, ensuring creator is first
+      const allAttendees = isCreatorInParticipants
+        ? participants
+        : [creatorAsAttendee, ...participants];
+
+      return {
+        ...event,
+        attendees: allAttendees,
+        attendeeCount: allAttendees.length,
+      };
+    })
+  );
+
+  return eventsWithAttendees;
 }
 
 // Password Reset Functions
