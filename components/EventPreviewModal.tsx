@@ -104,19 +104,36 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
   // Load media gallery
   useEffect(() => {
+    const allMedia: MediaGalleryItem[] = []
+    
+    // Add media from gallery
     if (event?.mediaGallery) {
       try {
         const gallery = typeof event.mediaGallery === 'string'
           ? JSON.parse(event.mediaGallery)
           : event.mediaGallery
-        setMediaGallery(gallery || [])
+        if (gallery && Array.isArray(gallery)) {
+          allMedia.push(...gallery)
+        }
       } catch (e) {
         console.error('Error parsing media gallery:', e)
-        setMediaGallery([])
       }
-    } else {
-      setMediaGallery([])
     }
+    
+    // Also add the primary mediaUrl if it exists and isn't already in gallery
+    if (event?.mediaUrl && event?.mediaType) {
+      const mediaExists = allMedia.some(item => item.url === event.mediaUrl)
+      if (!mediaExists) {
+        allMedia.unshift({
+          url: event.mediaUrl,
+          type: event.mediaType as 'image' | 'video',
+          uploadedAt: new Date().toISOString(),
+          uploadedBy: event.createdBy
+        })
+      }
+    }
+    
+    setMediaGallery(allMedia)
   }, [event])
 
   // Use AI-generated gradient if available, otherwise fall back to default
@@ -335,7 +352,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
         {/* Close Button - Refined */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 z-10 w-11 h-11 bg-black/40 backdrop-blur-xl rounded-full flex items-center justify-center text-white hover:bg-black/60 transition-all duration-200 shadow-xl active:scale-95 ring-1 ring-white/20"
+          className="absolute top-5 right-5 z-50 w-11 h-11 bg-black/40 backdrop-blur-xl rounded-full flex items-center justify-center text-white hover:bg-black/60 transition-all duration-200 shadow-xl active:scale-95 ring-1 ring-white/20"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -545,45 +562,45 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="space-y-3 mt-8 sticky bottom-0 bg-gradient-to-t from-black/50 via-black/30 to-transparent backdrop-blur-xl pt-6 -mx-6 px-6 pb-4">
+            {/* Action Buttons - More Subtle */}
+            <div className="space-y-2.5 mt-8 sticky bottom-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent backdrop-blur-md pt-5 -mx-6 px-6 pb-3">
               {currentUserId ? (
                 <>
                   {/* Primary Action Button - Join/Leave/Hosting */}
                   <button
                     onClick={handleJoinEvent}
                     disabled={isJoining || (event.createdBy === currentUserId && isJoined)}
-                    className={`w-full py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-bold'} text-lg shadow-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none transition-all duration-300 ${event.createdBy === currentUserId
-                      ? 'bg-gradient-to-r from-emerald-400 to-green-500 text-white cursor-default ring-2 ring-emerald-300/50'
+                    className={`w-full py-3 rounded-xl font-medium text-sm shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none transition-all duration-200 ${event.createdBy === currentUserId
+                      ? 'bg-white/15 text-white/80 cursor-default backdrop-blur-sm border border-white/20'
                       : isJoined
-                        ? 'bg-white/90 text-gray-800 hover:bg-white hover:shadow-2xl active:scale-[0.98]'
-                        : 'bg-gradient-to-r from-blue-500 via-purple-500 to-purple-600 text-white hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98]'
+                        ? 'bg-white/15 text-white/90 hover:bg-white/20 backdrop-blur-sm border border-white/20'
+                        : 'bg-white/15 text-white hover:bg-white/20 backdrop-blur-sm border border-white/20'
                       }`}
                   >
                     {isJoining ? (
                       <div className="flex items-center justify-center space-x-2">
-                        <div className="w-5 h-5 border-3 border-current border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                         <span>{isJoined ? 'Leaving...' : 'Joining...'}</span>
                       </div>
                     ) : event.createdBy === currentUserId ? (
-                      <div className="flex items-center justify-center space-x-2">
-                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="flex items-center justify-center space-x-1.5">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                         </svg>
                         <span>You're Hosting</span>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-center space-x-2">
+                      <div className="flex items-center justify-center space-x-1.5">
                         {isJoined ? (
                           <>
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
                             <span>You're Going</span>
                           </>
                         ) : (
                           <>
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                               <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
                             </svg>
                             <span>Join Event</span>
@@ -598,9 +615,9 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                     {/* Share Button */}
                     <button
                       onClick={handleShareEvent}
-                      className="flex-1 bg-white/20 backdrop-blur-sm py-3.5 rounded-xl font-semibold text-white hover:bg-white/30 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl active:scale-95 border border-white/30"
+                      className="flex-1 bg-white/10 backdrop-blur-sm py-2.5 rounded-lg font-medium text-sm text-white/80 hover:bg-white/15 hover:text-white transition-all duration-200 flex items-center justify-center gap-1.5 border border-white/10"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                       </svg>
                       <span>Share</span>
@@ -610,10 +627,10 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                     {event.createdBy !== currentUserId && (
                       <button
                         onClick={() => setShowReportDialog(true)}
-                        className="px-4 py-3.5 bg-white/20 backdrop-blur-sm hover:bg-red-500/20 rounded-xl flex items-center justify-center gap-2 text-white transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95 font-semibold border border-white/30 hover:border-red-400/50"
+                        className="px-3 py-2.5 bg-white/10 backdrop-blur-sm hover:bg-red-500/15 rounded-lg flex items-center justify-center text-white/80 hover:text-white transition-all duration-200 font-medium text-sm border border-white/10 hover:border-red-400/30"
                         title="Report event"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                       </button>
@@ -622,7 +639,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                 </>
               ) : (
                 <>
-                  {/* Auth Buttons for Non-logged in Users */}
+                  {/* Join Button for Non-logged in Users - Gold */}
                   <button
                     onClick={() => {
                       if (onSignUpRequest) {
@@ -631,41 +648,26 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                         onClose()
                       }
                     }}
-                    className={`w-full bg-gradient-to-r from-blue-500 via-purple-500 to-purple-600 text-white py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-bold'} text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-xl`}
+                    className={`w-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 text-gray-900 py-3.5 rounded-xl ${visualStyling?.styling?.font || 'font-semibold'} text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01] active:scale-[0.99] shadow-lg`}
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
                       </svg>
-                      <span>Sign Up to Join</span>
+                      <span>Join Event</span>
                     </div>
                   </button>
-                  
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        if (onSignUpRequest) {
-                          onSignUpRequest()
-                        } else {
-                          onClose()
-                        }
-                      }}
-                      className="flex-1 bg-white/20 backdrop-blur-sm text-white py-3.5 rounded-xl font-semibold hover:bg-white/30 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95 border border-white/30"
-                    >
-                      Sign In
-                    </button>
 
-                    {/* Share Button for Non-logged in Users */}
-                    <button
-                      onClick={handleShareEvent}
-                      className="flex-1 bg-white/20 backdrop-blur-sm py-3.5 rounded-xl font-semibold text-white hover:bg-white/30 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl active:scale-95 border border-white/30"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                      </svg>
-                      <span>Share</span>
-                    </button>
-                  </div>
+                  {/* Share Button for Non-logged in Users */}
+                  <button
+                    onClick={handleShareEvent}
+                    className="w-full bg-white/10 backdrop-blur-sm py-2.5 rounded-lg font-medium text-sm text-white/80 hover:bg-white/15 hover:text-white transition-all duration-200 flex items-center justify-center gap-1.5 border border-white/10"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    </svg>
+                    <span>Share Event</span>
+                  </button>
                 </>
               )}
             </div>
