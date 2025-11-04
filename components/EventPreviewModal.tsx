@@ -326,8 +326,8 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20"></div>
           </div>
         ) : (
-          // Fallback: Elegant gradient background
-          <div className="absolute inset-0 z-0 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700">
+          // Fallback: Use visual styling gradient or elegant default
+          <div className={`absolute inset-0 z-0 ${visualStyling?.styling?.gradient || event.gradient || 'bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600'}`}>
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
           </div>
         )}
