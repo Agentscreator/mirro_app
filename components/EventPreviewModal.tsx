@@ -546,43 +546,59 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
             )}
 
             {/* Action Buttons */}
-            <div className="space-y-3 mt-6 sticky bottom-0 bg-black/30 backdrop-blur-xl pt-4 -mx-6 px-6 pb-2 border-t border-white/20">
+            <div className="space-y-3 mt-8 sticky bottom-0 bg-gradient-to-t from-black/50 via-black/30 to-transparent backdrop-blur-xl pt-6 -mx-6 px-6 pb-4">
               {currentUserId ? (
                 <>
                   {/* Primary Action Button - Join/Leave/Hosting */}
                   <button
                     onClick={handleJoinEvent}
                     disabled={isJoining || (event.createdBy === currentUserId && isJoined)}
-                    className={`w-full py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${event.createdBy === currentUserId
-                      ? 'bg-green-100 text-green-700 cursor-default'
+                    className={`w-full py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-bold'} text-lg shadow-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none transition-all duration-300 ${event.createdBy === currentUserId
+                      ? 'bg-gradient-to-r from-emerald-400 to-green-500 text-white cursor-default ring-2 ring-emerald-300/50'
                       : isJoined
-                        ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200'
-                        : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]'
+                        ? 'bg-white/90 text-gray-800 hover:bg-white hover:shadow-2xl active:scale-[0.98]'
+                        : 'bg-gradient-to-r from-blue-500 via-purple-500 to-purple-600 text-white hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98]'
                       }`}
                   >
                     {isJoining ? (
                       <div className="flex items-center justify-center space-x-2">
-                        <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-5 h-5 border-3 border-current border-t-transparent rounded-full animate-spin"></div>
                         <span>{isJoined ? 'Leaving...' : 'Joining...'}</span>
                       </div>
                     ) : event.createdBy === currentUserId ? (
                       <div className="flex items-center justify-center space-x-2">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                         </svg>
-                        <span>Hosting Event</span>
+                        <span>You're Hosting</span>
                       </div>
                     ) : (
-                      isJoined ? 'Leave Event' : 'Join Event'
+                      <div className="flex items-center justify-center space-x-2">
+                        {isJoined ? (
+                          <>
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            <span>You're Going</span>
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+                            </svg>
+                            <span>Join Event</span>
+                          </>
+                        )}
+                      </div>
                     )}
                   </button>
 
                   {/* Secondary Actions - Share and Report */}
-                  <div className="flex gap-3">
+                  <div className="flex gap-2">
                     {/* Share Button */}
                     <button
                       onClick={handleShareEvent}
-                      className="flex-1 bg-gradient-to-r from-taupe-600 to-taupe-700 py-3 rounded-2xl font-semibold text-white hover:from-taupe-700 hover:to-taupe-800 transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]"
+                      className="flex-1 bg-white/20 backdrop-blur-sm py-3.5 rounded-xl font-semibold text-white hover:bg-white/30 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl active:scale-95 border border-white/30"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -594,13 +610,12 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                     {event.createdBy !== currentUserId && (
                       <button
                         onClick={() => setShowReportDialog(true)}
-                        className="flex-shrink-0 px-4 py-3 bg-red-50 hover:bg-red-100 rounded-2xl flex items-center justify-center gap-2 text-red-600 transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 font-semibold"
+                        className="px-4 py-3.5 bg-white/20 backdrop-blur-sm hover:bg-red-500/20 rounded-xl flex items-center justify-center gap-2 text-white transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95 font-semibold border border-white/30 hover:border-red-400/50"
                         title="Report event"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
-                        <span>Report</span>
                       </button>
                     )}
                   </div>
@@ -616,33 +631,41 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                         onClose()
                       }
                     }}
-                    className={`w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-semibold'} text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}
+                    className={`w-full bg-gradient-to-r from-blue-500 via-purple-500 to-purple-600 text-white py-4 rounded-2xl ${visualStyling?.styling?.font || 'font-bold'} text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-xl`}
                   >
-                    Sign Up to Join Event
+                    <div className="flex items-center justify-center space-x-2">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+                      </svg>
+                      <span>Sign Up to Join</span>
+                    </div>
                   </button>
-                  <button
-                    onClick={() => {
-                      if (onSignUpRequest) {
-                        onSignUpRequest()
-                      } else {
-                        onClose()
-                      }
-                    }}
-                    className="w-full bg-gray-100 text-gray-700 py-3 rounded-2xl font-medium hover:bg-gray-200 transition-all duration-200"
-                  >
-                    Sign In
-                  </button>
+                  
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        if (onSignUpRequest) {
+                          onSignUpRequest()
+                        } else {
+                          onClose()
+                        }
+                      }}
+                      className="flex-1 bg-white/20 backdrop-blur-sm text-white py-3.5 rounded-xl font-semibold hover:bg-white/30 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95 border border-white/30"
+                    >
+                      Sign In
+                    </button>
 
-                  {/* Share Button for Non-logged in Users */}
-                  <button
-                    onClick={handleShareEvent}
-                    className="w-full bg-gradient-to-r from-taupe-600 to-taupe-700 py-3 rounded-2xl font-semibold text-white hover:from-taupe-700 hover:to-taupe-800 transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98]"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                    </svg>
-                    <span>Share Event</span>
-                  </button>
+                    {/* Share Button for Non-logged in Users */}
+                    <button
+                      onClick={handleShareEvent}
+                      className="flex-1 bg-white/20 backdrop-blur-sm py-3.5 rounded-xl font-semibold text-white hover:bg-white/30 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl active:scale-95 border border-white/30"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                      </svg>
+                      <span>Share</span>
+                    </button>
+                  </div>
                 </>
               )}
             </div>
