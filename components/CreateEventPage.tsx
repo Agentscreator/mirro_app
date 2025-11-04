@@ -129,15 +129,11 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     setSelectedMedia({ type: mediaType, data }) // Keep for backward compatibility
     setShowCamera(false)
     
-    // Show success message for 2.5 seconds before moving to AI generation step
+    // Show success message briefly
     setShowUploadSuccess(true)
     setTimeout(() => {
       setShowUploadSuccess(false)
-      // Only auto-advance to step 2 if this is the first media
-      if (mediaGallery.length === 0) {
-        setCurrentStep(2)
-      }
-    }, 2500)
+    }, 2000)
   }
   
   const handleAddMoreMedia = () => {
