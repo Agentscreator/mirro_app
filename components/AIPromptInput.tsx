@@ -117,42 +117,15 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
   }
 
   const getPlaceholder = () => {
-    switch (method) {
-      case "single-day":
-        return "e.g., 'Coffee meetup downtown on Saturday at 3pm' or 'Product launch at tech center'"
-      case "multi-day":
-        return "e.g., 'Three-day music festival starting June 15th' or 'Week-long coding bootcamp'"
-      case "repeating":
-        return "e.g., 'Weekly yoga class every Tuesday at 6pm' or 'Monthly book club meetings'"
-      default:
-        return "Describe your event..."
-    }
+    return "e.g., 'Coffee meetup downtown on Saturday at 3pm' or 'Three-day music festival starting June 15th' or 'Weekly yoga class every Tuesday at 6pm'"
   }
 
   const getTitle = () => {
-    switch (method) {
-      case "single-day":
-        return "Single Day Event"
-      case "multi-day":
-        return "Multi-Day Event"
-      case "repeating":
-        return "Repeating Event"
-      default:
-        return "Create Event"
-    }
+    return "Describe Your Event"
   }
 
   const getDescription = () => {
-    switch (method) {
-      case "single-day":
-        return "Describe your one-time event. Include the date, time, and location if known."
-      case "multi-day":
-        return "Describe your multi-day event. Include start/end dates and what attendees can expect."
-      case "repeating":
-        return "Describe your recurring event. Include the schedule (e.g., weekly, monthly) and timing."
-      default:
-        return "AI will help you create amazing event content"
-    }
+    return "Tell us about your event - single day, multi-day, or repeating. Include dates, times, and location if you know them."
   }
 
   return (
@@ -164,7 +137,7 @@ export default function AIPromptInput({ method, onGenerate, onBack, initialInput
         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
-        Back
+        Back to Media
       </button>
 
       <div className="mb-10 text-center">

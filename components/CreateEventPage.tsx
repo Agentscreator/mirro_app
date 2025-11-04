@@ -1,7 +1,6 @@
 "use client"
 import { useState } from "react"
 import UnifiedCamera from "./UnifiedCamera"
-import AIGenerationStep from "./AIGenerationStep"
 import AIPromptInput from "./AIPromptInput"
 import MediaGalleryManager, { MediaItem } from "./MediaGalleryManager"
 import { compressVideo, compressImage, formatFileSize } from "@/lib/media-utils"
@@ -19,7 +18,6 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
   const [thumbnailImage, setThumbnailImage] = useState<string | null>(null) // Separate thumbnail
   const [showCamera, setShowCamera] = useState(true) // Open camera immediately
   const [showUploadSuccess, setShowUploadSuccess] = useState(false)
-  const [aiMethod, setAiMethod] = useState<string | null>(null)
   const [aiGeneratedContent, setAiGeneratedContent] = useState<string | null>(null)
   const [aiPromptInput, setAiPromptInput] = useState<string>("")
   const [isUploading, setIsUploading] = useState(false)
@@ -42,7 +40,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
   // State preservation for step navigation
   const [stepStates, setStepStates] = useState({
     step1: { completed: false },
-    step2: { completed: false, method: null as string | null, input: "" },
+    step2: { completed: false, input: "" },
     step3: { completed: false }
   })
 
@@ -71,7 +69,6 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         break
       case 2:
         newStepStates.step2.completed = !!aiGeneratedContent
-        newStepStates.step2.method = aiMethod
         newStepStates.step2.input = aiPromptInput
         break
       case 3:
@@ -85,17 +82,9 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
   const restoreStepState = (step: number) => {
     switch (step) {
       case 2:
-        // Restore AI method and input if returning to step 2
-        if (stepStates.step2.method && !aiGeneratedContent) {
-          setAiMethod(stepStates.step2.method)
+        // Restore AI input if returning to step 2
+        if (!aiGeneratedContent && stepStates.step2.input) {
           setAiPromptInput(stepStates.step2.input)
-        } else if (aiGeneratedContent) {
-          // If AI content exists, don't reset the method
-          // This allows users to see their previous choice
-        } else {
-          // Fresh start on step 2
-          setAiMethod(null)
-          setAiPromptInput("")
         }
         break
       case 3:
@@ -170,9 +159,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     setMediaGallery(reorderedMedia)
   }
 
-  const handleAIMethodSelect = (method: string) => {
-    setAiMethod(method)
-  }
+
 
   // Function to generate AI thumbnail (separate from media)
   const generateAIThumbnail = async (title: string, description: string, location: string) => {
@@ -464,7 +451,6 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         setBackgroundImage(null)
         setHasGeneratedThumbnail(false)
         setHasGeneratedBackground(false)
-        setAiMethod(null)
         setAiGeneratedContent(null)
         setEventData({ title: "", description: "", date: "", time: "", location: "", visualStyling: null })
 
@@ -545,7 +531,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
               },
               { 
                 step: 2, 
-                title: "AI Generation", 
+                title: "Describe Event", 
                 isClickable: getMaxReachableStep() >= 2
               },
               { 
@@ -633,13 +619,11 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         )}
 
         {/* Step 2: AI Generation */}
-        {currentStep === 2 && !aiMethod && <AIGenerationStep onSelect={handleAIMethodSelect} />}
-
-        {currentStep === 2 && aiMethod && (
+        {currentStep === 2 && (
           <AIPromptInput 
-            method={aiMethod} 
+            method="ai-generate" 
             onGenerate={handleAIGenerate} 
-            onBack={() => setAiMethod(null)}
+            onBack={() => setCurrentStep(1)}
             initialInput={aiPromptInput}
           />
         )}
