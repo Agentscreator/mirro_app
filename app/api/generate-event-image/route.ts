@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { uploadToR2, generateFileName } from '@/lib/storage';
 
 // Configure route for faster responses
 export const runtime = 'nodejs';
-export const maxDuration = 20; // 20 seconds max (reduced from default 60s)
+export const maxDuration = 30; // 30 seconds max to allow for image download and upload
 
 // Lazy initialize OpenAI only when needed
 let openai: OpenAI | null = null;
@@ -67,16 +68,30 @@ export async function POST(request: NextRequest) {
       style: "vivid"
     });
 
-    const imageUrl = response.data[0]?.url;
+    const tempImageUrl = response.data[0]?.url;
 
-    if (!imageUrl) {
+    if (!tempImageUrl) {
       throw new Error('No image URL returned from DALL-E 3');
     }
 
-    console.log('Successfully generated image:', imageUrl);
+    console.log('Successfully generated image, now uploading to R2:', tempImageUrl);
+
+    // Download the image from DALL-E's temporary URL
+    const imageResponse = await fetch(tempImageUrl);
+    if (!imageResponse.ok) {
+      throw new Error('Failed to download generated image');
+    }
+
+    const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+    
+    // Upload to R2 for permanent storage
+    const fileName = generateFileName(`event-${type}`, 'png');
+    const permanentUrl = await uploadToR2(imageBuffer, fileName, 'image/png');
+
+    console.log('Image uploaded to R2:', permanentUrl);
 
     return NextResponse.json({ 
-      imageUrl,
+      imageUrl: permanentUrl, // Return the permanent R2 URL instead of temporary DALL-E URL
       prompt: prompt // Return prompt for debugging
     });
 

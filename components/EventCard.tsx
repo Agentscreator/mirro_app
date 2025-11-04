@@ -113,6 +113,11 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
             src={event.thumbnailUrl}
             alt={event.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={(e) => {
+              // If thumbnail fails to load (e.g., expired URL), hide it and fall back to gradient
+              console.warn('Thumbnail failed to load:', event.thumbnailUrl);
+              e.currentTarget.style.display = 'none';
+            }}
           />
         ) : event.mediaUrl && event.mediaType === "image" ? (
           <img
