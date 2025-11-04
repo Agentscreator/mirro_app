@@ -625,150 +625,145 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         )}
 
         {currentStep === 3 && (
-          <div className="space-y-4">
+          <div className="relative rounded-3xl max-w-sm w-full h-[85vh] overflow-hidden shadow-2xl mx-auto">
+            {/* Background - Similar to EventPreviewModal */}
+            <div className={`absolute inset-0 z-0 ${eventData.visualStyling?.styling?.gradient || 'bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600'}`}>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+            </div>
 
+            {/* Back Button */}
+            <button
+              onClick={() => setCurrentStep(2)}
+              className="absolute top-5 left-5 z-50 w-11 h-11 bg-black/40 backdrop-blur-xl rounded-full flex items-center justify-center text-white hover:bg-black/60 transition-all duration-200 shadow-xl active:scale-95 ring-1 ring-white/20"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
 
+            {/* Content Section - Full height, scrollable */}
+            <div className="relative h-full overflow-y-auto z-10">
+              <div className="relative pt-20 px-6 pb-6 flex flex-col min-h-full">
+                {/* Event Title */}
+                <input
+                  type="text"
+                  placeholder="Event Title"
+                  required
+                  className="text-4xl font-bold text-white tracking-tight mb-4 bg-transparent border-none outline-none placeholder-white/50 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+                  value={eventData.title}
+                  onChange={(e) => setEventData({ ...eventData, title: e.target.value })}
+                />
 
-
-
-
-            {/* Event Preview Card */}
-            <div className="bg-white rounded-3xl overflow-hidden shadow-xl">
-              {/* Media Section - Show first media item as hero */}
-              <div className="relative h-64 overflow-hidden">
-                {mediaGallery.length > 0 && mediaGallery[0].type === "image" ? (
-                  <img
-                    src={mediaGallery[0].data}
-                    className="w-full h-full object-cover"
-                    alt="Event media"
-                  />
-                ) : mediaGallery.length > 0 && mediaGallery[0].type === "video" ? (
-                  <video src={mediaGallery[0].data} className="w-full h-full object-cover" controls />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <svg className="w-12 h-12 mx-auto mb-2 opacity-50" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                      </svg>
-                      <p className="text-sm font-medium">No media added</p>
-                      <p className="text-xs opacity-75 mt-1">Optional: Add photo or video</p>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Media count badge */}
-                {mediaGallery.length > 1 && (
-                  <div className="absolute top-4 left-4 px-3 py-1.5 bg-black/60 backdrop-blur-sm text-white text-sm font-semibold rounded-full flex items-center gap-1.5">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                    </svg>
-                    {mediaGallery.length} items
-                  </div>
-                )}
-                
-                {/* Manage Media Button */}
-                <div className="absolute top-4 right-4">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCurrentStep(1)
-                    }}
-                    className="p-2.5 bg-white/90 backdrop-blur-sm rounded-xl hover:bg-white transition-all duration-200 shadow-lg"
-                    title="Manage media gallery"
-                  >
-                    <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              {/* Content Section */}
-              <div className="p-6 space-y-5">
-                {/* Title Input */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Event Title</label>
-                  <input
-                    type="text"
-                    placeholder="Enter event title"
-                    required
-                    className="w-full px-4 py-3 text-lg font-semibold rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 text-gray-900 placeholder-gray-400"
-                    value={eventData.title}
-                    onChange={(e) => setEventData({ ...eventData, title: e.target.value })}
-                  />
-                </div>
-
-                {/* Date, Time, Location - Compact Grid */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Date</label>
+                {/* Date, Location, Time */}
+                <div className="flex items-start gap-3 mb-5">
+                  {/* Date Box */}
+                  <div className="bg-white/20 backdrop-blur-md rounded-2xl p-3.5 text-center shadow-lg relative ring-1 ring-white/30 flex-shrink-0">
                     <input
                       type="date"
                       required
-                      className="w-full px-3 py-2.5 text-sm rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 text-gray-900"
+                      className="bg-transparent border-none text-white text-center text-sm font-semibold outline-none w-20"
                       value={eventData.date}
                       onChange={(e) => setEventData({ ...eventData, date: e.target.value })}
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Time</label>
-                    <input
-                      type="time"
-                      required
-                      className="w-full px-3 py-2.5 text-sm rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 text-gray-900"
-                      value={eventData.time}
-                      onChange={(e) => setEventData({ ...eventData, time: e.target.value })}
-                    />
+
+                  {/* Event Details */}
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <div className="flex items-start gap-1.5">
+                      <svg className="w-4 h-4 text-white/90 mt-0.5 flex-shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                      </svg>
+                      <input
+                        type="text"
+                        placeholder="Location"
+                        required
+                        className="flex-1 bg-transparent border-none text-sm text-white font-semibold outline-none placeholder-white/60 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+                        value={eventData.location}
+                        onChange={(e) => setEventData({ ...eventData, location: e.target.value })}
+                      />
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <svg className="w-4 h-4 text-white/90 flex-shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                      </svg>
+                      <input
+                        type="time"
+                        required
+                        className="bg-transparent border-none text-sm text-white/95 font-medium outline-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+                        value={eventData.time}
+                        onChange={(e) => setEventData({ ...eventData, time: e.target.value })}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {/* Location Input */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Location</label>
-                  <input
-                    type="text"
-                    placeholder="Enter event location"
-                    required
-                    className="w-full px-4 py-3 text-sm rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 text-gray-900 placeholder-gray-400"
-                    value={eventData.location}
-                    onChange={(e) => setEventData({ ...eventData, location: e.target.value })}
-                  />
-                </div>
-
-                {/* Description Input */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Description</label>
+                {/* Description */}
+                <div className="mb-5 bg-white/15 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-lg">
+                  <h3 className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">About</h3>
                   <textarea
                     placeholder="Describe your event..."
                     rows={4}
                     required
-                    className="w-full px-4 py-3 text-sm rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 resize-none text-gray-900 placeholder-gray-400"
+                    className="w-full bg-transparent border-none text-sm text-white/95 leading-relaxed outline-none resize-none placeholder-white/50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
                     value={eventData.description}
                     onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
                   />
                 </div>
 
+                {/* Media Gallery Preview */}
+                {mediaGallery.length > 0 && (
+                  <div className="mb-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-xs font-semibold text-white/80 uppercase tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                        Event Photos & Videos ({mediaGallery.length})
+                      </h3>
+                      <button
+                        onClick={() => setCurrentStep(1)}
+                        className="text-xs text-white/80 hover:text-white font-medium underline"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                    <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
+                      {mediaGallery.map((item, index) => (
+                        <div
+                          key={index}
+                          className="relative flex-shrink-0 w-32 h-32 rounded-xl overflow-hidden shadow-md snap-start"
+                        >
+                          {item.type === 'image' ? (
+                            <img src={item.data} alt="Gallery" className="w-full h-full object-cover" />
+                          ) : (
+                            <video src={item.data} className="w-full h-full object-cover" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Publish Button */}
-                <button
-                  type="button"
-                  onClick={handlePublish}
-                  disabled={isPublishing || isUploading}
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 rounded-2xl font-semibold hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
-                >
-                  {isUploading ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Processing...</span>
-                    </div>
-                  ) : isPublishing ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Publishing Event...</span>
-                    </div>
-                  ) : (
-                    "Publish Event"
-                  )}
-                </button>
+                <div className="mt-auto sticky bottom-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent backdrop-blur-md pt-5 -mx-6 px-6 pb-3">
+                  <button
+                    type="button"
+                    onClick={handlePublish}
+                    disabled={isPublishing || isUploading}
+                    className="w-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 text-gray-900 py-3.5 rounded-xl font-semibold text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01] active:scale-[0.99] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  >
+                    {isUploading ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                        <span>Processing...</span>
+                      </div>
+                    ) : isPublishing ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                        <span>Publishing...</span>
+                      </div>
+                    ) : (
+                      "Publish Event"
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

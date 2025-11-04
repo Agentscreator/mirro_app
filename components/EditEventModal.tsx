@@ -359,34 +359,49 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
 
   if (!isOpen) return null
 
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr)
+    const day = date.getDate()
+    const month = date.toLocaleDateString("en-US", { month: "short" }).toUpperCase()
+    return { day, month }
+  }
+
+  const { day, month } = eventData.date ? formatDate(eventData.date) : { day: '', month: '' }
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="glass-card rounded-3xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto soft-shadow">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-medium text-text-primary">Edit Event</h2>
-          <button
-            onClick={handleClose}
-            className="p-2 rounded-xl glass-card hover:bg-white/60 transition-all duration-200"
-          >
-            <svg className="w-5 h-5 text-text-muted" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          </button>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+      <div className="relative rounded-3xl max-w-sm w-full h-[85vh] overflow-hidden shadow-2xl">
+        {/* Background - Similar to EventPreviewModal */}
+        <div className={`absolute inset-0 z-0 ${event?.visualStyling?.styling?.gradient || event?.gradient || 'bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600'}`}>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
         </div>
 
+        {/* Close Button */}
+        <button
+          onClick={handleClose}
+          className="absolute top-5 right-5 z-50 w-11 h-11 bg-black/40 backdrop-blur-xl rounded-full flex items-center justify-center text-white hover:bg-black/60 transition-all duration-200 shadow-xl active:scale-95 ring-1 ring-white/20"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
         {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-taupe-500 mx-auto mb-4"></div>
-            <p className="text-text-muted">Loading event...</p>
+          <div className="relative h-full flex items-center justify-center z-10">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white mx-auto mb-4"></div>
+              <p className="text-white/80">Loading event...</p>
+            </div>
           </div>
         ) : (
           <form
-            className="space-y-4"
+            className="relative h-full overflow-y-auto z-10"
             onSubmit={(e) => {
               e.preventDefault()
               handleSave()
             }}
           >
+            <div className="relative pt-20 px-6 pb-6 flex flex-col min-h-full">
             {/* AI Generated Images Section - Subtle Design */}
             {(event?.thumbnailUrl || event?.backgroundUrl) && (
               <div className="space-y-2 pb-4 border-b border-gray-100">
@@ -458,141 +473,161 @@ export default function EditEventModal({ isOpen, onClose, eventId, onEventUpdate
               </div>
             )}
 
-            <div>
-              <label className="block text-sm font-medium mb-2 text-text-secondary">Event Title</label>
+              {/* Event Title */}
               <input
                 type="text"
-                placeholder="Enter event title"
-                className="w-full px-4 py-3 text-base rounded-2xl border border-cream-300 glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary placeholder-text-light"
+                placeholder="Event Title"
+                required
+                className="text-4xl font-bold text-white tracking-tight mb-4 bg-transparent border-none outline-none placeholder-white/50 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
                 value={eventData.title}
                 onChange={(e) => setEventData({ ...eventData, title: e.target.value })}
               />
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2 text-text-secondary">Description</label>
-              <textarea
-                placeholder="Describe your event..."
-                rows={3}
-                className="w-full px-4 py-3 text-base rounded-2xl border border-cream-300 glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 resize-none text-text-primary placeholder-text-light"
-                value={eventData.description}
-                onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium mb-2 text-text-secondary">Date</label>
-                <input
-                  type="date"
-                  className="w-full px-4 py-3 text-base rounded-2xl border border-cream-300 glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary"
-                  value={eventData.date}
-                  onChange={(e) => setEventData({ ...eventData, date: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2 text-text-secondary">Time</label>
-                <input
-                  type="time"
-                  className="w-full px-4 py-3 text-base rounded-2xl border border-cream-300 glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary"
-                  value={eventData.time}
-                  onChange={(e) => setEventData({ ...eventData, time: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2 text-text-secondary">Location</label>
-              <input
-                type="text"
-                placeholder="Event location"
-                className="w-full px-4 py-3 text-base rounded-2xl border border-cream-300 glass-card focus:ring-2 focus:ring-taupe-400 focus:border-transparent transition-all duration-200 text-text-primary placeholder-text-light"
-                value={eventData.location}
-                onChange={(e) => setEventData({ ...eventData, location: e.target.value })}
-              />
-            </div>
-
-            {/* Media Gallery Section */}
-            <div className="space-y-3 pt-2 border-t border-gray-100">
-              <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-text-secondary">Media Gallery</label>
-                <label
-                  htmlFor="gallery-upload"
-                  className={`text-xs px-3 py-1.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg cursor-pointer hover:shadow-md transition-all duration-200 ${isUploadingMedia ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  {isUploadingMedia ? 'Uploading...' : '+ Add Media'}
+              {/* Date, Location, Time */}
+              <div className="flex items-start gap-3 mb-5">
+                {/* Date Box */}
+                <div className="bg-white/20 backdrop-blur-md rounded-2xl p-3.5 text-center shadow-lg relative ring-1 ring-white/30 flex-shrink-0">
                   <input
-                    id="gallery-upload"
-                    type="file"
-                    accept="image/*,video/*"
-                    onChange={handleMediaUpload}
-                    disabled={isUploadingMedia}
-                    className="hidden"
+                    type="date"
+                    required
+                    className="bg-transparent border-none text-white text-center text-sm font-semibold outline-none w-20"
+                    value={eventData.date}
+                    onChange={(e) => setEventData({ ...eventData, date: e.target.value })}
                   />
-                </label>
+                </div>
+
+                {/* Event Details */}
+                <div className="flex-1 min-w-0 space-y-2">
+                  <div className="flex items-start gap-1.5">
+                    <svg className="w-4 h-4 text-white/90 mt-0.5 flex-shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder="Location"
+                      required
+                      className="flex-1 bg-transparent border-none text-sm text-white font-semibold outline-none placeholder-white/60 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+                      value={eventData.location}
+                      onChange={(e) => setEventData({ ...eventData, location: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-white/90 flex-shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                    </svg>
+                    <input
+                      type="time"
+                      required
+                      className="bg-transparent border-none text-sm text-white/95 font-medium outline-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+                      value={eventData.time}
+                      onChange={(e) => setEventData({ ...eventData, time: e.target.value })}
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Gallery Grid */}
-              {mediaGallery.length > 0 ? (
-                <div className="grid grid-cols-3 gap-2">
-                  {mediaGallery.map((item, index) => (
-                    <div key={index} className="relative group aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                      {item.type === 'image' ? (
-                        <img
-                          src={item.url}
-                          alt="Gallery item"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <video
-                          src={item.url}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-                      {/* Delete button */}
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteMedia(index)}
-                        className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center text-xs"
+              {/* Description */}
+              <div className="mb-5 bg-white/15 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-lg">
+                <h3 className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">About</h3>
+                <textarea
+                  placeholder="Describe your event..."
+                  rows={4}
+                  required
+                  className="w-full bg-transparent border-none text-sm text-white/95 leading-relaxed outline-none resize-none placeholder-white/50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
+                  value={eventData.description}
+                  onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
+                />
+              </div>
+
+              {/* Media Gallery */}
+              {mediaGallery.length > 0 && (
+                <div className="mb-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-xs font-semibold text-white/80 uppercase tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                      Event Photos & Videos ({mediaGallery.length})
+                    </h3>
+                    <label
+                      htmlFor="gallery-upload"
+                      className="text-xs text-white/80 hover:text-white font-medium underline cursor-pointer"
+                    >
+                      {isUploadingMedia ? 'Uploading...' : 'Add More'}
+                      <input
+                        id="gallery-upload"
+                        type="file"
+                        accept="image/*,video/*"
+                        onChange={handleMediaUpload}
+                        disabled={isUploadingMedia}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
+                    {mediaGallery.map((item, index) => (
+                      <div
+                        key={index}
+                        className="relative flex-shrink-0 w-32 h-32 rounded-xl overflow-hidden shadow-md snap-start group"
                       >
-                        ×
-                      </button>
-                      {/* Video indicator */}
-                      {item.type === 'video' && (
-                        <div className="absolute bottom-1 left-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
-                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M8 5v10l8-5-8-5z" />
+                        {item.type === 'image' ? (
+                          <img src={item.url} alt="Gallery" className="w-full h-full object-cover" />
+                        ) : (
+                          <video src={item.url} className="w-full h-full object-cover" />
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteMedia(index)}
+                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center shadow-lg"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                           </svg>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-6 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                  <svg className="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <p className="text-xs text-gray-500">No media added yet</p>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
-            </div>
 
-            <div className="flex space-x-3 pt-4">
-              <button
-                type="button"
-                onClick={handleClose}
-                className="flex-1 px-4 py-3 rounded-2xl glass-card text-text-secondary hover:bg-white/60 transition-all duration-200 font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex-1 px-4 py-3 rounded-2xl gradient-primary text-white hover:shadow-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
+              {/* Add Media Button (if no media) */}
+              {mediaGallery.length === 0 && (
+                <div className="mb-5">
+                  <label
+                    htmlFor="gallery-upload-empty"
+                    className="block bg-white/10 backdrop-blur-sm border-2 border-dashed border-white/30 rounded-2xl p-6 text-center cursor-pointer hover:bg-white/15 transition-all duration-200"
+                  >
+                    <svg className="w-10 h-10 mx-auto text-white/60 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p className="text-sm text-white/80 font-medium">{isUploadingMedia ? 'Uploading...' : 'Add Photos & Videos'}</p>
+                    <p className="text-xs text-white/60 mt-1">Click to upload media</p>
+                    <input
+                      id="gallery-upload-empty"
+                      type="file"
+                      accept="image/*,video/*"
+                      onChange={handleMediaUpload}
+                      disabled={isUploadingMedia}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              )}
+
+              {/* Save Button */}
+              <div className="mt-auto sticky bottom-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent backdrop-blur-md pt-5 -mx-6 px-6 pb-3">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="w-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500 text-gray-900 py-3.5 rounded-xl font-semibold text-base hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01] active:scale-[0.99] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {saving ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                      <span>Saving...</span>
+                    </div>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </button>
+              </div>
             </div>
           </form>
         )}
