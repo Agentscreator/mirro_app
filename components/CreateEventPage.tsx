@@ -439,22 +439,32 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
 
       if (response.ok) {
         alert("Event published successfully!")
-        // Reset form
+        // Reset ALL form state completely
         setCurrentStep(1)
         setSelectedMedia(null)
-        setMediaGallery([]) // Reset media gallery
+        setMediaGallery([])
         setThumbnailImage(null)
         setBackgroundImage(null)
         setHasGeneratedThumbnail(false)
         setHasGeneratedBackground(false)
         setAiGeneratedContent(null)
+        setAiPromptInput("")
+        setShowCamera(true)
+        setShowUploadSuccess(false)
         setEventData({ title: "", description: "", date: "", time: "", location: "", visualStyling: null })
+        
+        // Reset step states
+        setStepStates({
+          step1: { completed: false },
+          step2: { completed: false, input: "" },
+          step3: { completed: false }
+        })
 
         // Notify parent component to refresh events
         if (onEventCreated) {
           onEventCreated()
         }
-      } else {
+      } else{
         const errorText = await response.text()
         console.error('Event creation failed:', response.status, errorText)
         
@@ -626,10 +636,32 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
 
         {currentStep === 3 && (
           <div className="relative rounded-3xl max-w-sm w-full h-[85vh] overflow-hidden shadow-2xl mx-auto">
-            {/* Background - Similar to EventPreviewModal */}
-            <div className={`absolute inset-0 z-0 ${eventData.visualStyling?.styling?.gradient || 'bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600'}`}>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-            </div>
+            {/* Background - Show AI-generated background or gradient */}
+            {backgroundImage ? (
+              <div className="absolute inset-0 z-0">
+                <img
+                  src={backgroundImage}
+                  alt="Event background"
+                  className="w-full h-full object-cover"
+                />
+                {/* Gradient overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
+              </div>
+            ) : isGeneratingBackground ? (
+              <div className="absolute inset-0 z-0 bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-3"></div>
+                    <p className="text-white/80 text-sm">Generating background...</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className={`absolute inset-0 z-0 ${eventData.visualStyling?.styling?.gradient || 'bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600'}`}>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+              </div>
+            )}
 
             {/* Back Button */}
             <button
@@ -640,6 +672,23 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
+
+            {/* Regenerate Background Button */}
+            {backgroundImage && !isGeneratingBackground && (
+              <button
+                onClick={async () => {
+                  setHasGeneratedBackground(false)
+                  await generateAIBackground(eventData.title, eventData.description, eventData.location)
+                }}
+                className="absolute top-5 right-5 z-50 px-3 py-2 bg-black/40 backdrop-blur-xl rounded-full flex items-center gap-2 text-white text-xs hover:bg-black/60 transition-all duration-200 shadow-xl active:scale-95 ring-1 ring-white/20"
+                title="Regenerate background"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>New BG</span>
+              </button>
+            )}
 
             {/* Content Section - Full height, scrollable */}
             <div className="relative h-full overflow-y-auto z-10">
