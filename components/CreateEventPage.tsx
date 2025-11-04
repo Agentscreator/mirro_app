@@ -607,53 +607,11 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
 
         {currentStep === 3 && (
           <div className="space-y-4">
-            {/* AI Thumbnail Preview (for event cards) */}
-            {thumbnailImage && (
-              <div className="bg-white rounded-2xl overflow-hidden shadow-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-semibold text-gray-700">Event Card Thumbnail</h3>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setHasGeneratedThumbnail(false)
-                      generateAIThumbnail(eventData.title, eventData.description, eventData.location)
-                    }}
-                    disabled={isGeneratingThumbnail}
-                    className="text-xs px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all duration-200 disabled:opacity-50"
-                  >
-                    {isGeneratingThumbnail ? 'Regenerating...' : 'Regenerate'}
-                  </button>
-                </div>
-                <img src={thumbnailImage} alt="Event thumbnail" className="w-full h-32 object-cover rounded-xl" />
-                <p className="text-xs text-gray-500 mt-2">This will appear on event cards and previews</p>
-              </div>
-            )}
 
-            {/* Generate Thumbnail Button (if not generated yet) */}
-            {!thumbnailImage && !isGeneratingThumbnail && (
-              <button
-                type="button"
-                onClick={() => generateAIThumbnail(eventData.title, eventData.description, eventData.location)}
-                disabled={!eventData.title}
-                className="w-full p-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <div className="flex items-center justify-center gap-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span className="font-semibold">Generate Event Card Thumbnail</span>
-                </div>
-              </button>
-            )}
 
-            {/* Thumbnail Generation Loading */}
-            {isGeneratingThumbnail && (
-              <div className="bg-white rounded-2xl p-6 text-center shadow-lg">
-                <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                <p className="text-sm font-medium text-gray-700">Creating unique thumbnail...</p>
-                <p className="text-xs text-gray-500 mt-1">This may take 10-15 seconds</p>
-              </div>
-            )}
+
+
+
 
             {/* Event Preview Card */}
             <div className="bg-white rounded-3xl overflow-hidden shadow-xl">
