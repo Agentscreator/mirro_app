@@ -186,6 +186,11 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         setThumbnailImage(data.imageUrl)
         setHasGeneratedThumbnail(true)
         console.log('Thumbnail generated successfully')
+        
+        // Preload the thumbnail image immediately for faster display
+        const img = new Image()
+        img.src = data.imageUrl
+        
         return true
       } else {
         console.error('Failed to generate AI thumbnail')
