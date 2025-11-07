@@ -27,6 +27,8 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
   const [hasGeneratedThumbnail, setHasGeneratedThumbnail] = useState(false) // Track if thumbnail was generated
   const [hasGeneratedBackground, setHasGeneratedBackground] = useState(false) // Track if background was generated
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null) // Separate background
+  const [backgroundLoaded, setBackgroundLoaded] = useState(false) // Track if background image loaded
+  const [showTypingAnimation, setShowTypingAnimation] = useState(false) // Typing animation state
   const [eventData, setEventData] = useState({
     title: "",
     description: "",
@@ -247,6 +249,9 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     setAiPromptInput(input)
     const parsed = JSON.parse(content)
     
+    // Enable typing animation
+    setShowTypingAnimation(true)
+    
     // Set all extracted data including date, time, location, and visual styling
     setEventData({
       title: parsed.title || "",
@@ -265,6 +270,11 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
     
     // Go directly to step 3 (edit) after AI generation
     setCurrentStep(3)
+    
+    // Disable typing animation after a delay
+    setTimeout(() => {
+      setShowTypingAnimation(false)
+    }, 2000)
 
     // Generate AI thumbnail and background in background (only once each)
     if (!hasGeneratedThumbnail && parsed.title) {
@@ -644,9 +654,14 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
             {/* Background - Show AI-generated background or gradient */}
             {backgroundImage ? (
               <div className="absolute inset-0 z-0">
-                {/* Gradient placeholder that shows immediately */}
+                {/* Gradient placeholder that shows immediately with shimmer animation */}
                 <div className={`absolute inset-0 ${eventData.visualStyling?.styling?.gradient || 'bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600'}`}>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                  {/* Shimmer effect while loading */}
+                  {!backgroundLoaded && (
+                    <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" 
+                         style={{ backgroundSize: '200% 100%' }}></div>
+                  )}
                 </div>
                 {/* AI background image with optimized loading */}
                 <img
@@ -658,8 +673,9 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
                   onLoad={(e) => {
                     // Fade in smoothly when loaded
                     e.currentTarget.style.opacity = '1'
+                    setBackgroundLoaded(true)
                   }}
-                  style={{ opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
+                  style={{ opacity: 0, transition: 'opacity 0.5s ease-in-out' }}
                 />
                 {/* Gradient overlay for text readability */}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
@@ -667,6 +683,9 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
             ) : isGeneratingBackground ? (
               <div className="absolute inset-0 z-0 bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                {/* Animated shimmer while generating */}
+                <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" 
+                     style={{ backgroundSize: '200% 100%' }}></div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
                     <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-3"></div>
@@ -710,15 +729,20 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
             {/* Content Section - Full height, scrollable */}
             <div className="relative h-full overflow-y-auto z-10">
               <div className="relative pt-20 px-6 pb-6 flex flex-col min-h-full">
-                {/* Event Title */}
-                <input
-                  type="text"
-                  placeholder="Event Title"
-                  required
-                  className="text-4xl font-bold text-white tracking-tight mb-4 bg-transparent border-none outline-none placeholder-white/50 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
-                  value={eventData.title}
-                  onChange={(e) => setEventData({ ...eventData, title: e.target.value })}
-                />
+                {/* Event Title with typing animation */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Event Title"
+                    required
+                    className={`text-4xl font-bold text-white tracking-tight mb-4 bg-transparent border-none outline-none placeholder-white/50 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] ${showTypingAnimation ? 'animate-typing' : ''}`}
+                    value={eventData.title}
+                    onChange={(e) => setEventData({ ...eventData, title: e.target.value })}
+                  />
+                  {showTypingAnimation && (
+                    <span className="absolute right-0 top-2 w-1 h-8 bg-white animate-blink"></span>
+                  )}
+                </div>
 
                 {/* Date, Location, Time */}
                 <div className="flex items-start gap-3 mb-5">

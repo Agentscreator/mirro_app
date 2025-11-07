@@ -68,6 +68,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   const [showReportDialog, setShowReportDialog] = useState(false)
   const [lightboxMedia, setLightboxMedia] = useState<MediaGalleryItem | null>(null)
   const [mediaGallery, setMediaGallery] = useState<MediaGalleryItem[]>([])
+  const [backgroundLoaded, setBackgroundLoaded] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   // Load visual styling data (from R2 or inline)
@@ -180,6 +181,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
       setVideoError(false)
       setVideoDuration(0)
       setCurrentTime(0)
+      setBackgroundLoaded(false)
       if (videoRef.current) {
         videoRef.current.pause()
         videoRef.current.currentTime = 0
@@ -327,9 +329,14 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
         {/* Full Screen Stylized Background - Inspired by Thumbnail */}
         {event.backgroundUrl ? (
           <div className="absolute inset-0 z-0">
-            {/* Gradient placeholder that shows immediately */}
+            {/* Gradient placeholder that shows immediately with shimmer animation */}
             <div className={`absolute inset-0 ${visualStyling?.styling?.gradient || event.gradient || 'bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600'}`}>
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+              {/* Shimmer effect while loading */}
+              {!backgroundLoaded && (
+                <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" 
+                     style={{ backgroundSize: '200% 100%' }}></div>
+              )}
             </div>
             {/* AI background image with optimized loading */}
             <img
@@ -341,8 +348,9 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
               onLoad={(e) => {
                 // Fade in smoothly when loaded
                 e.currentTarget.style.opacity = '1'
+                setBackgroundLoaded(true)
               }}
-              style={{ opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
+              style={{ opacity: 0, transition: 'opacity 0.5s ease-in-out' }}
             />
             {/* Gradient overlay for text readability */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
@@ -350,9 +358,14 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
         ) : event.thumbnailUrl ? (
           // If no background, use thumbnail as artistic blurred background
           <div className="absolute inset-0 z-0">
-            {/* Gradient placeholder */}
+            {/* Gradient placeholder with shimmer */}
             <div className={`absolute inset-0 ${visualStyling?.styling?.gradient || event.gradient || 'bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600'}`}>
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+              {/* Shimmer effect while loading */}
+              {!backgroundLoaded && (
+                <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" 
+                     style={{ backgroundSize: '200% 100%' }}></div>
+              )}
             </div>
             {/* Blurred thumbnail with optimized loading */}
             <img
@@ -363,8 +376,9 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
               fetchPriority="high"
               onLoad={(e) => {
                 e.currentTarget.style.opacity = '1'
+                setBackgroundLoaded(true)
               }}
-              style={{ opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
+              style={{ opacity: 0, transition: 'opacity 0.5s ease-in-out' }}
             />
             {/* Strong overlay for better text readability on blurred background */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70"></div>
