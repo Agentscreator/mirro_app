@@ -99,6 +99,12 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
     if (isOpen) {
       loadVisualStyling()
+      
+      // Preload background image for instant display
+      if (event?.backgroundUrl) {
+        const img = new Image()
+        img.src = event.backgroundUrl
+      }
     }
   }, [event, isOpen])
 
@@ -321,10 +327,22 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
         {/* Full Screen Stylized Background - Inspired by Thumbnail */}
         {event.backgroundUrl ? (
           <div className="absolute inset-0 z-0">
+            {/* Gradient placeholder that shows immediately */}
+            <div className={`absolute inset-0 ${visualStyling?.styling?.gradient || event.gradient || 'bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600'}`}>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+            </div>
+            {/* AI background image with optimized loading */}
             <img
               src={event.backgroundUrl}
               alt="Event background"
-              className="w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="eager"
+              fetchPriority="high"
+              onLoad={(e) => {
+                // Fade in smoothly when loaded
+                e.currentTarget.style.opacity = '1'
+              }}
+              style={{ opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
             />
             {/* Gradient overlay for text readability */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
@@ -332,10 +350,21 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
         ) : event.thumbnailUrl ? (
           // If no background, use thumbnail as artistic blurred background
           <div className="absolute inset-0 z-0">
+            {/* Gradient placeholder */}
+            <div className={`absolute inset-0 ${visualStyling?.styling?.gradient || event.gradient || 'bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600'}`}>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+            </div>
+            {/* Blurred thumbnail with optimized loading */}
             <img
               src={event.thumbnailUrl}
               alt="Event background"
-              className="w-full h-full object-cover scale-125 blur-3xl"
+              className="absolute inset-0 w-full h-full object-cover scale-125 blur-3xl"
+              loading="eager"
+              fetchPriority="high"
+              onLoad={(e) => {
+                e.currentTarget.style.opacity = '1'
+              }}
+              style={{ opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
             />
             {/* Strong overlay for better text readability on blurred background */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70"></div>

@@ -224,6 +224,11 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
         setBackgroundImage(data.imageUrl)
         setHasGeneratedBackground(true)
         console.log('Background generated successfully')
+        
+        // Preload the image immediately for faster display
+        const img = new Image()
+        img.src = data.imageUrl
+        
         return true
       } else {
         console.error('Failed to generate AI background')
@@ -639,10 +644,22 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
             {/* Background - Show AI-generated background or gradient */}
             {backgroundImage ? (
               <div className="absolute inset-0 z-0">
+                {/* Gradient placeholder that shows immediately */}
+                <div className={`absolute inset-0 ${eventData.visualStyling?.styling?.gradient || 'bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600'}`}>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                </div>
+                {/* AI background image with optimized loading */}
                 <img
                   src={backgroundImage}
                   alt="Event background"
-                  className="w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="eager"
+                  fetchPriority="high"
+                  onLoad={(e) => {
+                    // Fade in smoothly when loaded
+                    e.currentTarget.style.opacity = '1'
+                  }}
+                  style={{ opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
                 />
                 {/* Gradient overlay for text readability */}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
