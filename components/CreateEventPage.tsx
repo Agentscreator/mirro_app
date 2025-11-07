@@ -759,7 +759,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
 
                   {/* Event Details */}
                   <div className="flex-1 min-w-0 space-y-2">
-                    <div className="flex items-start gap-1.5">
+                    <div className="flex items-start gap-1.5 relative">
                       <svg className="w-4 h-4 text-white/90 mt-0.5 flex-shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                       </svg>
@@ -767,7 +767,7 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
                         type="text"
                         placeholder="Location"
                         required
-                        className="flex-1 bg-transparent border-none text-sm text-white font-semibold outline-none placeholder-white/60 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+                        className={`flex-1 bg-transparent border-none text-sm text-white font-semibold outline-none placeholder-white/60 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] ${showTypingAnimation ? 'animate-typing' : ''}`}
                         value={eventData.location}
                         onChange={(e) => setEventData({ ...eventData, location: e.target.value })}
                       />
@@ -787,17 +787,22 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
                   </div>
                 </div>
 
-                {/* Description */}
+                {/* Description with typing animation */}
                 <div className="mb-5 bg-white/15 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-lg">
                   <h3 className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">About</h3>
-                  <textarea
-                    placeholder="Describe your event..."
-                    rows={4}
-                    required
-                    className="w-full bg-transparent border-none text-sm text-white/95 leading-relaxed outline-none resize-none placeholder-white/50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
-                    value={eventData.description}
-                    onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
-                  />
+                  <div className="relative">
+                    <textarea
+                      placeholder="Describe your event..."
+                      rows={4}
+                      required
+                      className={`w-full bg-transparent border-none text-sm text-white/95 leading-relaxed outline-none resize-none placeholder-white/50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] ${showTypingAnimation ? 'animate-typing-multiline' : ''}`}
+                      value={eventData.description}
+                      onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
+                    />
+                    {showTypingAnimation && eventData.description && (
+                      <span className="absolute bottom-2 right-2 w-1 h-4 bg-white/80 animate-blink"></span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Media Gallery Preview */}
