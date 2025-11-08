@@ -4,7 +4,7 @@ import { uploadToR2, generateFileName } from '@/lib/storage';
 
 // Configure route for faster responses
 export const runtime = 'nodejs';
-export const maxDuration = 30; // 30 seconds max to allow for image download and upload
+export const maxDuration = 20; // 20 seconds max - gpt-image-1-mini is faster than DALL-E 3
 
 // Lazy initialize OpenAI only when needed
 let openai: OpenAI | null = null;
@@ -13,7 +13,7 @@ function getOpenAIClient(): OpenAI {
   if (!openai) {
     openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
-      timeout: 18000, // 18 second timeout for OpenAI API calls (DALL-E needs time)
+      timeout: 15000, // 15 second timeout - gpt-image-1-mini is faster
     });
   }
   return openai;
@@ -55,12 +55,12 @@ export async function POST(request: NextRequest) {
       prompt = `Create a vibrant, professional event thumbnail image for: "${title}". ${description ? `The event is about: ${description}.` : ''} ${location ? `Location: ${location}.` : ''} ${styleContext}Style: Modern, colorful, eye-catching, suitable for social media and event cards. No text or words in the image. Make it visually appealing and match the event's theme.`;
     }
 
-    console.log(`Generating ${type} image with DALL-E 3 for:`, title);
+    console.log(`Generating ${type} image with gpt-image-1-mini for:`, title);
 
-    // Generate image using DALL-E 3
-    // DALL-E 3 typically takes 10-15 seconds
+    // Generate image using gpt-image-1-mini
+    // gpt-image-1-mini is faster and more cost-effective than DALL-E 3
     const response = await getOpenAIClient().images.generate({
-      model: "dall-e-3",
+      model: "gpt-image-1-mini",
       prompt: prompt,
       n: 1,
       size: "1024x1024",
@@ -68,10 +68,10 @@ export async function POST(request: NextRequest) {
       style: "vivid"
     });
 
-    const tempImageUrl = response.data[0]?.url;
+    const tempImageUrl = response.data?.[0]?.url;
 
     if (!tempImageUrl) {
-      throw new Error('No image URL returned from DALL-E 3');
+      throw new Error('No image URL returned from gpt-image-1-mini');
     }
 
     console.log('Successfully generated image, now uploading to R2:', tempImageUrl);
@@ -83,21 +83,21 @@ export async function POST(request: NextRequest) {
     }
 
     const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
-    
+
     // Upload to R2 for permanent storage
     const fileName = generateFileName(`event-${type}`, 'png');
     const permanentUrl = await uploadToR2(imageBuffer, fileName, 'image/png');
 
     console.log('Image uploaded to R2:', permanentUrl);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       imageUrl: permanentUrl, // Return the permanent R2 URL instead of temporary DALL-E URL
       prompt: prompt // Return prompt for debugging
     });
 
   } catch (error: any) {
     console.error('Error generating event image:', error);
-    
+
     // Handle specific OpenAI errors
     if (error?.status === 400) {
       return NextResponse.json(
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     if (error?.status === 429) {
       return NextResponse.json(
         { error: 'Rate limit exceeded. Please try again later.' },
