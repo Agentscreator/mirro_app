@@ -41,11 +41,10 @@ export async function POST(request: NextRequest) {
       }, { status: 413 });
     }
 
-    // For small files (< 4MB), upload directly through server
-    // For large files, this will still fail due to Vercel limits
-    const smallFileLimit = 4 * 1024 * 1024; // 4MB
+    // For files under 100MB (Vercel Pro limit), upload directly through server
+    const directUploadLimit = 100 * 1024 * 1024; // 100MB
     
-    if (file.size < smallFileLimit) {
+    if (file.size < directUploadLimit) {
       // Direct upload for small files
       const timestamp = Date.now();
       const extension = file.name.split('.').pop();

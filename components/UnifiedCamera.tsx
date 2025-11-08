@@ -256,9 +256,9 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           console.log('Video blob size:', blob.size, 'bytes')
           console.log('Video blob type:', blob.type)
 
-          const smallFileLimit = 4 * 1024 * 1024 // 4MB - Vercel limit
+          const smallFileLimit = 100 * 1024 * 1024 // 100MB - Vercel Pro limit
 
-          // For small files, use direct upload
+          // For files under 100MB, use direct upload
           if (blob.size < smallFileLimit) {
             console.log('Using direct upload for small file')
             const formData = new FormData()
@@ -422,10 +422,10 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
       try {
         console.log('Uploading file:', file.name, 'Size:', file.size, 'bytes')
-        const smallFileLimit = 4 * 1024 * 1024 // 4MB
+        const smallFileLimit = 100 * 1024 * 1024 // 100MB - Vercel Pro limit
         const type = file.type.startsWith("video/") ? "video" : "photo"
 
-        // For small files, use direct upload
+        // For files under 100MB, use direct upload
         if (file.size < smallFileLimit) {
           const formData = new FormData()
           formData.append('file', file)
