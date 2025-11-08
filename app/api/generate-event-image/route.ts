@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       style: "vivid"
     });
 
-    const tempImageUrl = response.data[0]?.url;
+    const tempImageUrl = response.data?.[0]?.url;
 
     if (!tempImageUrl) {
       throw new Error('No image URL returned from DALL-E 3');
@@ -83,21 +83,21 @@ export async function POST(request: NextRequest) {
     }
 
     const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
-    
+
     // Upload to R2 for permanent storage
     const fileName = generateFileName(`event-${type}`, 'png');
     const permanentUrl = await uploadToR2(imageBuffer, fileName, 'image/png');
 
     console.log('Image uploaded to R2:', permanentUrl);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       imageUrl: permanentUrl, // Return the permanent R2 URL instead of temporary DALL-E URL
       prompt: prompt // Return prompt for debugging
     });
 
   } catch (error: any) {
     console.error('Error generating event image:', error);
-    
+
     // Handle specific OpenAI errors
     if (error?.status === 400) {
       return NextResponse.json(
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     if (error?.status === 429) {
       return NextResponse.json(
         { error: 'Rate limit exceeded. Please try again later.' },
