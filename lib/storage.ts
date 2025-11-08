@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const s3Client = new S3Client({
   region: 'auto',
@@ -46,4 +47,18 @@ export function generateFileName(prefix: string, extension: string): string {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(2, 15);
   return `${prefix}-${timestamp}-${random}.${extension}`;
+}
+
+export async function getPresignedUploadUrl(
+  fileName: string,
+  contentType: string,
+  expiresIn: number = 3600
+): Promise<string> {
+  const command = new PutObjectCommand({
+    Bucket: process.env.R2_BUCKET_NAME!,
+    Key: fileName,
+    ContentType: contentType,
+  });
+
+  return await getSignedUrl(s3Client, command, { expiresIn });
 }

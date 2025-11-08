@@ -245,7 +245,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       mediaRecorder.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: mimeType })
 
-        // Check file size (limit to 1000MB for better upload reliability)
+        // Check file size (limit to 1000MB)
         const maxSize = 1000 * 1024 * 1024 // 1000MB
         if (blob.size > maxSize) {
           alert('Video file is too large. Please record a shorter video.')
@@ -256,81 +256,76 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           console.log('Video blob size:', blob.size, 'bytes')
           console.log('Video blob type:', blob.type)
 
-          // Upload video to R2 storage with retry logic
-          const formData = new FormData()
-          // Always use webm extension since that's what we're recording
-          formData.append('file', blob, 'video.webm')
-          formData.append('type', 'video')
+          const smallFileLimit = 4 * 1024 * 1024 // 4MB - Vercel limit
 
-          console.log('Uploading video to R2...')
+          // For small files, use direct upload
+          if (blob.size < smallFileLimit) {
+            console.log('Using direct upload for small file')
+            const formData = new FormData()
+            formData.append('file', blob, 'video.webm')
+            formData.append('type', 'video')
 
-          // Retry upload up to 3 times
-          let uploadSuccess = false
-          let lastError = null
+            const uploadResponse = await fetch('/api/upload', {
+              method: 'POST',
+              body: formData
+            })
 
-          for (let attempt = 1; attempt <= 3; attempt++) {
-            try {
-              const uploadResponse = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-              })
-
-              console.log(`Upload attempt ${attempt} response status:`, uploadResponse.status)
-
-              if (uploadResponse.ok) {
-                const result = await uploadResponse.json()
-                console.log('Upload successful:', result)
-                onCapture(result.url, "video")
-                uploadSuccess = true
-                break
-              } else {
-                const errorText = await uploadResponse.text()
-                lastError = `Status ${uploadResponse.status}: ${errorText}`
-                console.error(`Upload attempt ${attempt} failed:`, lastError)
-
-                if (uploadResponse.status === 413) {
-                  // Don't retry on 413 errors
-                  break
-                }
-
-                // Wait before retry (except on last attempt)
-                if (attempt < 3) {
-                  await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
-                }
-              }
-            } catch (error) {
-              lastError = error instanceof Error ? error.message : 'Unknown error'
-              console.error(`Upload attempt ${attempt} error:`, lastError)
-
-              // Wait before retry (except on last attempt)
-              if (attempt < 3) {
-                await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
-              }
+            if (uploadResponse.ok) {
+              const result = await uploadResponse.json()
+              console.log('Direct upload successful:', result)
+              onCapture(result.url, "video")
+              stopCamera()
+              return
             }
           }
 
-          if (!uploadSuccess) {
-            console.error('All upload attempts failed, using fallback data URL')
-            alert(`Upload failed after 3 attempts. Using local video data. Error: ${lastError}`)
+          // For large files, use presigned URL for direct client-to-R2 upload
+          console.log('Using presigned URL for large file')
+          
+          const presignedResponse = await fetch('/api/upload/presigned', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              filename: 'video.webm',
+              contentType: blob.type,
+              fileSize: blob.size
+            })
+          })
 
-            // Fallback to data URL if all uploads fail
-            const reader = new FileReader()
-            reader.onload = () => {
-              const dataUrl = reader.result as string
-              console.log('Using fallback data URL for video')
-              onCapture(dataUrl, "video")
-            }
-            reader.readAsDataURL(blob)
+          if (!presignedResponse.ok) {
+            throw new Error('Failed to get presigned URL')
           }
+
+          const { presignedUrl, publicUrl } = await presignedResponse.json()
+
+          // Upload directly to R2 using presigned URL
+          console.log('Uploading directly to R2...')
+          const uploadResponse = await fetch(presignedUrl, {
+            method: 'PUT',
+            body: blob,
+            headers: {
+              'Content-Type': blob.type,
+            }
+          })
+
+          if (uploadResponse.ok) {
+            console.log('Direct R2 upload successful:', publicUrl)
+            onCapture(publicUrl, "video")
+            stopCamera()
+            return
+          } else {
+            throw new Error(`R2 upload failed: ${uploadResponse.status}`)
+          }
+
         } catch (error) {
           console.error('Upload error:', error)
-          alert(`Upload error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+          alert(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}. Using local video data.`)
 
           // Fallback to data URL if upload fails
           const reader = new FileReader()
           reader.onload = () => {
             const dataUrl = reader.result as string
-            console.log('Using fallback data URL for video due to error')
+            console.log('Using fallback data URL for video')
             onCapture(dataUrl, "video")
           }
           reader.readAsDataURL(blob)
@@ -377,7 +372,6 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      // Check file size before upload
       const maxSize = 1000 * 1024 * 1024 // 1000MB
       if (file.size > maxSize) {
         alert('File is too large. Please select a file smaller than 1000MB.')
@@ -385,52 +379,77 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       }
 
       try {
-        const formData = new FormData()
-        formData.append('file', file)
-        formData.append('type', file.type.startsWith("video/") ? "video" : "image")
-
         console.log('Uploading file:', file.name, 'Size:', file.size, 'bytes')
+        const smallFileLimit = 4 * 1024 * 1024 // 4MB
+        const type = file.type.startsWith("video/") ? "video" : "photo"
 
-        const uploadResponse = await fetch('/api/upload', {
+        // For small files, use direct upload
+        if (file.size < smallFileLimit) {
+          const formData = new FormData()
+          formData.append('file', file)
+          formData.append('type', type)
+
+          const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          })
+
+          if (uploadResponse.ok) {
+            const { url } = await uploadResponse.json()
+            console.log('Direct upload successful:', url)
+            onCapture(url, type)
+            stopCamera()
+            return
+          }
+        }
+
+        // For large files, use presigned URL
+        console.log('Using presigned URL for large file')
+        
+        const presignedResponse = await fetch('/api/upload/presigned', {
           method: 'POST',
-          body: formData
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename: file.name,
+            contentType: file.type,
+            fileSize: file.size
+          })
+        })
+
+        if (!presignedResponse.ok) {
+          throw new Error('Failed to get presigned URL')
+        }
+
+        const { presignedUrl, publicUrl } = await presignedResponse.json()
+
+        // Upload directly to R2
+        const uploadResponse = await fetch(presignedUrl, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type,
+          }
         })
 
         if (uploadResponse.ok) {
-          const { url } = await uploadResponse.json()
-          const type = file.type.startsWith("video/") ? "video" : "photo"
-          console.log('File upload successful:', url)
-          onCapture(url, type)
+          console.log('Direct R2 upload successful:', publicUrl)
+          onCapture(publicUrl, type)
+          stopCamera()
+          return
         } else {
-          const errorText = await uploadResponse.text()
-          console.error('File upload failed:', uploadResponse.status, errorText)
-
-          if (uploadResponse.status === 413) {
-            alert('File is too large for upload. Please select a smaller file.')
-          } else {
-            alert(`Upload failed: ${errorText}`)
-          }
-
-          // Fallback to data URL
-          const reader = new FileReader()
-          reader.onload = (e) => {
-            const data = e.target?.result as string
-            const type = file.type.startsWith("video/") ? "video" : "photo"
-            console.log('Using fallback data URL for uploaded file')
-            onCapture(data, type)
-          }
-          reader.readAsDataURL(file)
+          throw new Error(`R2 upload failed: ${uploadResponse.status}`)
         }
+
       } catch (error) {
         console.error('File upload error:', error)
-        alert(`Upload error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        alert(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}. Using local file data.`)
 
         // Fallback to data URL
         const reader = new FileReader()
         reader.onload = (e) => {
           const data = e.target?.result as string
           const type = file.type.startsWith("video/") ? "video" : "photo"
-          console.log('Using fallback data URL for uploaded file due to error')
+          console.log('Using fallback data URL for uploaded file')
           onCapture(data, type)
         }
         reader.readAsDataURL(file)
