@@ -279,42 +279,84 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
             }
           }
 
-          // For large files, use presigned URL for direct client-to-R2 upload
-          console.log('Using presigned URL for large file')
+          // For large files, use chunked upload through server
+          console.log('Using chunked upload for large file')
           
-          const presignedResponse = await fetch('/api/upload/presigned', {
+          const chunkSize = 4 * 1024 * 1024 // 4MB chunks
+          const chunks = Math.ceil(blob.size / chunkSize)
+          
+          // Start multipart upload
+          const startResponse = await fetch('/api/upload/chunked', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+              action: 'start',
               filename: 'video.webm',
-              contentType: blob.type,
-              fileSize: blob.size
+              contentType: blob.type
             })
           })
 
-          if (!presignedResponse.ok) {
-            throw new Error('Failed to get presigned URL')
+          if (!startResponse.ok) {
+            throw new Error('Failed to start chunked upload')
           }
 
-          const { presignedUrl, publicUrl } = await presignedResponse.json()
+          const { uploadId, filename, publicUrl } = await startResponse.json()
+          console.log(`Starting chunked upload: ${chunks} chunks`)
 
-          // Upload directly to R2 using presigned URL
-          console.log('Uploading directly to R2...')
-          const uploadResponse = await fetch(presignedUrl, {
-            method: 'PUT',
-            body: blob,
-            headers: {
-              'Content-Type': blob.type,
+          // Upload each chunk
+          const uploadedParts = []
+          for (let i = 0; i < chunks; i++) {
+            const start = i * chunkSize
+            const end = Math.min(start + chunkSize, blob.size)
+            const chunk = blob.slice(start, end)
+
+            console.log(`Uploading chunk ${i + 1}/${chunks}`)
+
+            const partResponse = await fetch(
+              `/api/upload/chunked?uploadId=${uploadId}&partNumber=${i + 1}&filename=${filename}`,
+              {
+                method: 'PUT',
+                body: chunk
+              }
+            )
+
+            if (!partResponse.ok) {
+              // Abort upload on failure
+              await fetch('/api/upload/chunked', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  action: 'abort',
+                  uploadId,
+                  filename
+                })
+              })
+              throw new Error(`Failed to upload chunk ${i + 1}`)
             }
+
+            const { ETag, PartNumber } = await partResponse.json()
+            uploadedParts.push({ ETag, PartNumber })
+          }
+
+          // Complete multipart upload
+          const completeResponse = await fetch('/api/upload/chunked', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'complete',
+              uploadId,
+              filename,
+              parts: uploadedParts
+            })
           })
 
-          if (uploadResponse.ok) {
-            console.log('Direct R2 upload successful:', publicUrl)
+          if (completeResponse.ok) {
+            console.log('Chunked upload successful:', publicUrl)
             onCapture(publicUrl, "video")
             stopCamera()
             return
           } else {
-            throw new Error(`R2 upload failed: ${uploadResponse.status}`)
+            throw new Error('Failed to complete chunked upload')
           }
 
         } catch (error) {
@@ -403,41 +445,84 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           }
         }
 
-        // For large files, use presigned URL
-        console.log('Using presigned URL for large file')
+        // For large files, use chunked upload
+        console.log('Using chunked upload for large file')
         
-        const presignedResponse = await fetch('/api/upload/presigned', {
+        const chunkSize = 4 * 1024 * 1024 // 4MB chunks
+        const chunks = Math.ceil(file.size / chunkSize)
+        
+        // Start multipart upload
+        const startResponse = await fetch('/api/upload/chunked', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            action: 'start',
             filename: file.name,
-            contentType: file.type,
-            fileSize: file.size
+            contentType: file.type
           })
         })
 
-        if (!presignedResponse.ok) {
-          throw new Error('Failed to get presigned URL')
+        if (!startResponse.ok) {
+          throw new Error('Failed to start chunked upload')
         }
 
-        const { presignedUrl, publicUrl } = await presignedResponse.json()
+        const { uploadId, filename, publicUrl } = await startResponse.json()
+        console.log(`Starting chunked upload: ${chunks} chunks`)
 
-        // Upload directly to R2
-        const uploadResponse = await fetch(presignedUrl, {
-          method: 'PUT',
-          body: file,
-          headers: {
-            'Content-Type': file.type,
+        // Upload each chunk
+        const uploadedParts = []
+        for (let i = 0; i < chunks; i++) {
+          const start = i * chunkSize
+          const end = Math.min(start + chunkSize, file.size)
+          const chunk = file.slice(start, end)
+
+          console.log(`Uploading chunk ${i + 1}/${chunks}`)
+
+          const partResponse = await fetch(
+            `/api/upload/chunked?uploadId=${uploadId}&partNumber=${i + 1}&filename=${filename}`,
+            {
+              method: 'PUT',
+              body: chunk
+            }
+          )
+
+          if (!partResponse.ok) {
+            // Abort upload on failure
+            await fetch('/api/upload/chunked', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'abort',
+                uploadId,
+                filename
+              })
+            })
+            throw new Error(`Failed to upload chunk ${i + 1}`)
           }
+
+          const { ETag, PartNumber } = await partResponse.json()
+          uploadedParts.push({ ETag, PartNumber })
+        }
+
+        // Complete multipart upload
+        const completeResponse = await fetch('/api/upload/chunked', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'complete',
+            uploadId,
+            filename,
+            parts: uploadedParts
+          })
         })
 
-        if (uploadResponse.ok) {
-          console.log('Direct R2 upload successful:', publicUrl)
+        if (completeResponse.ok) {
+          console.log('Chunked upload successful:', publicUrl)
           onCapture(publicUrl, type)
           stopCamera()
           return
         } else {
-          throw new Error(`R2 upload failed: ${uploadResponse.status}`)
+          throw new Error('Failed to complete chunked upload')
         }
 
       } catch (error) {
