@@ -245,10 +245,10 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       mediaRecorder.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: mimeType })
 
-        // Check file size (limit to 1000MB)
-        const maxSize = 1000 * 1024 * 1024 // 1000MB
+        // Check file size (limit to 100MB with Vercel Pro)
+        const maxSize = 100 * 1024 * 1024 // 100MB
         if (blob.size > maxSize) {
-          alert('Video file is too large. Please record a shorter video.')
+          alert('Video file is too large (max 100MB). Please record a shorter video.')
           return
         }
 
@@ -256,107 +256,26 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           console.log('Video blob size:', blob.size, 'bytes')
           console.log('Video blob type:', blob.type)
 
-          const smallFileLimit = 100 * 1024 * 1024 // 100MB - Vercel Pro limit
+          // Upload video to R2 storage
+          const formData = new FormData()
+          formData.append('file', blob, 'video.webm')
+          formData.append('type', 'video')
 
-          // For files under 100MB, use direct upload
-          if (blob.size < smallFileLimit) {
-            console.log('Using direct upload for small file')
-            const formData = new FormData()
-            formData.append('file', blob, 'video.webm')
-            formData.append('type', 'video')
+          console.log('Uploading video to R2...')
 
-            const uploadResponse = await fetch('/api/upload', {
-              method: 'POST',
-              body: formData
-            })
-
-            if (uploadResponse.ok) {
-              const result = await uploadResponse.json()
-              console.log('Direct upload successful:', result)
-              onCapture(result.url, "video")
-              stopCamera()
-              return
-            }
-          }
-
-          // For large files, use chunked upload through server
-          console.log('Using chunked upload for large file')
-          
-          const chunkSize = 4 * 1024 * 1024 // 4MB chunks
-          const chunks = Math.ceil(blob.size / chunkSize)
-          
-          // Start multipart upload
-          const startResponse = await fetch('/api/upload/chunked', {
+          const uploadResponse = await fetch('/api/upload', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'start',
-              filename: 'video.webm',
-              contentType: blob.type
-            })
+            body: formData
           })
 
-          if (!startResponse.ok) {
-            throw new Error('Failed to start chunked upload')
-          }
-
-          const { uploadId, filename, publicUrl } = await startResponse.json()
-          console.log(`Starting chunked upload: ${chunks} chunks`)
-
-          // Upload each chunk
-          const uploadedParts = []
-          for (let i = 0; i < chunks; i++) {
-            const start = i * chunkSize
-            const end = Math.min(start + chunkSize, blob.size)
-            const chunk = blob.slice(start, end)
-
-            console.log(`Uploading chunk ${i + 1}/${chunks}`)
-
-            const partResponse = await fetch(
-              `/api/upload/chunked?uploadId=${uploadId}&partNumber=${i + 1}&filename=${filename}`,
-              {
-                method: 'PUT',
-                body: chunk
-              }
-            )
-
-            if (!partResponse.ok) {
-              // Abort upload on failure
-              await fetch('/api/upload/chunked', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  action: 'abort',
-                  uploadId,
-                  filename
-                })
-              })
-              throw new Error(`Failed to upload chunk ${i + 1}`)
-            }
-
-            const { ETag, PartNumber } = await partResponse.json()
-            uploadedParts.push({ ETag, PartNumber })
-          }
-
-          // Complete multipart upload
-          const completeResponse = await fetch('/api/upload/chunked', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'complete',
-              uploadId,
-              filename,
-              parts: uploadedParts
-            })
-          })
-
-          if (completeResponse.ok) {
-            console.log('Chunked upload successful:', publicUrl)
-            onCapture(publicUrl, "video")
-            stopCamera()
-            return
+          if (uploadResponse.ok) {
+            const result = await uploadResponse.json()
+            console.log('Upload successful:', result)
+            onCapture(result.url, "video")
           } else {
-            throw new Error('Failed to complete chunked upload')
+            const errorText = await uploadResponse.text()
+            console.error('Upload failed:', uploadResponse.status, errorText)
+            throw new Error(`Upload failed: ${errorText}`)
           }
 
         } catch (error) {
@@ -414,115 +333,33 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const maxSize = 1000 * 1024 * 1024 // 1000MB
+      const maxSize = 100 * 1024 * 1024 // 100MB
       if (file.size > maxSize) {
-        alert('File is too large. Please select a file smaller than 1000MB.')
+        alert('File is too large (max 100MB). Please select a smaller file.')
         return
       }
 
       try {
         console.log('Uploading file:', file.name, 'Size:', file.size, 'bytes')
-        const smallFileLimit = 100 * 1024 * 1024 // 100MB - Vercel Pro limit
         const type = file.type.startsWith("video/") ? "video" : "photo"
 
-        // For files under 100MB, use direct upload
-        if (file.size < smallFileLimit) {
-          const formData = new FormData()
-          formData.append('file', file)
-          formData.append('type', type)
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('type', type)
 
-          const uploadResponse = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData
-          })
-
-          if (uploadResponse.ok) {
-            const { url } = await uploadResponse.json()
-            console.log('Direct upload successful:', url)
-            onCapture(url, type)
-            stopCamera()
-            return
-          }
-        }
-
-        // For large files, use chunked upload
-        console.log('Using chunked upload for large file')
-        
-        const chunkSize = 4 * 1024 * 1024 // 4MB chunks
-        const chunks = Math.ceil(file.size / chunkSize)
-        
-        // Start multipart upload
-        const startResponse = await fetch('/api/upload/chunked', {
+        const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'start',
-            filename: file.name,
-            contentType: file.type
-          })
+          body: formData
         })
 
-        if (!startResponse.ok) {
-          throw new Error('Failed to start chunked upload')
-        }
-
-        const { uploadId, filename, publicUrl } = await startResponse.json()
-        console.log(`Starting chunked upload: ${chunks} chunks`)
-
-        // Upload each chunk
-        const uploadedParts = []
-        for (let i = 0; i < chunks; i++) {
-          const start = i * chunkSize
-          const end = Math.min(start + chunkSize, file.size)
-          const chunk = file.slice(start, end)
-
-          console.log(`Uploading chunk ${i + 1}/${chunks}`)
-
-          const partResponse = await fetch(
-            `/api/upload/chunked?uploadId=${uploadId}&partNumber=${i + 1}&filename=${filename}`,
-            {
-              method: 'PUT',
-              body: chunk
-            }
-          )
-
-          if (!partResponse.ok) {
-            // Abort upload on failure
-            await fetch('/api/upload/chunked', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                action: 'abort',
-                uploadId,
-                filename
-              })
-            })
-            throw new Error(`Failed to upload chunk ${i + 1}`)
-          }
-
-          const { ETag, PartNumber } = await partResponse.json()
-          uploadedParts.push({ ETag, PartNumber })
-        }
-
-        // Complete multipart upload
-        const completeResponse = await fetch('/api/upload/chunked', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'complete',
-            uploadId,
-            filename,
-            parts: uploadedParts
-          })
-        })
-
-        if (completeResponse.ok) {
-          console.log('Chunked upload successful:', publicUrl)
-          onCapture(publicUrl, type)
-          stopCamera()
-          return
+        if (uploadResponse.ok) {
+          const { url } = await uploadResponse.json()
+          console.log('Upload successful:', url)
+          onCapture(url, type)
         } else {
-          throw new Error('Failed to complete chunked upload')
+          const errorText = await uploadResponse.text()
+          console.error('Upload failed:', uploadResponse.status, errorText)
+          throw new Error(`Upload failed: ${errorText}`)
         }
 
       } catch (error) {

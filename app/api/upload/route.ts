@@ -33,40 +33,30 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Check file size
-    const maxSize = 1000 * 1024 * 1024; // 1000MB
+    // Check file size (100MB limit with Vercel Pro)
+    const maxSize = 100 * 1024 * 1024; // 100MB
     if (file.size > maxSize) {
       return NextResponse.json({
-        error: 'File too large. Maximum size is 1000MB.'
+        error: 'File too large. Maximum size is 100MB.'
       }, { status: 413 });
     }
 
-    // For files under 100MB (Vercel Pro limit), upload directly through server
-    const directUploadLimit = 100 * 1024 * 1024; // 100MB
+    // Generate unique filename
+    const timestamp = Date.now();
+    const extension = file.name.split('.').pop();
+    const uniqueFilename = `${timestamp}-${Math.random().toString(36).substring(7)}.${extension}`;
     
-    if (file.size < directUploadLimit) {
-      // Direct upload for small files
-      const timestamp = Date.now();
-      const extension = file.name.split('.').pop();
-      const uniqueFilename = `${timestamp}-${Math.random().toString(36).substring(7)}.${extension}`;
-      
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const publicUrl = await uploadToR2(buffer, uniqueFilename, file.type);
+    // Upload to R2
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const publicUrl = await uploadToR2(buffer, uniqueFilename, file.type);
 
-      return NextResponse.json({
-        success: true,
-        url: publicUrl,
-        filename: uniqueFilename,
-        size: file.size,
-        type: file.type
-      });
-    } else {
-      // For large files, return error suggesting client-side upload
-      return NextResponse.json({
-        error: 'File too large for direct upload. Use chunked upload endpoint.',
-        useChunkedUpload: true
-      }, { status: 413 });
-    }
+    return NextResponse.json({
+      success: true,
+      url: publicUrl,
+      filename: uniqueFilename,
+      size: file.size,
+      type: file.type
+    });
 
   } catch (error) {
     console.error('Upload error:', error);
@@ -74,8 +64,7 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error) {
       if (error.message.includes('PayloadTooLargeError') || error.message.includes('FUNCTION_PAYLOAD_TOO_LARGE')) {
         return NextResponse.json({
-          error: 'File too large. Use chunked upload for large videos.',
-          useChunkedUpload: true
+          error: 'File too large. Maximum size is 100MB.'
         }, { status: 413 });
       }
     }
