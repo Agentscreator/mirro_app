@@ -6,15 +6,6 @@ export const runtime = 'nodejs';
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
-// Increase body size limit for Vercel (this helps but doesn't solve the 4.5MB limit)
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '100mb',
-    },
-  },
-};
-
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
