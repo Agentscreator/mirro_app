@@ -4,7 +4,7 @@ import { uploadToR2, generateFileName } from '@/lib/storage';
 
 // Configure route for faster responses
 export const runtime = 'nodejs';
-export const maxDuration = 20; // 20 seconds max - gpt-image-1-mini is faster than DALL-E 3
+export const maxDuration = 30; // 30 seconds max to allow for image download and upload
 
 // Lazy initialize OpenAI only when needed
 let openai: OpenAI | null = null;
@@ -13,7 +13,7 @@ function getOpenAIClient(): OpenAI {
   if (!openai) {
     openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
-      timeout: 15000, // 15 second timeout - gpt-image-1-mini is faster
+      timeout: 18000, // 18 second timeout for OpenAI API calls (DALL-E needs time)
     });
   }
   return openai;
@@ -55,12 +55,12 @@ export async function POST(request: NextRequest) {
       prompt = `Create a vibrant, professional event thumbnail image for: "${title}". ${description ? `The event is about: ${description}.` : ''} ${location ? `Location: ${location}.` : ''} ${styleContext}Style: Modern, colorful, eye-catching, suitable for social media and event cards. No text or words in the image. Make it visually appealing and match the event's theme.`;
     }
 
-    console.log(`Generating ${type} image with gpt-image-1-mini for:`, title);
+    console.log(`Generating ${type} image with DALL-E 3 for:`, title);
 
-    // Generate image using gpt-image-1-mini
-    // gpt-image-1-mini is faster and more cost-effective than DALL-E 3
+    // Generate image using DALL-E 3
+    // DALL-E 3 typically takes 10-15 seconds
     const response = await getOpenAIClient().images.generate({
-      model: "gpt-image-1-mini",
+      model: "dall-e-3",
       prompt: prompt,
       n: 1,
       size: "1024x1024",
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     const tempImageUrl = response.data?.[0]?.url;
 
     if (!tempImageUrl) {
-      throw new Error('No image URL returned from gpt-image-1-mini');
+      throw new Error('No image URL returned from DALL-E 3');
     }
 
     console.log('Successfully generated image, now uploading to R2:', tempImageUrl);
