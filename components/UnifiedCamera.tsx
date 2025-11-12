@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import {
   detectDevice,
   getOptimalVideoMimeType,
@@ -55,22 +55,8 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
     }
   }, [])
 
-  // Apply zoom to video stream
-  useEffect(() => {
-    if (streamRef.current && videoRef.current) {
-      const videoTrack = streamRef.current.getVideoTracks()[0]
-      const capabilities = videoTrack.getCapabilities?.() as any
-
-      if (capabilities?.zoom) {
-        const constraints: any = {
-          advanced: [{ zoom: Math.min(Math.max(zoom, capabilities.zoom.min), capabilities.zoom.max) }]
-        }
-        videoTrack.applyConstraints(constraints).catch(err => {
-          console.log('Zoom constraint not supported:', err)
-        })
-      }
-    }
-  }, [zoom])
+  // Note: We're using CSS transform for zoom instead of hardware constraints
+  // for better performance and smoother user experience
 
   useEffect(() => {
     if (isRecording && !isPaused) {
@@ -102,7 +88,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
 
 
-  const flipCamera = async () => {
+  const flipCamera = useCallback(async () => {
     setIsFlipping(true)
     const newFacingMode = facingMode === 'user' ? 'environment' : 'user'
 
@@ -131,7 +117,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       alert(result.error || "Unable to access camera.");
       setIsFlipping(false)
     }
-  }
+  }, [facingMode, mode])
 
   const startCamera = async () => {
     // Check if video recording is supported
@@ -406,15 +392,15 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
   }
 
-  const handleZoomIn = () => {
+  const handleZoomIn = useCallback(() => {
     setZoom(prev => Math.min(prev + 0.5, 5))
-  }
+  }, [])
 
-  const handleZoomOut = () => {
+  const handleZoomOut = useCallback(() => {
     setZoom(prev => Math.max(prev - 0.5, 1))
-  }
+  }, [])
 
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.touches.length === 2) {
       const touch1 = e.touches[0]
       const touch2 = e.touches[1]
@@ -424,9 +410,9 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       )
       lastTouchDistanceRef.current = distance
     }
-  }
+  }, [])
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (e.touches.length === 2) {
       const touch1 = e.touches[0]
       const touch2 = e.touches[1]
@@ -443,11 +429,11 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
       lastTouchDistanceRef.current = distance
     }
-  }
+  }, [])
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = useCallback(() => {
     lastTouchDistanceRef.current = 0
-  }
+  }, [])
 
   const filters = [
     { id: 'none', name: 'None', filter: '' },
@@ -523,7 +509,8 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
               ? `brightness(1.08) contrast(1.08) saturate(1.15) ${additionalFilter}`
               : 'brightness(1.08) contrast(1.08) saturate(1.15)',
             opacity: isFlipping ? 0 : 1,
-            transition: 'transform 0.1s ease-out'
+            transition: 'transform 0.15s ease-out, opacity 0.2s ease-out',
+            willChange: 'transform'
           }}
         />
 
@@ -589,25 +576,30 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
         {/* Side Panel - Professional Controls */}
         <div className="absolute right-5 top-1/2 transform -translate-y-1/2 space-y-4 z-10">
-          {effects.map((effect) => (
-            <button
-              key={effect.id}
-              onClick={() => {
-                if (effect.id === "flip") {
-                  flipCamera()
-                } else {
-                  setSelectedEffect(selectedEffect === effect.id ? null : effect.id)
-                }
-              }}
-              disabled={isFlipping && effect.id === "flip"}
-              className={`w-14 h-14 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center transition-all duration-200 active:scale-95 ${(effect.id === "flip" && facingMode === "environment") || (selectedEffect === effect.id && effect.id !== "flip")
-                ? "bg-white/95 text-gray-900 shadow-xl"
-                : "bg-black/40 hover:bg-black/50 text-white shadow-lg"
-                } ${isFlipping && effect.id === "flip" ? "opacity-50" : ""}`}
-            >
-              <div className="scale-90">{effect.icon}</div>
-            </button>
-          ))}
+          {effects.map((effect) => {
+            const isActive = (effect.id === "flip" && facingMode === "environment") || (selectedEffect === effect.id && effect.id !== "flip")
+            const isDisabled = isFlipping && effect.id === "flip"
+
+            return (
+              <button
+                key={effect.id}
+                onClick={() => {
+                  if (effect.id === "flip") {
+                    flipCamera()
+                  } else {
+                    setSelectedEffect(prev => prev === effect.id ? null : effect.id)
+                  }
+                }}
+                disabled={isDisabled}
+                className={`w-14 h-14 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center transition-all duration-200 active:scale-95 ${isActive
+                    ? "bg-white/95 text-gray-900 shadow-xl"
+                    : "bg-black/40 hover:bg-black/50 text-white shadow-lg"
+                  } ${isDisabled ? "opacity-50" : ""}`}
+              >
+                <div className="scale-90">{effect.icon}</div>
+              </button>
+            )
+          })}
         </div>
 
         {/* Filter Selection Panel - Professional */}
@@ -663,8 +655,8 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
                   onClick={handleZoomOut}
                   disabled={zoom <= 1}
                   className={`w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 ${zoom <= 1
-                      ? "bg-white/10 text-white/30"
-                      : "bg-white/20 text-white hover:bg-white/30"
+                    ? "bg-white/10 text-white/30"
+                    : "bg-white/20 text-white hover:bg-white/30"
                     }`}
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -692,8 +684,8 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
                   onClick={handleZoomIn}
                   disabled={zoom >= 5}
                   className={`w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 ${zoom >= 5
-                      ? "bg-white/10 text-white/30"
-                      : "bg-white/20 text-white hover:bg-white/30"
+                    ? "bg-white/10 text-white/30"
+                    : "bg-white/20 text-white hover:bg-white/30"
                     }`}
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
