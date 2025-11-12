@@ -28,6 +28,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   const [timerDelay, setTimerDelay] = useState<number>(0)
   const [countdown, setCountdown] = useState<number>(0)
   const [isFlipping, setIsFlipping] = useState(false)
+  const [zoom, setZoom] = useState(1)
   const countdownTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -36,6 +37,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   const streamRef = useRef<MediaStream | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const lastTouchDistanceRef = useRef<number>(0)
 
 
   useEffect(() => {
@@ -52,6 +54,23 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       }
     }
   }, [])
+
+  // Apply zoom to video stream
+  useEffect(() => {
+    if (streamRef.current && videoRef.current) {
+      const videoTrack = streamRef.current.getVideoTracks()[0]
+      const capabilities = videoTrack.getCapabilities?.() as any
+
+      if (capabilities?.zoom) {
+        const constraints: any = {
+          advanced: [{ zoom: Math.min(Math.max(zoom, capabilities.zoom.min), capabilities.zoom.max) }]
+        }
+        videoTrack.applyConstraints(constraints).catch(err => {
+          console.log('Zoom constraint not supported:', err)
+        })
+      }
+    }
+  }, [zoom])
 
   useEffect(() => {
     if (isRecording && !isPaused) {
@@ -387,6 +406,49 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
   }
 
+  const handleZoomIn = () => {
+    setZoom(prev => Math.min(prev + 0.5, 5))
+  }
+
+  const handleZoomOut = () => {
+    setZoom(prev => Math.max(prev - 0.5, 1))
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const touch1 = e.touches[0]
+      const touch2 = e.touches[1]
+      const distance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      )
+      lastTouchDistanceRef.current = distance
+    }
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const touch1 = e.touches[0]
+      const touch2 = e.touches[1]
+      const distance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      )
+
+      if (lastTouchDistanceRef.current > 0) {
+        const delta = distance - lastTouchDistanceRef.current
+        const zoomChange = delta * 0.01
+        setZoom(prev => Math.min(Math.max(prev + zoomChange, 1), 5))
+      }
+
+      lastTouchDistanceRef.current = distance
+    }
+  }
+
+  const handleTouchEnd = () => {
+    lastTouchDistanceRef.current = 0
+  }
+
   const filters = [
     { id: 'none', name: 'None', filter: '' },
     { id: 'warm', name: 'Warm', filter: 'sepia(0.3) hue-rotate(-10deg)' },
@@ -428,12 +490,26 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         </svg>
       )
     },
+    {
+      id: "zoom",
+      name: "Zoom",
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+        </svg>
+      )
+    },
   ]
 
   return (
     <div className="fixed inset-0 z-[100] bg-black camera-view">
       {/* Camera View */}
-      <div className="relative w-full h-full video-container">
+      <div
+        className="relative w-full h-full video-container"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <video
           ref={videoRef}
           autoPlay
@@ -442,11 +518,12 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           webkit-playsinline="true"
           className="w-full h-full object-cover transition-opacity duration-200"
           style={{
-            transform: facingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)',
+            transform: `${facingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)'} scale(${zoom})`,
             filter: additionalFilter
               ? `brightness(1.08) contrast(1.08) saturate(1.15) ${additionalFilter}`
               : 'brightness(1.08) contrast(1.08) saturate(1.15)',
-            opacity: isFlipping ? 0 : 1
+            opacity: isFlipping ? 0 : 1,
+            transition: 'transform 0.1s ease-out'
           }}
         />
 
@@ -479,8 +556,8 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
             <button
               onClick={() => setMode("photo")}
               className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${mode === "photo"
-                  ? "bg-white text-gray-900 shadow-md"
-                  : "text-white/80 hover:text-white"
+                ? "bg-white text-gray-900 shadow-md"
+                : "text-white/80 hover:text-white"
                 }`}
             >
               PHOTO
@@ -488,8 +565,8 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
             <button
               onClick={() => setMode("video")}
               className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${mode === "video"
-                  ? "bg-white text-gray-900 shadow-md"
-                  : "text-white/80 hover:text-white"
+                ? "bg-white text-gray-900 shadow-md"
+                : "text-white/80 hover:text-white"
                 }`}
             >
               VIDEO
@@ -524,8 +601,8 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
               }}
               disabled={isFlipping && effect.id === "flip"}
               className={`w-14 h-14 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center transition-all duration-200 active:scale-95 ${(effect.id === "flip" && facingMode === "environment") || (selectedEffect === effect.id && effect.id !== "flip")
-                  ? "bg-white/95 text-gray-900 shadow-xl"
-                  : "bg-black/40 hover:bg-black/50 text-white shadow-lg"
+                ? "bg-white/95 text-gray-900 shadow-xl"
+                : "bg-black/40 hover:bg-black/50 text-white shadow-lg"
                 } ${isFlipping && effect.id === "flip" ? "opacity-50" : ""}`}
             >
               <div className="scale-90">{effect.icon}</div>
@@ -543,8 +620,8 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
                     key={filter.id}
                     onClick={() => setAdditionalFilter(filter.filter)}
                     className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all active:scale-95 ${additionalFilter === filter.filter
-                        ? "bg-white text-gray-900 shadow-lg"
-                        : "bg-white/20 text-white hover:bg-white/30"
+                      ? "bg-white text-gray-900 shadow-lg"
+                      : "bg-white/20 text-white hover:bg-white/30"
                       }`}
                   >
                     {filter.name}
@@ -565,13 +642,64 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
                     key={timer.id}
                     onClick={() => setTimerDelay(timer.seconds)}
                     className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all active:scale-95 ${timerDelay === timer.seconds
-                        ? "bg-white text-gray-900 shadow-lg"
-                        : "bg-white/20 text-white hover:bg-white/30"
+                      ? "bg-white text-gray-900 shadow-lg"
+                      : "bg-white/20 text-white hover:bg-white/30"
                       }`}
                   >
                     {timer.name}
                   </button>
                 ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Zoom Control Panel - Professional */}
+        {selectedEffect === "zoom" && (
+          <div className="absolute bottom-36 left-0 right-0 px-5 z-10">
+            <div className="bg-black/50 backdrop-blur-xl rounded-3xl p-4 shadow-2xl">
+              <div className="flex items-center justify-center space-x-4">
+                <button
+                  onClick={handleZoomOut}
+                  disabled={zoom <= 1}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 ${zoom <= 1
+                      ? "bg-white/10 text-white/30"
+                      : "bg-white/20 text-white hover:bg-white/30"
+                    }`}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
+                  </svg>
+                </button>
+                <div className="flex-1 max-w-xs">
+                  <input
+                    type="range"
+                    min="1"
+                    max="5"
+                    step="0.1"
+                    value={zoom}
+                    onChange={(e) => setZoom(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+                    style={{
+                      background: `linear-gradient(to right, white 0%, white ${((zoom - 1) / 4) * 100}%, rgba(255,255,255,0.2) ${((zoom - 1) / 4) * 100}%, rgba(255,255,255,0.2) 100%)`
+                    }}
+                  />
+                  <div className="text-center text-white text-sm font-semibold mt-2">
+                    {zoom.toFixed(1)}x
+                  </div>
+                </div>
+                <button
+                  onClick={handleZoomIn}
+                  disabled={zoom >= 5}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 ${zoom >= 5
+                      ? "bg-white/10 text-white/30"
+                      : "bg-white/20 text-white hover:bg-white/30"
+                    }`}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
