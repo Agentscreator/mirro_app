@@ -7,6 +7,7 @@ import CreateEventPage from "@/components/CreateEventPage"
 import AuthPage from "@/components/AuthPage"
 import BottomNavigation from "@/components/BottomNavigation"
 import EventPreviewModal from "@/components/EventPreviewModal"
+import { useDeepLinking } from "@/hooks/useDeepLinking"
 
 interface User {
   id: string
@@ -29,6 +30,9 @@ function EventsAppContent() {
   const [sharedEvent, setSharedEvent] = useState<any>(null)
   const [isLoadingSharedEvent, setIsLoadingSharedEvent] = useState(false)
   const [showAuthFromModal, setShowAuthFromModal] = useState(false)
+
+  // Enable deep linking for mobile apps
+  useDeepLinking()
 
   useEffect(() => {
     // Check if user is logged in and validate session
