@@ -326,76 +326,22 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
       <div className="relative rounded-3xl max-w-sm w-full h-[85vh] overflow-hidden shadow-2xl animate-slide-up ring-1 ring-black/5">
-        {/* Full Screen Stylized Background - Inspired by Thumbnail */}
-        {event.backgroundUrl ? (
-          <div className="absolute inset-0 z-0">
-            {/* Gradient placeholder that shows immediately with shimmer animation */}
-            <div className={`absolute inset-0 ${visualStyling?.styling?.gradient || event.gradient || 'bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600'}`}>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-              {/* Shimmer effect while loading */}
-              {!backgroundLoaded && (
-                <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" 
-                     style={{ backgroundSize: '200% 100%' }}></div>
-              )}
-            </div>
-            {/* AI background image with optimized loading */}
-            <img
-              src={event.backgroundUrl}
-              alt="Event background"
-              className="absolute inset-0 w-full h-full object-cover"
-              loading="eager"
-              fetchPriority="high"
-              onLoad={(e) => {
-                // Fade in smoothly when loaded
-                e.currentTarget.style.opacity = '1'
-                setBackgroundLoaded(true)
-              }}
-              style={{ opacity: 0, transition: 'opacity 0.5s ease-in-out' }}
-            />
-            {/* Gradient overlay for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
-          </div>
-        ) : event.thumbnailUrl ? (
-          // If no background, use thumbnail as artistic blurred background
-          <div className="absolute inset-0 z-0">
-            {/* Gradient placeholder with shimmer */}
-            <div className={`absolute inset-0 ${visualStyling?.styling?.gradient || event.gradient || 'bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600'}`}>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-              {/* Shimmer effect while loading */}
-              {!backgroundLoaded && (
-                <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" 
-                     style={{ backgroundSize: '200% 100%' }}></div>
-              )}
-            </div>
-            {/* Blurred thumbnail with optimized loading */}
-            <img
-              src={event.thumbnailUrl}
-              alt="Event background"
-              className="absolute inset-0 w-full h-full object-cover scale-125 blur-3xl"
-              loading="eager"
-              fetchPriority="high"
-              onLoad={(e) => {
-                e.currentTarget.style.opacity = '1'
-                setBackgroundLoaded(true)
-              }}
-              style={{ opacity: 0, transition: 'opacity 0.5s ease-in-out' }}
-            />
-            {/* Strong overlay for better text readability on blurred background */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70"></div>
-            {/* Subtle color wash for artistic effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20"></div>
-          </div>
-        ) : (
-          // Fallback: Use visual styling gradient or elegant default
-          <div className={`absolute inset-0 z-0 ${visualStyling?.styling?.gradient || event.gradient || 'bg-gradient-to-br from-taupe-400 via-taupe-500 to-taupe-600'}`}>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-          </div>
-        )}
+        {/* Elegant Beige Background */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#F5E8D5] via-[#F0DFC7] to-[#EBD6B9]">
+          {/* Subtle texture overlay */}
+          <div className="absolute inset-0 opacity-[0.03]" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          }}></div>
+          {/* Soft vignette */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5"></div>
+          {/* Subtle radial gradient */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.1),transparent_50%)]"></div>
+        </div>
 
         {/* Close Button - Refined */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 z-50 w-11 h-11 bg-black/40 backdrop-blur-xl rounded-full flex items-center justify-center text-white hover:bg-black/60 transition-all duration-200 shadow-xl active:scale-95 ring-1 ring-white/20"
+          className="absolute top-5 right-5 z-50 w-11 h-11 bg-white/60 backdrop-blur-xl rounded-full flex items-center justify-center text-taupe-700 hover:bg-white/80 transition-all duration-200 shadow-xl active:scale-95 ring-1 ring-taupe-200/30"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -405,8 +351,8 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
         {/* Content Section - Full height, overlaid on background */}
         <div className="relative h-full overflow-y-auto z-10">
           <div className="relative pt-20 px-6 pb-6 flex flex-col min-h-full">
-            {/* Event Title with AI font styling - White text with shadow for readability */}
-            <h2 className={`text-4xl ${visualStyling?.styling?.font || 'font-bold'} text-white tracking-tight mb-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]`}>
+            {/* Event Title with AI font styling */}
+            <h2 className={`text-4xl ${visualStyling?.styling?.font || 'font-bold'} text-text-primary tracking-tight mb-4`}>
               {event.title}
             </h2>
 
@@ -414,39 +360,39 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
             {/* Date, Location, and Attendees */}
             <div className="flex items-start gap-3 mb-5">
-              {/* Date Box with semi-transparent white background */}
-              <div className="bg-white/20 backdrop-blur-md rounded-2xl p-3.5 text-center shadow-lg relative ring-1 ring-white/30 flex-shrink-0">
-                <div className="relative z-10 text-white">
-                  <div className="text-3xl font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-tight leading-none">{day}</div>
-                  <div className="text-xs font-semibold drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] uppercase tracking-wider mt-1">{month}</div>
+              {/* Date Box */}
+              <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-3.5 text-center shadow-md relative ring-1 ring-taupe-200/30 flex-shrink-0">
+                <div className="relative z-10 text-text-primary">
+                  <div className="text-3xl font-bold tracking-tight leading-none">{day}</div>
+                  <div className="text-xs font-semibold uppercase tracking-wider mt-1 text-text-muted">{month}</div>
                 </div>
               </div>
 
-              {/* Event Details - White text with shadows */}
+              {/* Event Details */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start gap-1.5 mb-2">
-                  <svg className="w-4 h-4 text-white/90 mt-0.5 flex-shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 text-taupe-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                   </svg>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm text-white font-semibold tracking-tight truncate drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+                    <div className="text-sm text-text-primary font-semibold tracking-tight truncate">
                       {event.location || "Location TBD"}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 mb-2">
-                  <svg className="w-4 h-4 text-white/90 flex-shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 text-taupe-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                   </svg>
-                  <div className="text-sm text-white/95 font-medium drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">{formatTimeWithAMPM(event.time)}</div>
+                  <div className="text-sm text-text-primary font-medium">{formatTimeWithAMPM(event.time)}</div>
                 </div>
                 {/* Attendees Count */}
                 {event.attendeeCount && event.attendeeCount > 0 && (
                   <div className="flex items-center gap-1.5">
-                    <svg className="w-4 h-4 text-white/90 flex-shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-taupe-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                     </svg>
-                    <div className="text-sm text-white/95 font-medium drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">{event.attendeeCount} attending</div>
+                    <div className="text-sm text-text-primary font-medium">{event.attendeeCount} attending</div>
                   </div>
                 )}
               </div>
@@ -570,16 +516,16 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
 
             {/* Description */}
             {event.description && (
-              <div className="mb-5 bg-white/15 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-lg">
-                <h3 className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">About</h3>
-                <p className="text-sm text-white/95 leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">{event.description}</p>
+              <div className="mb-5 bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-taupe-200/30 shadow-md">
+                <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">About</h3>
+                <p className="text-sm text-text-secondary leading-relaxed">{event.description}</p>
               </div>
             )}
 
             {/* Media Gallery - Aesthetic Masonry Layout */}
             {mediaGallery.length > 0 && (
               <div className="mb-5">
-                <h3 className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-3 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Photos & Videos</h3>
+                <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Photos & Videos</h3>
                 <div className="grid grid-cols-2 gap-2 -mx-6 px-6">
                   {mediaGallery.map((item, index) => {
                     // Create varying heights for aesthetic layout
@@ -613,8 +559,8 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
               </div>
             )}
 
-            {/* Action Buttons - More Subtle */}
-            <div className="space-y-2.5 mt-8 sticky bottom-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent backdrop-blur-md pt-5 -mx-6 px-6 pb-3">
+            {/* Action Buttons */}
+            <div className="space-y-2.5 mt-8 sticky bottom-0 bg-gradient-to-t from-cream-100/80 via-cream-100/40 to-transparent backdrop-blur-md pt-5 -mx-6 px-6 pb-3">
               {currentUserId ? (
                 <>
                   {/* Primary Action Button - Join/Leave/Hosting */}
@@ -622,10 +568,10 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                     onClick={handleJoinEvent}
                     disabled={isJoining || (event.createdBy === currentUserId && isJoined)}
                     className={`w-full py-3 rounded-xl font-medium text-sm shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none transition-all duration-200 ${event.createdBy === currentUserId
-                      ? 'bg-white/15 text-white/80 cursor-default backdrop-blur-sm border border-white/20'
+                      ? 'bg-taupe-600 text-white cursor-default'
                       : isJoined
-                        ? 'bg-white/15 text-white/90 hover:bg-white/20 backdrop-blur-sm border border-white/20'
-                        : 'bg-white/15 text-white hover:bg-white/20 backdrop-blur-sm border border-white/20'
+                        ? 'bg-white/60 text-taupe-700 hover:bg-white/80 border border-taupe-200/30'
+                        : 'bg-taupe-700 text-white hover:bg-taupe-800'
                       }`}
                   >
                     {isJoining ? (
@@ -666,7 +612,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                     {/* Share Button */}
                     <button
                       onClick={handleShareEvent}
-                      className="flex-1 bg-white/10 backdrop-blur-sm py-2.5 rounded-lg font-medium text-sm text-white/80 hover:bg-white/15 hover:text-white transition-all duration-200 flex items-center justify-center gap-1.5 border border-white/10"
+                      className="flex-1 bg-white/60 backdrop-blur-sm py-2.5 rounded-lg font-medium text-sm text-taupe-700 hover:bg-white/80 transition-all duration-200 flex items-center justify-center gap-1.5 border border-taupe-200/30"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -678,7 +624,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                     {event.createdBy !== currentUserId && (
                       <button
                         onClick={() => setShowReportDialog(true)}
-                        className="px-3 py-2.5 bg-white/10 backdrop-blur-sm hover:bg-red-500/15 rounded-lg flex items-center justify-center text-white/80 hover:text-white transition-all duration-200 font-medium text-sm border border-white/10 hover:border-red-400/30"
+                        className="px-3 py-2.5 bg-white/60 backdrop-blur-sm hover:bg-red-50 rounded-lg flex items-center justify-center text-taupe-700 hover:text-red-600 transition-all duration-200 font-medium text-sm border border-taupe-200/30 hover:border-red-400/30"
                         title="Report event"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -712,7 +658,7 @@ export default function EventPreviewModal({ event, isOpen, onClose, currentUserI
                   {/* Share Button for Non-logged in Users */}
                   <button
                     onClick={handleShareEvent}
-                    className="w-full bg-white/10 backdrop-blur-sm py-2.5 rounded-lg font-medium text-sm text-white/80 hover:bg-white/15 hover:text-white transition-all duration-200 flex items-center justify-center gap-1.5 border border-white/10"
+                    className="w-full bg-white/60 backdrop-blur-sm py-2.5 rounded-lg font-medium text-sm text-taupe-700 hover:bg-white/80 transition-all duration-200 flex items-center justify-center gap-1.5 border border-taupe-200/30"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
