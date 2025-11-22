@@ -25,3 +25,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# 
+SSH keys (should never be committed)
+*.pub
+*ssh-agent*
+id_*
