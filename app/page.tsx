@@ -7,6 +7,7 @@ import CreateEventPage from "@/components/CreateEventPage"
 import AuthPage from "@/components/AuthPage"
 import BottomNavigation from "@/components/BottomNavigation"
 import EventPreviewModal from "@/components/EventPreviewModal"
+import MessagingPage from "@/components/MessagingPage"
 import { useDeepLinking } from "@/hooks/useDeepLinking"
 
 interface User {
@@ -22,7 +23,7 @@ interface User {
 
 function EventsAppContent() {
   const searchParams = useSearchParams()
-  const [currentPage, setCurrentPage] = useState<"profile" | "create">("profile")
+  const [currentPage, setCurrentPage] = useState<"profile" | "create" | "messages">("profile")
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [refreshEvents, setRefreshEvents] = useState(0)
@@ -298,6 +299,7 @@ function EventsAppContent() {
         setRefreshEvents(prev => prev + 1)
         setCurrentPage("profile")
       }} />}
+      {currentPage === "messages" && user && <MessagingPage user={user} />}
 
       {/* Shared Event Modal for authenticated users */}
       {selectedEventId && sharedEvent && user && (
