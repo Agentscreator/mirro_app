@@ -18,9 +18,10 @@ interface MessagingPageProps {
     name: string
     username: string
   }
+  onChatOpen?: (isOpen: boolean) => void
 }
 
-export default function MessagingPage({ user }: MessagingPageProps) {
+export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) {
   const [client, setClient] = useState<StreamChat | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [channels, setChannels] = useState<StreamChannel[]>([])
@@ -31,6 +32,11 @@ export default function MessagingPage({ user }: MessagingPageProps) {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
   const [groupName, setGroupName] = useState('')
   const [showMobileChat, setShowMobileChat] = useState(false)
+
+  // Notify parent when mobile chat opens/closes
+  useEffect(() => {
+    onChatOpen?.(showMobileChat)
+  }, [showMobileChat, onChatOpen])
 
   useEffect(() => {
     const initChat = async () => {

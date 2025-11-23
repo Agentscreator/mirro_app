@@ -31,6 +31,7 @@ function EventsAppContent() {
   const [sharedEvent, setSharedEvent] = useState<any>(null)
   const [isLoadingSharedEvent, setIsLoadingSharedEvent] = useState(false)
   const [showAuthFromModal, setShowAuthFromModal] = useState(false)
+  const [isChatOpen, setIsChatOpen] = useState(false)
 
   // Enable deep linking for mobile apps
   useDeepLinking()
@@ -298,7 +299,7 @@ function EventsAppContent() {
         setRefreshEvents(prev => prev + 1)
         setCurrentPage("profile")
       }} />}
-      {currentPage === "messages" && user && <MessagingPage user={user} />}
+      {currentPage === "messages" && user && <MessagingPage user={user} onChatOpen={setIsChatOpen} />}
 
       {/* Shared Event Modal for authenticated users */}
       {selectedEventId && sharedEvent && user && (
@@ -320,8 +321,8 @@ function EventsAppContent() {
         />
       )}
 
-      {/* Bottom Navigation */}
-      <BottomNavigation currentPage={currentPage} onPageChange={setCurrentPage} />
+      {/* Bottom Navigation - Hide when chat is open on mobile */}
+      {!isChatOpen && <BottomNavigation currentPage={currentPage} onPageChange={setCurrentPage} />}
     </div>
   )
 }
