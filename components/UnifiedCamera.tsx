@@ -29,6 +29,8 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
   const [countdown, setCountdown] = useState<number>(0)
   const [isFlipping, setIsFlipping] = useState(false)
   const [zoom, setZoom] = useState(1)
+  const [showZoomIndicator, setShowZoomIndicator] = useState(false)
+  const zoomIndicatorTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const countdownTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -51,6 +53,10 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
       if (countdownTimerRef.current) {
         clearInterval(countdownTimerRef.current)
         countdownTimerRef.current = null
+      }
+      if (zoomIndicatorTimeoutRef.current) {
+        clearTimeout(zoomIndicatorTimeoutRef.current)
+        zoomIndicatorTimeoutRef.current = null
       }
     }
   }, [])
@@ -392,14 +398,6 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
   }
 
-  const handleZoomIn = useCallback(() => {
-    setZoom(prev => Math.min(prev + 0.5, 5))
-  }, [])
-
-  const handleZoomOut = useCallback(() => {
-    setZoom(prev => Math.max(prev - 0.5, 1))
-  }, [])
-
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.touches.length === 2) {
       const touch1 = e.touches[0]
@@ -425,6 +423,15 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         const delta = distance - lastTouchDistanceRef.current
         const zoomChange = delta * 0.01
         setZoom(prev => Math.min(Math.max(prev + zoomChange, 1), 5))
+        
+        // Show zoom indicator
+        setShowZoomIndicator(true)
+        if (zoomIndicatorTimeoutRef.current) {
+          clearTimeout(zoomIndicatorTimeoutRef.current)
+        }
+        zoomIndicatorTimeoutRef.current = setTimeout(() => {
+          setShowZoomIndicator(false)
+        }, 1500)
       }
 
       lastTouchDistanceRef.current = distance
@@ -433,6 +440,21 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
 
   const handleTouchEnd = useCallback(() => {
     lastTouchDistanceRef.current = 0
+  }, [])
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault()
+    const delta = e.deltaY * -0.001
+    setZoom(prev => Math.min(Math.max(prev + delta, 1), 5))
+    
+    // Show zoom indicator
+    setShowZoomIndicator(true)
+    if (zoomIndicatorTimeoutRef.current) {
+      clearTimeout(zoomIndicatorTimeoutRef.current)
+    }
+    zoomIndicatorTimeoutRef.current = setTimeout(() => {
+      setShowZoomIndicator(false)
+    }, 1500)
   }, [])
 
   const filters = [
@@ -476,15 +498,6 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         </svg>
       )
     },
-    {
-      id: "zoom",
-      name: "Zoom",
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
-        </svg>
-      )
-    },
   ]
 
   return (
@@ -495,6 +508,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onWheel={handleWheel}
       >
         <video
           ref={videoRef}
@@ -574,6 +588,18 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           </div>
         )}
 
+        {/* Zoom Indicator - Appears when zooming */}
+        {showZoomIndicator && zoom > 1 && (
+          <div className="absolute top-28 left-1/2 transform -translate-x-1/2 z-10 transition-opacity duration-300">
+            <div className="bg-black/60 backdrop-blur-md text-white px-4 py-2 rounded-full flex items-center space-x-2 shadow-xl">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <span className="font-semibold text-sm">{zoom.toFixed(1)}x</span>
+            </div>
+          </div>
+        )}
+
         {/* Side Panel - Professional Controls */}
         <div className="absolute right-5 top-1/2 transform -translate-y-1/2 space-y-4 z-10">
           {effects.map((effect) => {
@@ -646,56 +672,7 @@ export default function UnifiedCamera({ onCapture, onClose }: UnifiedCameraProps
           </div>
         )}
 
-        {/* Zoom Control Panel - Professional */}
-        {selectedEffect === "zoom" && (
-          <div className="absolute bottom-36 left-0 right-0 px-5 z-10">
-            <div className="bg-black/50 backdrop-blur-xl rounded-3xl p-4 shadow-2xl">
-              <div className="flex items-center justify-center space-x-4">
-                <button
-                  onClick={handleZoomOut}
-                  disabled={zoom <= 1}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 ${zoom <= 1
-                    ? "bg-white/10 text-white/30"
-                    : "bg-white/20 text-white hover:bg-white/30"
-                    }`}
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
-                  </svg>
-                </button>
-                <div className="flex-1 max-w-xs">
-                  <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    step="0.1"
-                    value={zoom}
-                    onChange={(e) => setZoom(parseFloat(e.target.value))}
-                    className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
-                    style={{
-                      background: `linear-gradient(to right, white 0%, white ${((zoom - 1) / 4) * 100}%, rgba(255,255,255,0.2) ${((zoom - 1) / 4) * 100}%, rgba(255,255,255,0.2) 100%)`
-                    }}
-                  />
-                  <div className="text-center text-white text-sm font-semibold mt-2">
-                    {zoom.toFixed(1)}x
-                  </div>
-                </div>
-                <button
-                  onClick={handleZoomIn}
-                  disabled={zoom >= 5}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 ${zoom >= 5
-                    ? "bg-white/10 text-white/30"
-                    : "bg-white/20 text-white hover:bg-white/30"
-                    }`}
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {/* Countdown Display */}
         {countdown > 0 && (
