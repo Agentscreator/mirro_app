@@ -231,9 +231,9 @@ export default function MessagingPage({ user }: MessagingPageProps) {
           {/* Chat Window - Mobile */}
           {showMobileChat && selectedChannel && (
             <div className="fixed inset-0 z-40 md:hidden bg-gradient-to-b from-cream-50 to-cream-100">
-              <div className="flex flex-col h-full safe-area-inset">
-                {/* Mobile Header */}
-                <div className="flex items-center gap-3 px-4 py-4 bg-white/40 backdrop-blur-sm border-b border-taupe-200/30 safe-top">
+              <div className="flex flex-col h-full">
+                {/* Mobile Header with iOS safe area */}
+                <div className="flex items-center gap-3 px-4 pt-safe pb-4 bg-white/40 backdrop-blur-sm border-b border-taupe-200/30">
                   <button
                     onClick={() => setShowMobileChat(false)}
                     className="p-2 hover:bg-taupe-100/50 rounded-full transition-all active:scale-95"
@@ -255,8 +255,8 @@ export default function MessagingPage({ user }: MessagingPageProps) {
                   </div>
                 </div>
 
-                {/* Chat Content */}
-                <div className="flex-1 overflow-hidden bg-white/20">
+                {/* Chat Content with bottom safe area */}
+                <div className="flex-1 overflow-hidden bg-white/20 pb-safe">
                   <Channel channel={selectedChannel}>
                     <Window>
                       <MessageList />

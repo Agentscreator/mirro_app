@@ -619,6 +619,14 @@ button:not(:disabled):active {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
+.pt-safe {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
 /* iOS specific fixes */
 @supports (-webkit-touch-callout: none) {
   .str-chat__input-flat {
