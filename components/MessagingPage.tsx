@@ -233,7 +233,7 @@ export default function MessagingPage({ user }: MessagingPageProps) {
             <div className="fixed inset-0 z-40 md:hidden bg-gradient-to-b from-cream-50 to-cream-100">
               <div className="flex flex-col h-full">
                 {/* Mobile Header with iOS safe area */}
-                <div className="flex items-center gap-3 px-4 pt-safe pb-4 bg-white/40 backdrop-blur-sm border-b border-taupe-200/30">
+                <div className="flex items-center gap-3 px-4 pt-12 pb-4 bg-white/40 backdrop-blur-sm border-b border-taupe-200/30">
                   <button
                     onClick={() => setShowMobileChat(false)}
                     className="p-2 hover:bg-taupe-100/50 rounded-full transition-all active:scale-95"
