@@ -34,7 +34,12 @@ export default function MessagingPage({ user }: MessagingPageProps) {
   useEffect(() => {
     const initChat = async () => {
       try {
-        const response = await fetch('/api/chat/token', {
+        // Use absolute URL for iOS native app
+        const isNative = typeof window !== 'undefined' && 
+          (window as any).Capacitor?.isNativePlatform?.()
+        const baseUrl = isNative ? 'https://www.mirro2.com' : ''
+        
+        const response = await fetch(`${baseUrl}/api/chat/token`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -43,7 +48,11 @@ export default function MessagingPage({ user }: MessagingPageProps) {
           }),
         })
 
-        if (!response.ok) throw new Error('Failed to get chat token')
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('Token response error:', errorText)
+          throw new Error('Failed to get chat token')
+        }
 
         const { token, apiKey } = await response.json()
         const chatClient = StreamChat.getInstance(apiKey)
@@ -61,6 +70,7 @@ export default function MessagingPage({ user }: MessagingPageProps) {
         loadUsers(chatClient)
       } catch (error) {
         console.error('Error initializing chat:', error)
+        alert(`Chat initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
       } finally {
         setIsLoading(false)
       }
@@ -82,7 +92,7 @@ export default function MessagingPage({ user }: MessagingPageProps) {
 
   const loadUsers = async (chatClient: StreamChat) => {
     const response = await chatClient.queryUsers({}, { id: 1 }, { limit: 100 })
-    setAllUsers(response.users.filter(u => u.id !== user.id))
+    setAllUsers(response.users.filter((u: any) => u.id !== user.id))
   }
 
   const createGroupChannel = async () => {
@@ -91,11 +101,11 @@ export default function MessagingPage({ user }: MessagingPageProps) {
     try {
       const channelId = `group-${Date.now()}`
       const channel = client.channel('messaging', channelId, {
-        name: groupName,
         members: [user.id, ...selectedUsers],
       })
 
       await channel.create()
+      await channel.update({ name: groupName } as any)
       await loadChannels(client)
       setSelectedChannel(channel)
       setShowNewGroup(false)
@@ -107,7 +117,7 @@ export default function MessagingPage({ user }: MessagingPageProps) {
   }
 
   const filteredChannels = channels.filter(channel => {
-    const channelName = channel.data?.name || ''
+    const channelName = (channel.data as any)?.name || ''
     return channelName.toLowerCase().includes(searchQuery.toLowerCase())
   })
 
@@ -181,11 +191,11 @@ export default function MessagingPage({ user }: MessagingPageProps) {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-taupe-600 rounded-full flex items-center justify-center text-white font-light">
-                      {channel.data?.name?.[0]?.toUpperCase() || 'C'}
+                      {((channel.data as any)?.name || 'C')[0]?.toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-text-primary font-light truncate">
-                        {channel.data?.name || 'Unnamed Channel'}
+                        {(channel.data as any)?.name || 'Unnamed Channel'}
                       </p>
                       <p className="text-xs text-text-muted truncate">
                         {Object.keys(channel.state.members).length} members
