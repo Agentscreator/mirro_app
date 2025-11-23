@@ -30,6 +30,7 @@ export default function MessagingPage({ user }: MessagingPageProps) {
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
   const [groupName, setGroupName] = useState('')
+  const [showMobileChat, setShowMobileChat] = useState(false)
 
   useEffect(() => {
     const initChat = async () => {
@@ -149,7 +150,7 @@ export default function MessagingPage({ user }: MessagingPageProps) {
       <Chat client={client}>
         <div className="flex h-full gap-4 px-4">
           {/* Channels List */}
-          <div className="w-full md:w-1/3 flex flex-col bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden">
+          <div className={`w-full md:w-1/3 flex flex-col bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden ${showMobileChat ? 'hidden md:flex' : 'flex'}`}>
             {/* Search Bar */}
             <div className="p-4 border-b border-taupe-200/30">
               <div className="relative">
@@ -184,7 +185,10 @@ export default function MessagingPage({ user }: MessagingPageProps) {
               {filteredChannels.map((channel) => (
                 <button
                   key={channel.id}
-                  onClick={() => setSelectedChannel(channel)}
+                  onClick={() => {
+                    setSelectedChannel(channel)
+                    setShowMobileChat(true)
+                  }}
                   className={`w-full p-4 text-left hover:bg-white/50 transition-all border-b border-taupe-200/20 ${
                     selectedChannel?.id === channel.id ? 'bg-white/60' : ''
                   }`}
@@ -207,7 +211,7 @@ export default function MessagingPage({ user }: MessagingPageProps) {
             </div>
           </div>
 
-          {/* Chat Window */}
+          {/* Chat Window - Desktop */}
           <div className="hidden md:flex md:flex-1 bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden">
             {selectedChannel ? (
               <Channel channel={selectedChannel}>
@@ -223,6 +227,46 @@ export default function MessagingPage({ user }: MessagingPageProps) {
               </div>
             )}
           </div>
+
+          {/* Chat Window - Mobile */}
+          {showMobileChat && selectedChannel && (
+            <div className="fixed inset-0 z-40 md:hidden bg-gradient-to-b from-cream-50 to-cream-100">
+              <div className="flex flex-col h-full">
+                {/* Mobile Header */}
+                <div className="flex items-center gap-3 px-4 py-3 bg-white/40 backdrop-blur-sm border-b border-taupe-200/30">
+                  <button
+                    onClick={() => setShowMobileChat(false)}
+                    className="p-2 hover:bg-taupe-100/50 rounded-full transition-all"
+                  >
+                    <svg className="w-6 h-6 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <div className="w-10 h-10 bg-taupe-600 rounded-full flex items-center justify-center text-white font-light">
+                    {((selectedChannel.data as any)?.name || 'C')[0]?.toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-text-primary font-light truncate">
+                      {(selectedChannel.data as any)?.name || 'Unnamed Channel'}
+                    </p>
+                    <p className="text-xs text-text-muted">
+                      {Object.keys(selectedChannel.state.members).length} members
+                    </p>
+                  </div>
+                </div>
+
+                {/* Chat Content */}
+                <div className="flex-1 overflow-hidden">
+                  <Channel channel={selectedChannel}>
+                    <Window>
+                      <MessageList />
+                      <MessageInput />
+                    </Window>
+                  </Channel>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </Chat>
 

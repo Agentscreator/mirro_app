@@ -1,14 +1,15 @@
-# iOS Messaging Fix
+# Mobile Messaging Fix
 
 ## Problem
-Messaging (DMs) works on web but not on the native iOS app.
+Messaging (DMs) works on desktop web but not on mobile screens (both mobile web and native iOS app).
 
 ## Root Causes Identified
 
-1. **Missing CapacitorHttp plugin** in iOS config - needed for proper HTTP handling
-2. **Missing NSAppTransportSecurity settings** - iOS blocks connections to Stream Chat API domains
-3. **Relative API URLs** - iOS native app needs absolute URLs for API calls
-4. **Missing connection timeout settings** - iOS WebSocket connections need explicit timeouts
+1. **Hidden chat window on mobile** - The chat window was hidden on mobile screens with `hidden md:flex`
+2. **No mobile view for conversations** - Clicking a channel on mobile did nothing
+3. **Missing CapacitorHttp plugin** in iOS config - needed for proper HTTP handling on native iOS
+4. **Missing NSAppTransportSecurity settings** - iOS blocks connections to Stream Chat API domains
+5. **Relative API URLs** - iOS native app needs absolute URLs for API calls
 
 ## Changes Made
 
@@ -24,6 +25,9 @@ Messaging (DMs) works on web but not on the native iOS app.
 - Configured secure connections with proper forward secrecy settings
 
 ### 3. MessagingPage Component (`components/MessagingPage.tsx`)
+- **Added mobile-responsive chat view** - Full-screen chat window on mobile when channel is selected
+- **Added back button** - Navigate back to channel list on mobile
+- **Mobile state management** - `showMobileChat` state to toggle between list and chat views
 - Added iOS native platform detection using Capacitor API
 - Use absolute URLs (`https://www.mirro2.com`) for API calls on iOS native app
 - Improved error handling with user-facing alerts for debugging
@@ -53,6 +57,8 @@ Messaging (DMs) works on web but not on the native iOS app.
 5. **Test messaging:**
    - Log in to the app
    - Navigate to Messages
+   - On mobile: tap a channel to open full-screen chat view
+   - On mobile: use back button to return to channel list
    - Try sending a DM
    - Check console logs for any errors
 
