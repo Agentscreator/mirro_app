@@ -256,7 +256,7 @@ export default function MessagingPage({ user }: MessagingPageProps) {
                 </div>
 
                 {/* Chat Content with bottom safe area */}
-                <div className="flex-1 overflow-hidden bg-white/20 pb-safe">
+                <div className="flex-1 overflow-hidden bg-white/20 pb-24">
                   <Channel channel={selectedChannel}>
                     <Window>
                       <MessageList />
