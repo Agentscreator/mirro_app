@@ -148,9 +148,8 @@ function EventsAppContent() {
     } else if (error) {
       console.log('Error loading event:', error)
       alert(`Error loading event: ${error}`)
-    } else {
-      console.log('No event parameter found in URL')
     }
+    // No event parameter - normal page load
   }, [searchParams])
 
   const handleAuthSuccess = () => {

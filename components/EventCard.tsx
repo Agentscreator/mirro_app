@@ -125,7 +125,6 @@ export default function EventCard({ event, isManageMode, currentUserId, onEdit, 
               }}
               onError={(e) => {
                 // If thumbnail fails to load (e.g., expired URL), hide it and fall back to gradient
-                console.warn('Thumbnail failed to load:', event.thumbnailUrl);
                 e.currentTarget.style.display = 'none';
               }}
               style={{ opacity: 0, transition: 'opacity 0.4s ease-in-out' }}
