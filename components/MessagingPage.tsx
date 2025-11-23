@@ -231,22 +231,22 @@ export default function MessagingPage({ user }: MessagingPageProps) {
           {/* Chat Window - Mobile */}
           {showMobileChat && selectedChannel && (
             <div className="fixed inset-0 z-40 md:hidden bg-gradient-to-b from-cream-50 to-cream-100">
-              <div className="flex flex-col h-full">
+              <div className="flex flex-col h-full safe-area-inset">
                 {/* Mobile Header */}
-                <div className="flex items-center gap-3 px-4 py-3 bg-white/40 backdrop-blur-sm border-b border-taupe-200/30">
+                <div className="flex items-center gap-3 px-4 py-4 bg-white/40 backdrop-blur-sm border-b border-taupe-200/30 safe-top">
                   <button
                     onClick={() => setShowMobileChat(false)}
-                    className="p-2 hover:bg-taupe-100/50 rounded-full transition-all"
+                    className="p-2 hover:bg-taupe-100/50 rounded-full transition-all active:scale-95"
                   >
                     <svg className="w-6 h-6 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
-                  <div className="w-10 h-10 bg-taupe-600 rounded-full flex items-center justify-center text-white font-light">
+                  <div className="w-10 h-10 bg-taupe-600 rounded-full flex items-center justify-center text-white font-light text-lg">
                     {((selectedChannel.data as any)?.name || 'C')[0]?.toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-text-primary font-light truncate">
+                    <p className="text-text-primary font-light truncate text-base">
                       {(selectedChannel.data as any)?.name || 'Unnamed Channel'}
                     </p>
                     <p className="text-xs text-text-muted">
@@ -256,7 +256,7 @@ export default function MessagingPage({ user }: MessagingPageProps) {
                 </div>
 
                 {/* Chat Content */}
-                <div className="flex-1 overflow-hidden">
+                <div className="flex-1 overflow-hidden bg-white/20">
                   <Channel channel={selectedChannel}>
                     <Window>
                       <MessageList />
