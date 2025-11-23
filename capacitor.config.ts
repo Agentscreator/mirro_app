@@ -6,9 +6,11 @@ const config: CapacitorConfig = {
   webDir: 'out',
   server: {
     androidScheme: 'https',
-    // Use environment variable for URL, fallback to production
-    url: process.env.CAPACITOR_SERVER_URL || 'https://www.mirro2.com',
-    cleartext: process.env.NODE_ENV === 'development'
+    // Remove server URL to enable offline mode - app will use local files
+    // url: process.env.CAPACITOR_SERVER_URL || 'https://www.mirro2.com',
+    cleartext: process.env.NODE_ENV === 'development',
+    // Enable offline mode
+    allowNavigation: ['*']
   },
   android: {
     buildOptions: {
@@ -30,6 +32,9 @@ const config: CapacitorConfig = {
     },
     App: {
       initialPath: "/login"
+    },
+    CapacitorHttp: {
+      enabled: true
     }
   }
 };
