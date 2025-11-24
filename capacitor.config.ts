@@ -30,9 +30,6 @@ const config: CapacitorConfig = {
       splashFullScreen: true,
       splashImmersive: true
     },
-    App: {
-      initialPath: "/login"
-    },
     CapacitorHttp: {
       enabled: true
     }
