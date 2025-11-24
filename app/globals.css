@@ -1118,3 +1118,26 @@ body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simp
 .str-chat__message--me .str-chat__message-simple {
   margin-bottom: 0.08rem !important;
 }
+
+/* Bring back the blue message bubbles and make them DARKER */
+.str-chat__message--me .str-chat__message-simple-text-inner {
+  background: rgba(70, 130, 220, 0.85) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0.65rem 0.9rem !important;
+  border-radius: 1rem !important;
+}
+
+/* Remove the outer transparent layer */
+.str-chat__message--me .str-chat__message-simple-text {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Make bubbles almost touch */
+.str-chat__message--me .str-chat__message-simple {
+  margin-bottom: 0.08rem !important;
+}
