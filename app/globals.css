@@ -911,3 +911,50 @@ body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simp
 .str-chat__message-simple-text::after {
   display: none !important;
 }
+
+/* CRITICAL FIX: ONE MESSAGE = ONE BUBBLE that expands vertically */
+
+/* Make the message container a single, expandable bubble */
+.str-chat__message-simple-text-inner {
+  display: block !important;
+  width: 100% !important;
+  min-height: auto !important;
+  height: auto !important;
+  box-sizing: border-box !important;
+  padding: 0.5rem 0.75rem !important;
+  word-wrap: break-word !important;
+  white-space: pre-wrap !important;
+  overflow: visible !important;
+}
+
+/* Container must allow vertical expansion */
+.str-chat__message-simple-text {
+  display: inline-block !important;
+  max-width: 85vw !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* Single bubble wrapper - no splitting */
+.str-chat__message-bubble {
+  display: block !important;
+  height: auto !important;
+  min-height: auto !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Prevent multiple bubbles from being created */
+.str-chat__message-simple {
+  display: block !important;
+  height: auto !important;
+  margin-bottom: 0.1rem !important;
+}
+
+/* Remove any absolute positioning that causes bubble splitting */
+.str-chat__message-simple-text-inner * {
+  position: static !important;
+  display: inline !important;
+}
