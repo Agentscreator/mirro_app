@@ -752,31 +752,9 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                     )}
                 </div>
 
-                {/* Events Metrics */}
-                <div className="flex items-center justify-center space-x-8 mt-6">
-                    <button
-                        onClick={() => setEventViewMode('upcoming')}
-                        className="text-center transition-colors duration-200"
-                    >
-                        <div className="text-2xl font-extralight text-text-primary">
-                            {(() => {
-                                const now = new Date()
-                                const allEvents = [...userEvents, ...joinedEvents]
-                                const uniqueEvents = allEvents.filter((event, index, self) =>
-                                    index === self.findIndex(e => e.id === event.id)
-                                )
-                                return uniqueEvents.filter(event => {
-                                    const eventDateTime = new Date(`${event.date}T${event.time}`)
-                                    return eventDateTime > now
-                                }).length
-                            })()}
-                        </div>
-                        <div className="text-xs text-text-muted font-light tracking-wide">Upcoming</div>
-                    </button>
-                    <button
-                        onClick={() => setEventViewMode('all')}
-                        className="text-center transition-colors duration-200"
-                    >
+                {/* Events Metric */}
+                <div className="flex items-center justify-center mt-6">
+                    <div className="text-center">
                         <div className="text-2xl font-extralight text-text-primary">
                             {(() => {
                                 const allEvents = [...userEvents, ...joinedEvents]
@@ -785,15 +763,8 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                                 ).length
                             })()}
                         </div>
-                        <div className="text-xs text-text-muted font-light tracking-wide">All</div>
-                    </button>
-                    <button
-                        onClick={() => setEventViewMode('created')}
-                        className="text-center transition-colors duration-200"
-                    >
-                        <div className="text-2xl font-extralight text-text-primary">{userEvents.length}</div>
-                        <div className="text-xs text-text-muted font-light tracking-wide">Created</div>
-                    </button>
+                        <div className="text-xs text-text-muted font-light tracking-wide">Events</div>
+                    </div>
                 </div>
             </div>
 
