@@ -508,3 +508,27 @@ button:not(:disabled):active {
 .str-chat__message--me .str-chat__avatar {
   display: none !important;
 }
+
+/* Make blue MUCH darker */
+.str-chat__message--me .str-chat__message-simple-text-inner {
+  background: rgba(50, 100, 180, 0.95) !important;
+  color: white !important;
+}
+
+/* Remove first-letter decorations causing dark blue fragments */
+.str-chat__message--me .str-chat__message-simple-text-inner::first-letter,
+.str-chat__message--me .str-chat__message-simple-text-inner p::first-letter,
+.str-chat__message--me .str-chat__message-simple-text-inner::first-line,
+.str-chat__message--me .str-chat__message-simple-text-inner p::first-line {
+  background: transparent !important;
+  color: white !important;
+  font-weight: normal !important;
+  font-size: inherit !important;
+}
+
+/* Remove any border-radius artifacts on corners */
+.str-chat__message--me .str-chat__message-simple-text-inner {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
