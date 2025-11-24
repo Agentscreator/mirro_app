@@ -3,8 +3,8 @@
 interface EventViewToggleProps {
   isManageMode: boolean
   onManageModeToggle: (enabled: boolean) => void
-  eventViewMode: 'created' | 'joined' | 'all'
-  onEventViewModeChange: (mode: 'created' | 'joined' | 'all') => void
+  eventViewMode: 'upcoming' | 'all' | 'created'
+  onEventViewModeChange: (mode: 'upcoming' | 'all' | 'created') => void
 }
 
 export default function EventViewToggle({ 
@@ -17,6 +17,16 @@ export default function EventViewToggle({
     <div className="flex items-center space-x-4">
       {/* Event View Mode Toggle - More Spread Out */}
       <div className="flex items-center glass-card rounded-full p-1.5 gap-1">
+        <button
+          onClick={() => onEventViewModeChange('upcoming')}
+          className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+            eventViewMode === 'upcoming' 
+              ? 'gradient-primary text-white shadow-sm' 
+              : 'text-text-secondary hover:bg-white/40'
+          }`}
+        >
+          Upcoming
+        </button>
         <button
           onClick={() => onEventViewModeChange('all')}
           className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
@@ -36,16 +46,6 @@ export default function EventViewToggle({
           }`}
         >
           Created
-        </button>
-        <button
-          onClick={() => onEventViewModeChange('joined')}
-          className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
-            eventViewMode === 'joined' 
-              ? 'gradient-primary text-white shadow-sm' 
-              : 'text-text-secondary hover:bg-white/40'
-          }`}
-        >
-          Joined
         </button>
       </div>
 

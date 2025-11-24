@@ -135,7 +135,7 @@ interface ProfilePageProps {
 
 export default function ProfilePage({ user: initialUser, initialEventId, onEventModalClose, refreshKey, onAccountDeleted }: ProfilePageProps) {
     const [isManageMode, setIsManageMode] = useState(false)
-    const [eventViewMode, setEventViewMode] = useState<'created' | 'joined' | 'all'>('all')
+    const [eventViewMode, setEventViewMode] = useState<'upcoming' | 'all' | 'created'>('all')
     const [user, setUser] = useState<User>(initialUser)
     const [profilePicture, setProfilePicture] = useState<string | null>(initialUser.profilePicture || null)
     const [userEvents, setUserEvents] = useState<EventCardData[]>([])
@@ -552,18 +552,28 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
     }
 
     const eventsToShow = useMemo(() => {
+        // Combine and deduplicate all events (user might be both creator and participant)
+        const allEvents = [...userEvents, ...joinedEvents]
+        const uniqueEvents = allEvents.filter((event, index, self) =>
+            index === self.findIndex(e => e.id === event.id)
+        )
+        
         switch (eventViewMode) {
             case 'created':
                 return userEvents
-            case 'joined':
-                return joinedEvents
+            case 'upcoming':
+                // Filter for future events only
+                const now = new Date()
+                return uniqueEvents.filter(event => {
+                    const eventDateTime = new Date(`${event.date}T${event.time}`)
+                    return eventDateTime > now
+                }).sort((a, b) => {
+                    const dateA = new Date(`${a.date}T${a.time}`)
+                    const dateB = new Date(`${b.date}T${b.time}`)
+                    return dateA.getTime() - dateB.getTime()
+                })
             case 'all':
             default:
-                // Combine and deduplicate events (user might be both creator and participant)
-                const allEvents = [...userEvents, ...joinedEvents]
-                const uniqueEvents = allEvents.filter((event, index, self) =>
-                    index === self.findIndex(e => e.id === event.id)
-                )
                 return uniqueEvents.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
         }
     }, [eventViewMode, userEvents, joinedEvents])
@@ -742,21 +752,47 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                     )}
                 </div>
 
-                {/* Subscribers/Subscriptions */}
+                {/* Events Metrics */}
                 <div className="flex items-center justify-center space-x-8 mt-6">
                     <button
-                        onClick={() => setIsFollowersModalOpen(true)}
+                        onClick={() => setEventViewMode('upcoming')}
                         className="text-center transition-colors duration-200"
                     >
-                        <div className="text-2xl font-extralight text-text-primary">{user.followersCount || '0'}</div>
-                        <div className="text-xs text-text-muted font-light tracking-wide">Subscribers</div>
+                        <div className="text-2xl font-extralight text-text-primary">
+                            {(() => {
+                                const now = new Date()
+                                const allEvents = [...userEvents, ...joinedEvents]
+                                const uniqueEvents = allEvents.filter((event, index, self) =>
+                                    index === self.findIndex(e => e.id === event.id)
+                                )
+                                return uniqueEvents.filter(event => {
+                                    const eventDateTime = new Date(`${event.date}T${event.time}`)
+                                    return eventDateTime > now
+                                }).length
+                            })()}
+                        </div>
+                        <div className="text-xs text-text-muted font-light tracking-wide">Upcoming</div>
                     </button>
                     <button
-                        onClick={() => setIsFollowingModalOpen(true)}
+                        onClick={() => setEventViewMode('all')}
                         className="text-center transition-colors duration-200"
                     >
-                        <div className="text-2xl font-extralight text-text-primary">{user.followingCount || '0'}</div>
-                        <div className="text-xs text-text-muted font-light tracking-wide">Subscriptions</div>
+                        <div className="text-2xl font-extralight text-text-primary">
+                            {(() => {
+                                const allEvents = [...userEvents, ...joinedEvents]
+                                return allEvents.filter((event, index, self) =>
+                                    index === self.findIndex(e => e.id === event.id)
+                                ).length
+                            })()}
+                        </div>
+                        <div className="text-xs text-text-muted font-light tracking-wide">All</div>
+                    </button>
+                    <button
+                        onClick={() => setEventViewMode('created')}
+                        className="text-center transition-colors duration-200"
+                    >
+                        <div className="text-2xl font-extralight text-text-primary">{userEvents.length}</div>
+                        <div className="text-xs text-text-muted font-light tracking-wide">Created</div>
                     </button>
                 </div>
             </div>
