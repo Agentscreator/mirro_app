@@ -627,42 +627,78 @@ button:not(:disabled):active {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
-/* ENHANCED: Fix message bubble word-breaking for iOS */
-.str-chat__message-text-inner {
-  word-break: break-word !important;
-  overflow-wrap: break-word !important;
-  hyphens: auto !important;
-  white-space: pre-wrap !important;
+/* CRITICAL: Fix text wrapping in Stream Chat */
+/* Target all text elements inside message bubbles */
+.str-chat__message-simple-text-inner,
+.str-chat__message-simple-text-inner p,
+.str-chat__message-simple-text-inner span,
+.str-chat__message-simple-text-inner div {
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+  white-space: normal !important;
+  -webkit-hyphens: none !important;
+  hyphens: none !important;
+  line-break: auto !important;
   word-wrap: break-word !important;
 }
 
+/* Ensure message containers have proper width constraints */
+.str-chat__message-simple-text {
+  max-width: 280px !important;
+  min-width: 60px !important;
+  width: auto !important;
+}
+
+/* For user's own messages */
+.str-chat__message--me .str-chat__message-simple-text {
+  max-width: 280px !important;
+  min-width: 60px !important;
+}
+
+/* Message bubble container */
 .str-chat__message-bubble {
   max-width: 100% !important;
-  min-width: fit-content !important;
+  width: fit-content !important;
 }
 
-.str-chat__message-simple-text-inner p {
-  word-break: break-word !important;
-  overflow-wrap: break-word !important;
-  white-space: pre-wrap !important;
+/* Text inner container */
+.str-chat__message-text-inner {
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+  white-space: normal !important;
+  display: block !important;
 }
 
-/* Prevent single characters from breaking */
-.str-chat__message-text {
-  display: inline-block !important;
-  word-break: keep-all !important;
-  overflow-wrap: normal !important;
+/* Override any conflicting Stream Chat styles */
+.str-chat__message-simple .str-chat__message-text {
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
 }
 
-.str-chat__message-text * {
-  word-break: break-word !important;
-  overflow-wrap: break-word !important;
+/* Mobile specific fixes */
+@media (max-width: 768px) {
+  .str-chat__message-simple-text {
+    max-width: 85vw !important;
+  }
+  
+  .str-chat__message--me .str-chat__message-simple-text {
+    max-width: 85vw !important;
+  }
 }
 
-/* iOS keyboard fix - ensure header stays visible */
+/* iOS specific fixes */
 @supports (-webkit-touch-callout: none) {
+  /* Fix input positioning on iOS */
   .str-chat__input-flat {
+    position: relative !important;
+    bottom: 0 !important;
     padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+  }
+  
+  /* Ensure messages render correctly on iOS */
+  .str-chat__message-simple-text-inner {
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
   }
   
   /* Prevent viewport resize from affecting header */

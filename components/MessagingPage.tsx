@@ -236,10 +236,10 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
 
           {/* Chat Window - Mobile */}
           {showMobileChat && selectedChannel && (
-            <div className="fixed inset-0 z-50 md:hidden bg-gradient-to-b from-cream-50 to-cream-100">
-              {/* Mobile Header - Sticky at top */}
+            <div className="fixed inset-0 z-50 md:hidden flex flex-col bg-gradient-to-b from-cream-50 to-cream-100">
+              {/* Mobile Header - Fixed at top */}
               <div 
-                className="sticky top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 bg-white/90 backdrop-blur-sm border-b border-taupe-200/30"
+                className="flex-shrink-0 flex items-center gap-3 px-4 bg-white/90 backdrop-blur-sm border-b border-taupe-200/30"
                 style={{ 
                   paddingTop: 'max(48px, env(safe-area-inset-top))',
                   paddingBottom: '16px'
@@ -267,7 +267,7 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
               </div>
 
               {/* Chat Content - Fills remaining space */}
-              <div className="h-[calc(100%-88px)] overflow-hidden">
+              <div className="flex-1 min-h-0">
                 <Channel channel={selectedChannel}>
                   <Window>
                     <MessageList />
