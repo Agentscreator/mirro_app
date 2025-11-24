@@ -395,19 +395,11 @@ button:not(:disabled):active {
   }
 }
 
-/* Stream Chat Custom Styles */
+
+/* Stream Chat Custom Styles - CLEAN VERSION */
 .str-chat {
   --str-chat__primary-color: #857566;
   --str-chat__active-primary-color: #6a5a4f;
-  --str-chat__surface-color: rgba(253, 248, 241, 0.95);
-  --str-chat__secondary-surface-color: rgba(249, 240, 227, 0.9);
-  --str-chat__primary-surface-color: rgba(245, 232, 213, 0.95);
-  --str-chat__primary-surface-color-low-emphasis: rgba(245, 232, 213, 0.5);
-  --str-chat__border-radius-circle: 50%;
-  --str-chat__border-radius-md: 1rem;
-  --str-chat__border-radius-lg: 1.5rem;
-  --str-chat__message-textarea-border-radius: 1.5rem;
-  --str-chat__spacing-px: 1rem;
   font-family: var(--font-sans);
 }
 
@@ -417,51 +409,46 @@ button:not(:disabled):active {
   height: 100%;
 }
 
-/* Channel header */
-.str-chat__header-livestream {
-  background: rgba(255, 255, 255, 0.4) !important;
-  backdrop-filter: blur(20px) !important;
-  border-bottom: 1px solid rgba(225, 204, 168, 0.3) !important;
-  padding: 1rem !important;
-  border-radius: 1.5rem 1.5rem 0 0 !important;
-}
-
-.str-chat__header-livestream-left {
-  font-weight: 300 !important;
-  color: #2d2a26 !important;
-}
-
 /* Message list */
 .str-chat__list {
   background: transparent !important;
   padding: 1rem !important;
 }
 
-.str-chat__ul {
-  padding: 0 !important;
-}
-
-/* Individual messages */
+/* Individual messages - proper spacing */
 .str-chat__message-simple {
-  margin-bottom: 0.75rem !important;
+  margin-bottom: 0.5rem !important;
+  display: block !important;
 }
 
+/* Text wrapping fix - ONE bubble per message */
 .str-chat__message-simple-text-inner {
-  background: rgba(255, 255, 255, 0.9) !important;
-  backdrop-filter: blur(10px) !important;
-  border: 1px solid rgba(225, 204, 168, 0.3) !important;
-  border-radius: 1.25rem !important;
-  padding: 0.75rem 1rem !important;
-  color: #2d2a26 !important;
-  font-weight: 300 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: pre-wrap !important;
+  display: inline !important;
+  padding: 0.65rem 0.9rem !important;
+  border-radius: 1rem !important;
 }
 
-/* Own messages */
-.str-chat__message--me .str-chat__message-simple-text-inner {
-  background: linear-gradient(135deg, #a1917d 0%, #857566 100%) !important;
-  color: white !important;
+/* Received messages - transparent */
+.str-chat__message-simple-text-inner {
+  background: transparent !important;
+  color: #2d2a26 !important;
   border: none !important;
+}
+
+/* Your messages - blue background */
+.str-chat__message--me .str-chat__message-simple-text-inner {
+  background: rgba(100, 150, 230, 0.75) !important;
+  color: white !important;
+}
+
+/* Message width */
+.str-chat__message-simple-text {
+  max-width: 85vw !important;
+  width: auto !important;
+  display: inline-block !important;
 }
 
 /* Message input */
@@ -469,7 +456,7 @@ button:not(:disabled):active {
   background: rgba(255, 255, 255, 0.6) !important;
   backdrop-filter: blur(20px) !important;
   border: 1px solid rgba(225, 204, 168, 0.3) !important;
-  border-radius: 0 0 1.5rem 1.5rem !important;
+  border-radius: 1.5rem !important;
   padding: 1rem !important;
 }
 
@@ -479,721 +466,23 @@ button:not(:disabled):active {
   border-radius: 1.5rem !important;
   padding: 0.75rem 1rem !important;
   color: #2d2a26 !important;
-  font-weight: 300 !important;
   min-height: 44px !important;
 }
 
-.str-chat__textarea textarea:focus {
-  outline: none !important;
-  border-color: #857566 !important;
-  box-shadow: 0 0 0 3px rgba(133, 117, 102, 0.1) !important;
-}
-
-.str-chat__textarea textarea::placeholder {
-  color: #8b8680 !important;
-  font-weight: 300 !important;
-}
-
-/* Send button */
-.str-chat__send-button {
-  background: linear-gradient(135deg, #a1917d 0%, #857566 100%) !important;
-  border: none !important;
-  border-radius: 50% !important;
-  width: 40px !important;
-  height: 40px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: all 0.3s ease !important;
-}
-
-.str-chat__send-button:hover {
-  transform: scale(1.05) !important;
-  box-shadow: 0 4px 12px rgba(133, 117, 102, 0.3) !important;
-  background: linear-gradient(135deg, #a1917d 0%, #857566 100%) !important;
-}
-
-.str-chat__send-button:focus,
-.str-chat__send-button:active {
-  background: linear-gradient(135deg, #a1917d 0%, #857566 100%) !important;
-  outline: none !important;
-}
-
-.str-chat__send-button svg {
-  fill: white !important;
-}
-
-.str-chat__send-button svg path {
-  fill: white !important;
-}
-
-/* Attachment/Plus button */
-.str-chat__input-flat-wrapper .str-chat__fileupload-wrapper button,
-.str-chat__input .str-chat__fileupload-wrapper button,
-.str-chat__input-flat .str-chat__fileupload-wrapper button {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  border-radius: 50% !important;
-}
-
-.str-chat__input-flat-wrapper .str-chat__fileupload-wrapper button:hover,
-.str-chat__input .str-chat__fileupload-wrapper button:hover,
-.str-chat__input-flat .str-chat__fileupload-wrapper button:hover {
-  transform: scale(1.1) rotate(90deg) !important;
-  background: rgba(161, 145, 125, 0.1) !important;
-}
-
-.str-chat__input-flat-wrapper .str-chat__fileupload-wrapper button:active,
-.str-chat__input .str-chat__fileupload-wrapper button:active,
-.str-chat__input-flat .str-chat__fileupload-wrapper button:active {
-  transform: scale(0.95) rotate(90deg) !important;
-}
-
-.str-chat__input-flat-wrapper .str-chat__fileupload-wrapper svg,
-.str-chat__input .str-chat__fileupload-wrapper svg,
-.str-chat__input-flat .str-chat__fileupload-wrapper svg {
-  transition: all 0.3s ease !important;
-  color: #857566 !important;
-}
-
-/* Avatar */
-.str-chat__avatar {
-  border-radius: 50% !important;
-  background: linear-gradient(135deg, #c9c0b2 0%, #b8ab9a 100%) !important;
-}
-
-.str-chat__avatar-fallback {
-  color: white !important;
-  font-weight: 300 !important;
-}
-
-/* Timestamp */
-.str-chat__message-simple-timestamp {
-  color: #8b8680 !important;
-  font-size: 0.75rem !important;
-  font-weight: 300 !important;
-}
-
-/* Scrollbar */
-.str-chat__list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.str-chat__list::-webkit-scrollbar-track {
-  background: rgba(225, 204, 168, 0.2);
-  border-radius: 3px;
-}
-
-.str-chat__list::-webkit-scrollbar-thumb {
-  background: rgba(133, 117, 102, 0.4);
-  border-radius: 3px;
-}
-
-.str-chat__list::-webkit-scrollbar-thumb:hover {
-  background: rgba(133, 117, 102, 0.6);
-}
-
-/* Mobile specific adjustments */
+/* Mobile adjustments */
 @media (max-width: 768px) {
   .str-chat__header-livestream {
     display: none !important;
   }
   
-  .str-chat__input-flat {
-    border-radius: 0 !important;
-    padding: 0.75rem !important;
-  }
-  
-  .str-chat__list {
-    padding: 0.75rem !important;
-  }
-  
-  .str-chat__message-simple-text-inner {
-    max-width: 85% !important;
-  }
-}
-
-/* Attachment preview */
-.str-chat__attachment {
-  border-radius: 1rem !important;
-  overflow: hidden !important;
-  border: 1px solid rgba(225, 204, 168, 0.3) !important;
-}
-
-/* Emoji picker */
-.str-chat__emoji-picker {
-  background: rgba(253, 248, 241, 0.98) !important;
-  backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(225, 204, 168, 0.5) !important;
-  border-radius: 1rem !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* Loading indicator */
-.str-chat__loading-indicator {
-  color: #857566 !important;
-}
-
-/* Date separator */
-.str-chat__date-separator {
-  color: #8b8680 !important;
-  font-weight: 300 !important;
-  font-size: 0.875rem !important;
-}
-
-.str-chat__date-separator-line {
-  background: rgba(225, 204, 168, 0.3) !important;
-}
-
-/* Safe Area Insets for iOS */
-.safe-area-inset {
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.safe-top {
-  padding-top: max(1rem, env(safe-area-inset-top));
-}
-
-.safe-bottom {
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
-}
-
-.pt-safe {
-  padding-top: max(1rem, env(safe-area-inset-top));
-}
-
-.pb-safe {
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
-}
-
-/* CRITICAL: Fix text wrapping in Stream Chat */
-/* Target all text elements inside message bubbles */
-.str-chat__message-simple-text-inner,
-.str-chat__message-simple-text-inner p,
-.str-chat__message-simple-text-inner span,
-.str-chat__message-simple-text-inner div {
-  word-break: break-word !important;
-  overflow-wrap: break-word !important;
-  white-space: pre-wrap !important;
-  display: inline !important;
-  -webkit-hyphens: none !important;
-  hyphens: none !important;
-}
-
-/* Ensure message containers have proper width constraints */
-.str-chat__message-simple-text {
-  max-width: 90vw !important;
-  min-width: 60px !important;
-  width: auto !important;
-}
-
-/* For user's own messages */
-.str-chat__message--me .str-chat__message-simple-text {
-  max-width: 90vw !important;
-  min-width: 60px !important;
-}
-
-/* Message bubble container */
-.str-chat__message-bubble {
-  max-width: 100% !important;
-  width: fit-content !important;
-}
-
-/* Text inner container - FIXED */
-.str-chat__message-text-inner {
-  word-break: break-word !important;
-  overflow-wrap: break-word !important;
-  white-space: pre-wrap !important;
-  display: inline !important;
-}
-
-/* Override any conflicting Stream Chat styles */
-.str-chat__message-simple .str-chat__message-text {
-  word-break: break-word !important;
-  overflow-wrap: break-word !important;
-}
-
-/* Mobile specific fixes */
-@media (max-width: 768px) {
   .str-chat__message-simple-text {
-    max-width: 90vw !important;
-  }
-  
-  .str-chat__message--me .str-chat__message-simple-text {
-    max-width: 90vw !important;
+    max-width: 85vw !important;
   }
 }
 
-/* iOS specific fixes */
+/* iOS safe areas */
 @supports (-webkit-touch-callout: none) {
-  /* Fix input positioning on iOS */
   .str-chat__input-flat {
-    position: relative !important;
-    bottom: 0 !important;
     padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
   }
-  
-  /* Ensure messages render correctly on iOS */
-  .str-chat__message-simple-text-inner {
-    -webkit-font-smoothing: antialiased !important;
-    -moz-osx-font-smoothing: grayscale !important;
-  }
-  
-  /* Prevent viewport resize from affecting header */
-  .sticky {
-    position: -webkit-sticky !important;
-    position: sticky !important;
-  }
-}
-
-/* Keyboard handling for Capacitor iOS */
-body.keyboard-open {
-  overflow: hidden !important;
-  position: fixed !important;
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* FORCE TEXT WRAPPING FIX - MAXIMUM SPECIFICITY */
-body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simple-text {
-  max-width: 90vw !important;
-  min-width: 60px !important;
-  width: auto !important;
-}
-
-body .str-chat .str-chat__list .str-chat__message--me .str-chat__message-simple-text {
-  max-width: 90vw !important;
-  min-width: 60px !important;
-}
-
-body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simple-text-inner {
-  word-break: break-word !important;
-  overflow-wrap: break-word !important;
-  white-space: pre-wrap !important;
-  display: inline !important;
-}
-
-/* NUCLEAR OPTION - Maximum override for Stream Chat */
-body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simple-text-inner,
-body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simple-text-inner *,
-body .str-chat .str-chat__message-simple-text-inner,
-body .str-chat .str-chat__message-simple-text-inner * {
-  word-break: break-word !important;
-  overflow-wrap: break-word !important;
-  white-space: pre-wrap !important;
-  display: inline !important;
-  max-width: none !important;
-  width: auto !important;
-}
-
-/* Force the container to respect width */
-body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simple-text,
-body .str-chat .str-chat__message-simple-text {
-  max-width: 90vw !important;
-  width: auto !important;
-  box-sizing: border-box !important;
-  overflow: visible !important;
-}
-
-/* FINAL FIX - Target the actual text rendering */
-.str-chat__message-simple-text-inner > *,
-.str-chat__message-simple-text-inner p,
-.str-chat__message-simple-text-inner span,
-.str-chat__message-simple-text-inner div,
-.str-chat__message-text,
-.str-chat__message-text-inner {
-  word-break: break-word !important;
-  overflow-wrap: break-word !important;
-  white-space: pre-wrap !important;
-  display: inline !important;
-  max-width: 100% !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-}
-
-/* Remove any text-overflow ellipsis */
-.str-chat__message-simple-text-inner,
-.str-chat__message-simple-text {
-  text-overflow: clip !important;
-  overflow: visible !important;
-  white-space: pre-wrap !important;
-  max-width: 90vw !important;
-}
-
-/* REMOVE WIDTH CONSTRAINTS FOR DEBUGGING */
-.str-chat__message-simple-text,
-.str-chat__message-simple-text-inner,
-body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simple-text {
-  max-width: 95vw !important;
-  min-width: 0 !important;
-}
-
-/* FIX MESSAGE OVERLAP - Each message should be separate */
-.str-chat__message-simple {
-  margin-bottom: 0.75rem !important;
-  position: relative !important;
-  z-index: 1 !important;
-  clear: both !important;
-}
-
-.str-chat__message-simple-text-inner {
-  position: relative !important;
-  z-index: 2 !important;
-}
-
-/* Prevent message bubbles from overlapping */
-.str-chat__list .str-chat__li {
-  margin-bottom: 8px !important;
-  clear: both !important;
-}
-
-/* Fix brown background overlapping */
-.str-chat__message-bubble {
-  position: relative !important;
-  z-index: auto !important;
-  margin-bottom: 4px !important;
-}
-
-/* Reduce padding inside message bubbles */
-.str-chat__message-simple-text-inner {
-  padding: 0.5rem 0.75rem !important;
-}
-
-/* Fix transparent text issue - ensure text is fully opaque */
-.str-chat__message-simple-text-inner,
-.str-chat__message-simple-text-inner *,
-.str-chat__message-simple-text-inner p,
-.str-chat__message-simple-text-inner span {
-  opacity: 1 !important;
-  color: #2d2a26 !important;
-}
-
-/* For own messages - keep white text */
-.str-chat__message--me .str-chat__message-simple-text-inner,
-.str-chat__message--me .str-chat__message-simple-text-inner *,
-.str-chat__message--me .str-chat__message-simple-text-inner p,
-.str-chat__message--me .str-chat__message-simple-text-inner span {
-  color: white !important;
-  opacity: 1 !important;
-}
-
-/* Reduce margins between messages */
-.str-chat__message-simple {
-  margin-bottom: 0.1rem !important;
-}
-
-/* Force all message text into ONE bubble - no line breaks creating new bubbles */
-.str-chat__message-simple-text-inner {
-  display: block !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-/* Ensure the message container doesn't split */
-.str-chat__message-simple-text {
-  display: inline-block !important;
-  max-width: 85vw !important;
-  word-wrap: break-word !important;
-  white-space: pre-wrap !important;
-}
-
-/* Remove any transforms or positioning that might cause splitting */
-.str-chat__message-bubble {
-  display: block !important;
-  position: relative !important;
-  transform: none !important;
-}
-
-/* Ensure no pseudo-elements are creating overlaps */
-.str-chat__message-simple-text-inner::before,
-.str-chat__message-simple-text-inner::after,
-.str-chat__message-simple-text::before,
-.str-chat__message-simple-text::after {
-  display: none !important;
-}
-
-/* CRITICAL FIX: ONE MESSAGE = ONE BUBBLE that expands vertically */
-
-/* Make the message container a single, expandable bubble */
-.str-chat__message-simple-text-inner {
-  display: block !important;
-  width: 100% !important;
-  min-height: auto !important;
-  height: auto !important;
-  box-sizing: border-box !important;
-  padding: 0.5rem 0.75rem !important;
-  word-wrap: break-word !important;
-  white-space: pre-wrap !important;
-  overflow: visible !important;
-}
-
-/* Container must allow vertical expansion */
-.str-chat__message-simple-text {
-  display: inline-block !important;
-  max-width: 85vw !important;
-  width: auto !important;
-  height: auto !important;
-  min-height: auto !important;
-  box-sizing: border-box !important;
-}
-
-/* Single bubble wrapper - no splitting */
-.str-chat__message-bubble {
-  display: block !important;
-  height: auto !important;
-  min-height: auto !important;
-  position: relative !important;
-  overflow: visible !important;
-}
-
-/* Prevent multiple bubbles from being created */
-.str-chat__message-simple {
-  display: block !important;
-  height: auto !important;
-  margin-bottom: 0.1rem !important;
-}
-
-/* Remove any absolute positioning that causes bubble splitting */
-.str-chat__message-simple-text-inner * {
-  position: static !important;
-  display: inline !important;
-}
-
-/* Change bubble colors - gray transparent for received, light blue transparent for sent */
-
-/* Received messages - transparent gray */
-.str-chat__message-simple-text-inner {
-  background: rgba(200, 200, 200, 0.3) !important;
-  color: #2d2a26 !important;
-}
-
-/* Your own messages - transparent light blue */
-.str-chat__message--me .str-chat__message-simple-text-inner {
-  background: rgba(173, 216, 230, 0.3) !important;
-  color: #2d2a26 !important;
-}
-
-/* Make all message bubbles completely transparent */
-
-/* Received messages - fully transparent */
-.str-chat__message-simple-text-inner {
-  background: transparent !important;
-  background-color: transparent !important;
-  border: none !important;
-}
-
-/* Your own messages - fully transparent */
-.str-chat__message--me .str-chat__message-simple-text-inner {
-  background: transparent !important;
-  background-color: transparent !important;
-  border: none !important;
-}
-
-/* Make your messages darker blue and thicker */
-.str-chat__message--me .str-chat__message-simple-text-inner {
-  background: rgba(100, 150, 230, 0.8) !important;
-  color: white !important;
-  padding: 0.75rem 1rem !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* Remove ALL outlines and borders from transparent messages */
-.str-chat__message-simple-text-inner {
-  background: transparent !important;
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-/* Remove any remaining visual artifacts */
-.str-chat__message-simple-text {
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-.str-chat__message-bubble {
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-/* Tighter spacing so blue messages connect better */
-.str-chat__message--me .str-chat__message-simple {
-  margin-bottom: 0.05rem !important;
-}
-
-/* Make your messages darker blue and thicker */
-.str-chat__message--me .str-chat__message-simple-text-inner {
-  background: rgba(100, 150, 230, 0.8) !important;
-  color: white !important;
-  padding: 0.75rem 1rem !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* Remove ALL outlines and borders from transparent messages */
-.str-chat__message-simple-text-inner {
-  background: transparent !important;
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-/* Remove any remaining visual artifacts */
-.str-chat__message-simple-text {
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-.str-chat__message-bubble {
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-/* Tighter spacing so blue messages connect better */
-.str-chat__message--me .str-chat__message-simple {
-  margin-bottom: 0.05rem !important;
-}
-
-/* Make the light blue bubbles DARKER and remove transparent outlines */
-
-/* Your messages - darker blue, no outline */
-.str-chat__message--me .str-chat__message-simple-text-inner {
-  background: rgba(100, 150, 230, 0.7) !important;
-  color: white !important;
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  padding: 0.65rem 0.9rem !important;
-}
-
-/* Remove the transparent outer bubble/outline completely */
-.str-chat__message--me .str-chat__message-simple-text {
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  background: transparent !important;
-}
-
-.str-chat__message--me .str-chat__message-bubble {
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  background: transparent !important;
-}
-
-/* Make messages almost touch */
-.str-chat__message--me .str-chat__message-simple {
-  margin-bottom: 0.08rem !important;
-}
-
-/* CORRECT FIX: Keep outer bubble darker blue, remove inner transparent one */
-
-/* Remove the INNER light blue bubble completely */
-.str-chat__message--me .str-chat__message-simple-text-inner {
-  background: transparent !important;
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  padding: 0 !important;
-}
-
-/* Keep and make the OUTER bubble darker blue and thicker */
-.str-chat__message--me .str-chat__message-simple-text {
-  background: rgba(100, 150, 230, 0.7) !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0.65rem 0.9rem !important;
-  border-radius: 1rem !important;
-}
-
-/* Make messages almost touch */
-.str-chat__message--me .str-chat__message-simple {
-  margin-bottom: 0.08rem !important;
-}
-
-/* Bring back the blue message bubbles and make them DARKER */
-.str-chat__message--me .str-chat__message-simple-text-inner {
-  background: rgba(70, 130, 220, 0.85) !important;
-  color: white !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0.65rem 0.9rem !important;
-  border-radius: 1rem !important;
-}
-
-/* Remove the outer transparent layer */
-.str-chat__message--me .str-chat__message-simple-text {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-}
-
-/* Make bubbles almost touch */
-.str-chat__message--me .str-chat__message-simple {
-  margin-bottom: 0.08rem !important;
-}
-
-/* Make INNER bubble transparent */
-.str-chat__message--me .str-chat__message-simple-text-inner {
-  background: transparent !important;
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0.65rem 0.9rem !important;
-  color: white !important;
-}
-
-/* Make OUTER bubble darker blue */
-.str-chat__message--me .str-chat__message-simple-text {
-  background: rgba(70, 130, 220, 0.85) !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 1rem !important;
-  padding: 0.2rem !important;
-}
-
-/* Make bubbles almost touch */
-.str-chat__message--me .str-chat__message-simple {
-  margin-bottom: 0.08rem !important;
-}
-
-/* Make the outer bubble visible with a border so we can see it */
-.str-chat__message--me .str-chat__message-simple-text {
-  background: rgba(70, 130, 220, 0.85) !important;
-  border: 2px solid rgba(70, 130, 220, 1) !important;
-  border-radius: 1rem !important;
-  padding: 0.65rem 0.9rem !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-  display: inline-block !important;
-  max-width: 85vw !important;
-}
-
-/* FORCE outer bubble to be visible with strong styling */
-body .str-chat .str-chat__message--me .str-chat__message-simple-text {
-  background: rgba(70, 130, 220, 0.9) !important;
-  border: 3px solid blue !important;
-  border-radius: 1rem !important;
-  padding: 0.8rem 1rem !important;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
-  display: inline-block !important;
-  max-width: 85vw !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-/* Make inner transparent */
-body .str-chat .str-chat__message--me .str-chat__message-simple-text-inner {
-  background: transparent !important;
-  color: white !important;
-  padding: 0 !important;
-  border: none !important;
 }
