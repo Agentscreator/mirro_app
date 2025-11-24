@@ -853,3 +853,31 @@ body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simp
   z-index: auto !important;
   margin-bottom: 4px !important;
 }
+
+/* Reduce padding inside message bubbles */
+.str-chat__message-simple-text-inner {
+  padding: 0.5rem 0.75rem !important;
+}
+
+/* Fix transparent text issue - ensure text is fully opaque */
+.str-chat__message-simple-text-inner,
+.str-chat__message-simple-text-inner *,
+.str-chat__message-simple-text-inner p,
+.str-chat__message-simple-text-inner span {
+  opacity: 1 !important;
+  color: #2d2a26 !important;
+}
+
+/* For own messages - keep white text */
+.str-chat__message--me .str-chat__message-simple-text-inner,
+.str-chat__message--me .str-chat__message-simple-text-inner *,
+.str-chat__message--me .str-chat__message-simple-text-inner p,
+.str-chat__message--me .str-chat__message-simple-text-inner span {
+  color: white !important;
+  opacity: 1 !important;
+}
+
+/* Reduce margins between messages */
+.str-chat__message-simple {
+  margin-bottom: 0.5rem !important;
+}
