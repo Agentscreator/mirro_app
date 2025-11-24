@@ -672,13 +672,12 @@ button:not(:disabled):active {
 .str-chat__message-simple-text-inner p,
 .str-chat__message-simple-text-inner span,
 .str-chat__message-simple-text-inner div {
-  word-break: normal !important;
-  overflow-wrap: anywhere !important;
-  white-space: normal !important;
+  word-break: keep-all !important;
+  overflow-wrap: break-word !important;
+  white-space: pre-wrap !important;
   -webkit-hyphens: none !important;
   hyphens: none !important;
   line-break: auto !important;
-  word-wrap: break-word !important;
 }
 
 /* Ensure message containers have proper width constraints */
@@ -710,8 +709,8 @@ button:not(:disabled):active {
 
 /* Override any conflicting Stream Chat styles */
 .str-chat__message-simple .str-chat__message-text {
-  word-break: normal !important;
-  overflow-wrap: anywhere !important;
+  word-break: keep-all !important;
+  overflow-wrap: break-word !important;
 }
 
 /* Mobile specific fixes */

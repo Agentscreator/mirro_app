@@ -3,13 +3,12 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.mirro2.app',  // Updated to match your Apple Developer App ID
   appName: 'MirroSocial',
-  webDir: 'out',
+  webDir: 'public',
   server: {
     androidScheme: 'https',
-    // Remove server URL to enable offline mode - app will use local files
-    // url: process.env.CAPACITOR_SERVER_URL || 'https://www.mirro2.com',
+    // Point to your deployed web app
+    url: 'https://www.mirro2.com',
     cleartext: process.env.NODE_ENV === 'development',
-    // Enable offline mode
     allowNavigation: ['*']
   },
   android: {
