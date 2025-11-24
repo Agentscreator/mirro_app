@@ -988,3 +988,39 @@ body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simp
   background-color: transparent !important;
   border: none !important;
 }
+
+/* Make your messages darker blue and thicker */
+.str-chat__message--me .str-chat__message-simple-text-inner {
+  background: rgba(100, 150, 230, 0.8) !important;
+  color: white !important;
+  padding: 0.75rem 1rem !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove ALL outlines and borders from transparent messages */
+.str-chat__message-simple-text-inner {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Remove any remaining visual artifacts */
+.str-chat__message-simple-text {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.str-chat__message-bubble {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Tighter spacing so blue messages connect better */
+.str-chat__message--me .str-chat__message-simple {
+  margin-bottom: 0.05rem !important;
+}
