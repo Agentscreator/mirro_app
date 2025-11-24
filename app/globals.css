@@ -699,17 +699,21 @@ button:not(:disabled):active {
   width: fit-content !important;
 }
 
-/* Text inner container */
-.str-chat__message-text-inner {
-  word-break: normal !important;
-  overflow-wrap: anywhere !important;
-  white-space: normal !important;
-  display: block !important;
+/* Text inner container - FIXED */
+.str-chat__message-text-inner,
+.str-chat__message-simple-text-inner,
+.str-chat__message-simple-text-inner p,
+.str-chat__message-simple-text-inner span,
+.str-chat__message-simple-text-inner div {
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: pre-wrap !important;
+  display: inline !important;
 }
 
 /* Override any conflicting Stream Chat styles */
 .str-chat__message-simple .str-chat__message-text {
-  word-break: keep-all !important;
+  word-break: break-word !important;
   overflow-wrap: break-word !important;
 }
 
