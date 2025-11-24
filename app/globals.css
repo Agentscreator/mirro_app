@@ -753,3 +753,22 @@ body.keyboard-open {
   width: 100% !important;
   height: 100% !important;
 }
+
+/* FORCE TEXT WRAPPING FIX - MAXIMUM SPECIFICITY */
+body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simple-text {
+  max-width: 75vw !important;
+  min-width: 60px !important;
+  width: auto !important;
+}
+
+body .str-chat .str-chat__list .str-chat__message--me .str-chat__message-simple-text {
+  max-width: 75vw !important;
+  min-width: 60px !important;
+}
+
+body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simple-text-inner {
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: pre-wrap !important;
+  display: inline !important;
+}
