@@ -1176,3 +1176,24 @@ body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simp
   display: inline-block !important;
   max-width: 85vw !important;
 }
+
+/* FORCE outer bubble to be visible with strong styling */
+body .str-chat .str-chat__message--me .str-chat__message-simple-text {
+  background: rgba(70, 130, 220, 0.9) !important;
+  border: 3px solid blue !important;
+  border-radius: 1rem !important;
+  padding: 0.8rem 1rem !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
+  display: inline-block !important;
+  max-width: 85vw !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Make inner transparent */
+body .str-chat .str-chat__message--me .str-chat__message-simple-text-inner {
+  background: transparent !important;
+  color: white !important;
+  padding: 0 !important;
+  border: none !important;
+}
