@@ -527,6 +527,34 @@ button:not(:disabled):active {
   fill: white !important;
 }
 
+/* Attachment/Plus button */
+.str-chat__input-flat-wrapper .str-chat__fileupload-wrapper button,
+.str-chat__input .str-chat__fileupload-wrapper button,
+.str-chat__input-flat .str-chat__fileupload-wrapper button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border-radius: 50% !important;
+}
+
+.str-chat__input-flat-wrapper .str-chat__fileupload-wrapper button:hover,
+.str-chat__input .str-chat__fileupload-wrapper button:hover,
+.str-chat__input-flat .str-chat__fileupload-wrapper button:hover {
+  transform: scale(1.1) rotate(90deg) !important;
+  background: rgba(161, 145, 125, 0.1) !important;
+}
+
+.str-chat__input-flat-wrapper .str-chat__fileupload-wrapper button:active,
+.str-chat__input .str-chat__fileupload-wrapper button:active,
+.str-chat__input-flat .str-chat__fileupload-wrapper button:active {
+  transform: scale(0.95) rotate(90deg) !important;
+}
+
+.str-chat__input-flat-wrapper .str-chat__fileupload-wrapper svg,
+.str-chat__input .str-chat__fileupload-wrapper svg,
+.str-chat__input-flat .str-chat__fileupload-wrapper svg {
+  transition: all 0.3s ease !important;
+  color: #857566 !important;
+}
+
 /* Avatar */
 .str-chat__avatar {
   border-radius: 50% !important;
