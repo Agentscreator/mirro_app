@@ -879,7 +879,7 @@ body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simp
 
 /* Reduce margins between messages */
 .str-chat__message-simple {
-  margin-bottom: 0.5rem !important;
+  margin-bottom: 0.1rem !important;
 }
 
 /* Force all message text into ONE bubble - no line breaks creating new bubbles */
