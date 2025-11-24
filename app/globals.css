@@ -682,14 +682,14 @@ button:not(:disabled):active {
 
 /* Ensure message containers have proper width constraints */
 .str-chat__message-simple-text {
-  max-width: 85vw !important;
+  max-width: 90vw !important;
   min-width: 60px !important;
   width: auto !important;
 }
 
 /* For user's own messages */
 .str-chat__message--me .str-chat__message-simple-text {
-  max-width: 85vw !important;
+  max-width: 90vw !important;
   min-width: 60px !important;
 }
 
@@ -716,11 +716,11 @@ button:not(:disabled):active {
 /* Mobile specific fixes */
 @media (max-width: 768px) {
   .str-chat__message-simple-text {
-    max-width: 85vw !important;
+    max-width: 90vw !important;
   }
   
   .str-chat__message--me .str-chat__message-simple-text {
-    max-width: 85vw !important;
+    max-width: 90vw !important;
   }
 }
 
@@ -756,13 +756,13 @@ body.keyboard-open {
 
 /* FORCE TEXT WRAPPING FIX - MAXIMUM SPECIFICITY */
 body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simple-text {
-  max-width: 85vw !important;
+  max-width: 90vw !important;
   min-width: 60px !important;
   width: auto !important;
 }
 
 body .str-chat .str-chat__list .str-chat__message--me .str-chat__message-simple-text {
-  max-width: 85vw !important;
+  max-width: 90vw !important;
   min-width: 60px !important;
 }
 
@@ -789,7 +789,7 @@ body .str-chat .str-chat__message-simple-text-inner * {
 /* Force the container to respect width */
 body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simple-text,
 body .str-chat .str-chat__message-simple-text {
-  max-width: 85vw !important;
+  max-width: 90vw !important;
   width: auto !important;
   box-sizing: border-box !important;
   overflow: visible !important;
@@ -817,5 +817,13 @@ body .str-chat .str-chat__message-simple-text {
   text-overflow: clip !important;
   overflow: visible !important;
   white-space: pre-wrap !important;
-  max-width: 85vw !important;
+  max-width: 90vw !important;
+}
+
+/* REMOVE WIDTH CONSTRAINTS FOR DEBUGGING */
+.str-chat__message-simple-text,
+.str-chat__message-simple-text-inner,
+body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simple-text {
+  max-width: 95vw !important;
+  min-width: 0 !important;
 }
