@@ -1092,3 +1092,29 @@ body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simp
 .str-chat__message--me .str-chat__message-simple {
   margin-bottom: 0.08rem !important;
 }
+
+/* CORRECT FIX: Keep outer bubble darker blue, remove inner transparent one */
+
+/* Remove the INNER light blue bubble completely */
+.str-chat__message--me .str-chat__message-simple-text-inner {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+}
+
+/* Keep and make the OUTER bubble darker blue and thicker */
+.str-chat__message--me .str-chat__message-simple-text {
+  background: rgba(100, 150, 230, 0.7) !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0.65rem 0.9rem !important;
+  border-radius: 1rem !important;
+}
+
+/* Make messages almost touch */
+.str-chat__message--me .str-chat__message-simple {
+  margin-bottom: 0.08rem !important;
+}
