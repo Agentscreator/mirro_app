@@ -972,3 +972,19 @@ body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simp
   background: rgba(173, 216, 230, 0.3) !important;
   color: #2d2a26 !important;
 }
+
+/* Make all message bubbles completely transparent */
+
+/* Received messages - fully transparent */
+.str-chat__message-simple-text-inner {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+/* Your own messages - fully transparent */
+.str-chat__message--me .str-chat__message-simple-text-inner {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+}
