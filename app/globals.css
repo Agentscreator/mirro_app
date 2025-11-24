@@ -1060,3 +1060,35 @@ body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simp
 .str-chat__message--me .str-chat__message-simple {
   margin-bottom: 0.05rem !important;
 }
+
+/* Make the light blue bubbles DARKER and remove transparent outlines */
+
+/* Your messages - darker blue, no outline */
+.str-chat__message--me .str-chat__message-simple-text-inner {
+  background: rgba(100, 150, 230, 0.7) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0.65rem 0.9rem !important;
+}
+
+/* Remove the transparent outer bubble/outline completely */
+.str-chat__message--me .str-chat__message-simple-text {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+}
+
+.str-chat__message--me .str-chat__message-bubble {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+}
+
+/* Make messages almost touch */
+.str-chat__message--me .str-chat__message-simple {
+  margin-bottom: 0.08rem !important;
+}
