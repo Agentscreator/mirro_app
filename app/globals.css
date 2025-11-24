@@ -627,20 +627,47 @@ button:not(:disabled):active {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
-/* iOS specific fixes */
-@supports (-webkit-touch-callout: none) {
-  .str-chat__input-flat {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
-  }
-}
-
-/* Fix message bubble word-breaking */
+/* ENHANCED: Fix message bubble word-breaking for iOS */
 .str-chat__message-text-inner {
   word-break: break-word !important;
   overflow-wrap: break-word !important;
   hyphens: auto !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
 }
 
 .str-chat__message-bubble {
   max-width: 100% !important;
+  min-width: fit-content !important;
+}
+
+.str-chat__message-simple-text-inner p {
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: pre-wrap !important;
+}
+
+/* Prevent single characters from breaking */
+.str-chat__message-text {
+  display: inline-block !important;
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
+}
+
+.str-chat__message-text * {
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+/* iOS keyboard fix - ensure header stays visible */
+@supports (-webkit-touch-callout: none) {
+  .str-chat__input-flat {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+  }
+  
+  /* Prevent viewport resize from affecting header */
+  .sticky {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+  }
 }

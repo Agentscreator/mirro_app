@@ -236,11 +236,14 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
 
           {/* Chat Window - Mobile */}
           {showMobileChat && selectedChannel && (
-            <>
-              {/* Mobile Header - Fixed at top, outside of Stream Chat container */}
+            <div className="fixed inset-0 z-50 md:hidden bg-gradient-to-b from-cream-50 to-cream-100">
+              {/* Mobile Header - Sticky at top */}
               <div 
-                className="fixed top-0 left-0 right-0 z-[9999] flex items-center gap-3 px-4 pt-12 pb-4 bg-white/90 backdrop-blur-sm border-b border-taupe-200/30 md:hidden"
-                style={{ position: 'fixed' }}
+                className="sticky top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 bg-white/90 backdrop-blur-sm border-b border-taupe-200/30"
+                style={{ 
+                  paddingTop: 'max(48px, env(safe-area-inset-top))',
+                  paddingBottom: '16px'
+                }}
               >
                 <button
                   onClick={() => setShowMobileChat(false)}
@@ -263,22 +266,16 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
                 </div>
               </div>
 
-              {/* Chat Content Container */}
-              <div className="fixed inset-0 z-40 md:hidden bg-gradient-to-b from-cream-50 to-cream-100 flex flex-col">
-                {/* Spacer for header */}
-                <div className="h-[88px] flex-shrink-0"></div>
-                
-                {/* Chat window that fills remaining space */}
-                <div className="flex-1 overflow-hidden">
-                  <Channel channel={selectedChannel}>
-                    <Window>
-                      <MessageList />
-                      <MessageInput />
-                    </Window>
-                  </Channel>
-                </div>
+              {/* Chat Content - Fills remaining space */}
+              <div className="h-[calc(100%-88px)] overflow-hidden">
+                <Channel channel={selectedChannel}>
+                  <Window>
+                    <MessageList />
+                    <MessageInput />
+                  </Window>
+                </Channel>
               </div>
-            </>
+            </div>
           )}
         </div>
       </Chat>
