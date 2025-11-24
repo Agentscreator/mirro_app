@@ -238,16 +238,19 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
           {showMobileChat && selectedChannel && (
             <>
               {/* Mobile Header - Fixed at top, outside of Stream Chat container */}
-              <div className="fixed top-0 left-0 right-0 z-[9999] flex items-center gap-3 px-4 pt-12 pb-4 bg-white/90 backdrop-blur-sm border-b border-taupe-200/30 md:hidden">
+              <div 
+                className="fixed top-0 left-0 right-0 z-[9999] flex items-center gap-3 px-4 pt-12 pb-4 bg-white/90 backdrop-blur-sm border-b border-taupe-200/30 md:hidden"
+                style={{ position: 'fixed' }}
+              >
                 <button
                   onClick={() => setShowMobileChat(false)}
-                  className="p-2 hover:bg-taupe-100/50 rounded-full transition-all active:scale-95"
+                  className="p-2 hover:bg-taupe-100/50 rounded-full transition-all active:scale-95 flex-shrink-0"
                 >
                   <svg className="w-6 h-6 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
-                <div className="w-10 h-10 bg-taupe-600 rounded-full flex items-center justify-center text-white font-light text-lg">
+                <div className="w-10 h-10 bg-taupe-600 rounded-full flex items-center justify-center text-white font-light text-lg flex-shrink-0">
                   {((selectedChannel.data as any)?.name || 'C')[0]?.toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -261,13 +264,19 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
               </div>
 
               {/* Chat Content Container */}
-              <div className="fixed inset-0 z-40 md:hidden bg-gradient-to-b from-cream-50 to-cream-100 pt-20">
-                <Channel channel={selectedChannel}>
-                  <Window>
-                    <MessageList />
-                    <MessageInput />
-                  </Window>
-                </Channel>
+              <div className="fixed inset-0 z-40 md:hidden bg-gradient-to-b from-cream-50 to-cream-100 flex flex-col">
+                {/* Spacer for header */}
+                <div className="h-[88px] flex-shrink-0"></div>
+                
+                {/* Chat window that fills remaining space */}
+                <div className="flex-1 overflow-hidden">
+                  <Channel channel={selectedChannel}>
+                    <Window>
+                      <MessageList />
+                      <MessageInput />
+                    </Window>
+                  </Channel>
+                </div>
               </div>
             </>
           )}

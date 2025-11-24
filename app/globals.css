@@ -633,3 +633,14 @@ button:not(:disabled):active {
     padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
   }
 }
+
+/* Fix message bubble word-breaking */
+.str-chat__message-text-inner {
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+}
+
+.str-chat__message-bubble {
+  max-width: 100% !important;
+}
