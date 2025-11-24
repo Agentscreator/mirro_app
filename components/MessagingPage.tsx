@@ -236,9 +236,9 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
 
           {/* Chat Window - Mobile */}
           {showMobileChat && selectedChannel && (
-            <div className="fixed inset-0 z-40 md:hidden bg-gradient-to-b from-cream-50 to-cream-100">
-              {/* Mobile Header - Fixed at top */}
-              <div className="fixed top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 pt-12 pb-4 bg-white/40 backdrop-blur-sm border-b border-taupe-200/30">
+            <>
+              {/* Mobile Header - Fixed at top, outside of Stream Chat container */}
+              <div className="fixed top-0 left-0 right-0 z-[9999] flex items-center gap-3 px-4 pt-12 pb-4 bg-white/90 backdrop-blur-sm border-b border-taupe-200/30 md:hidden">
                 <button
                   onClick={() => setShowMobileChat(false)}
                   className="p-2 hover:bg-taupe-100/50 rounded-full transition-all active:scale-95"
@@ -260,8 +260,8 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
                 </div>
               </div>
 
-              {/* Chat Content - With top padding for fixed header */}
-              <div className="h-full pt-20 bg-white/20">
+              {/* Chat Content Container */}
+              <div className="fixed inset-0 z-40 md:hidden bg-gradient-to-b from-cream-50 to-cream-100 pt-20">
                 <Channel channel={selectedChannel}>
                   <Window>
                     <MessageList />
@@ -269,7 +269,7 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
                   </Window>
                 </Channel>
               </div>
-            </div>
+            </>
           )}
         </div>
       </Chat>
