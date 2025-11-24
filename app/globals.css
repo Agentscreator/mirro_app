@@ -958,3 +958,17 @@ body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simp
   position: static !important;
   display: inline !important;
 }
+
+/* Change bubble colors - gray transparent for received, light blue transparent for sent */
+
+/* Received messages - transparent gray */
+.str-chat__message-simple-text-inner {
+  background: rgba(200, 200, 200, 0.3) !important;
+  color: #2d2a26 !important;
+}
+
+/* Your own messages - transparent light blue */
+.str-chat__message--me .str-chat__message-simple-text-inner {
+  background: rgba(173, 216, 230, 0.3) !important;
+  color: #2d2a26 !important;
+}
