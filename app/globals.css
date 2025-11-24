@@ -510,9 +510,20 @@ button:not(:disabled):active {
 .str-chat__send-button:hover {
   transform: scale(1.05) !important;
   box-shadow: 0 4px 12px rgba(133, 117, 102, 0.3) !important;
+  background: linear-gradient(135deg, #a1917d 0%, #857566 100%) !important;
+}
+
+.str-chat__send-button:focus,
+.str-chat__send-button:active {
+  background: linear-gradient(135deg, #a1917d 0%, #857566 100%) !important;
+  outline: none !important;
 }
 
 .str-chat__send-button svg {
+  fill: white !important;
+}
+
+.str-chat__send-button svg path {
   fill: white !important;
 }
 
