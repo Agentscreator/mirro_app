@@ -752,8 +752,8 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                     )}
                 </div>
 
-                {/* Events Metric */}
-                <div className="flex items-center justify-center mt-6">
+                {/* Events and Followers Metrics */}
+                <div className="flex items-center justify-center space-x-8 mt-6">
                     <div className="text-center">
                         <div className="text-2xl font-extralight text-text-primary">
                             {(() => {
@@ -765,6 +765,13 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                         </div>
                         <div className="text-xs text-text-muted font-light tracking-wide">Events</div>
                     </div>
+                    <button
+                        onClick={() => setIsFollowersModalOpen(true)}
+                        className="text-center transition-colors duration-200"
+                    >
+                        <div className="text-2xl font-extralight text-text-primary">{user.followersCount || '0'}</div>
+                        <div className="text-xs text-text-muted font-light tracking-wide">Followers</div>
+                    </button>
                 </div>
             </div>
 
