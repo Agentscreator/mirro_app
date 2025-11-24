@@ -827,3 +827,29 @@ body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simp
   max-width: 95vw !important;
   min-width: 0 !important;
 }
+
+/* FIX MESSAGE OVERLAP - Each message should be separate */
+.str-chat__message-simple {
+  margin-bottom: 0.75rem !important;
+  position: relative !important;
+  z-index: 1 !important;
+  clear: both !important;
+}
+
+.str-chat__message-simple-text-inner {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Prevent message bubbles from overlapping */
+.str-chat__list .str-chat__li {
+  margin-bottom: 8px !important;
+  clear: both !important;
+}
+
+/* Fix brown background overlapping */
+.str-chat__message-bubble {
+  position: relative !important;
+  z-index: auto !important;
+  margin-bottom: 4px !important;
+}
