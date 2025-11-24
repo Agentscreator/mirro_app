@@ -794,3 +794,28 @@ body .str-chat .str-chat__message-simple-text {
   box-sizing: border-box !important;
   overflow: visible !important;
 }
+
+/* FINAL FIX - Target the actual text rendering */
+.str-chat__message-simple-text-inner > *,
+.str-chat__message-simple-text-inner p,
+.str-chat__message-simple-text-inner span,
+.str-chat__message-simple-text-inner div,
+.str-chat__message-text,
+.str-chat__message-text-inner {
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: pre-wrap !important;
+  display: inline !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* Remove any text-overflow ellipsis */
+.str-chat__message-simple-text-inner,
+.str-chat__message-simple-text {
+  text-overflow: clip !important;
+  overflow: visible !important;
+  white-space: pre-wrap !important;
+  max-width: 75vw !important;
+}
