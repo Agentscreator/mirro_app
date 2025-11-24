@@ -881,3 +881,33 @@ body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simp
 .str-chat__message-simple {
   margin-bottom: 0.5rem !important;
 }
+
+/* Force all message text into ONE bubble - no line breaks creating new bubbles */
+.str-chat__message-simple-text-inner {
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure the message container doesn't split */
+.str-chat__message-simple-text {
+  display: inline-block !important;
+  max-width: 85vw !important;
+  word-wrap: break-word !important;
+  white-space: pre-wrap !important;
+}
+
+/* Remove any transforms or positioning that might cause splitting */
+.str-chat__message-bubble {
+  display: block !important;
+  position: relative !important;
+  transform: none !important;
+}
+
+/* Ensure no pseudo-elements are creating overlaps */
+.str-chat__message-simple-text-inner::before,
+.str-chat__message-simple-text-inner::after,
+.str-chat__message-simple-text::before,
+.str-chat__message-simple-text::after {
+  display: none !important;
+}
