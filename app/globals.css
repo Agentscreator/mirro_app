@@ -486,3 +486,25 @@ button:not(:disabled):active {
     padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
   }
 }
+
+/* Make blue darker */
+.str-chat__message--me .str-chat__message-simple-text-inner {
+  background: rgba(70, 120, 200, 0.85) !important;
+  color: white !important;
+}
+
+/* Remove the dark blue fragments/artifacts on the left */
+.str-chat__message--me .str-chat__message-simple-text::before,
+.str-chat__message--me .str-chat__message-simple-text::after,
+.str-chat__message--me .str-chat__message-simple::before,
+.str-chat__message--me .str-chat__message-simple::after,
+.str-chat__message--me .str-chat__message-bubble::before,
+.str-chat__message--me .str-chat__message-bubble::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Remove any avatar or decorative elements that might create fragments */
+.str-chat__message--me .str-chat__avatar {
+  display: none !important;
+}
