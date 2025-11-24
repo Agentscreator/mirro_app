@@ -772,3 +772,25 @@ body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simp
   white-space: pre-wrap !important;
   display: inline !important;
 }
+
+/* NUCLEAR OPTION - Maximum override for Stream Chat */
+body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simple-text-inner,
+body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simple-text-inner *,
+body .str-chat .str-chat__message-simple-text-inner,
+body .str-chat .str-chat__message-simple-text-inner * {
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: pre-wrap !important;
+  display: inline !important;
+  max-width: none !important;
+  width: auto !important;
+}
+
+/* Force the container to respect width */
+body .str-chat .str-chat__list .str-chat__message-simple .str-chat__message-simple-text,
+body .str-chat .str-chat__message-simple-text {
+  max-width: 75vw !important;
+  width: auto !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+}
