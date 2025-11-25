@@ -400,6 +400,8 @@ button:not(:disabled):active {
 .str-chat {
   --str-chat__primary-color: #857566;
   --str-chat__active-primary-color: #6a5a4f;
+  --str-chat__own-message-bubble-background-color: rgba(30, 80, 150, 0.95) !important;
+  --str-chat__own-message-bubble-color: white !important;
   font-family: var(--font-sans);
 }
 
@@ -439,8 +441,10 @@ button:not(:disabled):active {
 }
 
 /* Your messages - blue background with proper contrast */
-.str-chat__message--me .str-chat__message-simple-text-inner {
+.str-chat__message--me .str-chat__message-simple-text-inner,
+.str-chat__message--me .str-chat__message-bubble {
   background: rgba(30, 80, 150, 0.95) !important;
+  background-color: rgba(30, 80, 150, 0.95) !important;
   color: white !important;
 }
 
