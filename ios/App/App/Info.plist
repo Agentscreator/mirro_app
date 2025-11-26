@@ -73,7 +73,7 @@
 This app accesses your contacts to help you find and connect with friends who are already using MirroSocial.
 </string>
 	<key>NSFaceIDUsageDescription</key>
-	<string></string>
+	<string>Use Face ID to securely sign in to your account</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app uses the microphone to record audio for videos that you create and share with your friends.
 This app uses the microphone to record audio for videos that you create and share with your friends.
