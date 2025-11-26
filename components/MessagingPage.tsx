@@ -11,6 +11,7 @@ import {
   Window,
 } from 'stream-chat-react'
 import 'stream-chat-react/dist/css/v2/index.css'
+import { usePushNotifications } from '@/hooks/usePushNotifications'
 
 interface MessagingPageProps {
   user: {
@@ -32,6 +33,9 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
   const [groupName, setGroupName] = useState('')
   const [showMobileChat, setShowMobileChat] = useState(false)
+
+  // Set up push notifications for native app
+  usePushNotifications(user.id, client)
 
   // Notify parent when mobile chat opens/closes
   useEffect(() => {
