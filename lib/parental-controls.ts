@@ -105,6 +105,22 @@ export async function setupPin(userId: string, pin: string, confirmPin: string) 
     notificationsEnabled: true,
   });
   
+  // Send confirmation email to guardian
+  try {
+    const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (user.length > 0 && user[0].guardianEmail) {
+      const { sendPinSetupConfirmation } = await import('./guardian-notifications');
+      await sendPinSetupConfirmation({
+        guardianEmail: user[0].guardianEmail,
+        minorName: user[0].name,
+        minorUsername: user[0].username,
+      });
+    }
+  } catch (error) {
+    console.error('Failed to send PIN setup confirmation email:', error);
+    // Don't fail the PIN setup if email fails
+  }
+  
   return { success: true };
 }
 
@@ -410,6 +426,22 @@ export async function completePinReset(token: string, newPin: string, confirmPin
   await db.update(pinAttempts)
     .set({ attemptCount: 0, lockedUntil: null })
     .where(eq(pinAttempts.userId, tokenValidation.userId!));
+  
+  // Send confirmation email to guardian
+  try {
+    const user = await db.select().from(users).where(eq(users.id, tokenValidation.userId!)).limit(1);
+    if (user.length > 0 && user[0].guardianEmail) {
+      const { sendPinResetConfirmation } = await import('./guardian-notifications');
+      await sendPinResetConfirmation({
+        guardianEmail: user[0].guardianEmail,
+        minorName: user[0].name,
+        minorUsername: user[0].username,
+      });
+    }
+  } catch (error) {
+    console.error('Failed to send PIN reset confirmation email:', error);
+    // Don't fail the reset if email fails
+  }
   
   return { success: true, userId: tokenValidation.userId };
 }

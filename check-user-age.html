@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check User Age Category</title>
+</head>
+<body>
+    <h1>User Age Category Checker</h1>
+    <div id="result"></div>
+    <script>
+        const user = localStorage.getItem('user');
+        const resultDiv = document.getElementById('result');
+        
+        if (user) {
+            const userData = JSON.parse(user);
+            resultDiv.innerHTML = `
+                <h2>Current User:</h2>
+                <p><strong>Name:</strong> ${userData.name}</p>
+                <p><strong>Username:</strong> ${userData.username}</p>
+                <p><strong>Age Category:</strong> ${userData.ageCategory || 'NOT SET'}</p>
+                <p><strong>Date of Birth:</strong> ${userData.dateOfBirth || 'NOT SET'}</p>
+                <p><strong>Guardian Email:</strong> ${userData.guardianEmail || 'NOT SET'}</p>
+                <hr>
+                <p><strong>Parental Controls Visible:</strong> ${userData.ageCategory === 'minor' ? 'YES ✅' : 'NO ❌'}</p>
+            `;
+        } else {
+            resultDiv.innerHTML = '<p>No user logged in</p>';
+        }
+    </script>
+</body>
+</html>
