@@ -696,6 +696,11 @@
   resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-6.0.4.tgz#923ca57e173c6b232bbbb07347b1be982f03e783"
   integrity sha512-s3jaWicZd0pkP0jf5ysyHUI/RE7MHos6qlToFcGWXVp+ykHOy77OUMrfbgJ9it2C5bow7OIQwYYaHjk9XlBQ2A==
 
+"@capacitor-community/contacts@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@capacitor-community/contacts/-/contacts-7.0.0.tgz#c82b07c4b9d36bec6e8539edc61c354da85744c1"
+  integrity sha512-CDn+YBUpP0YugXxDVqax1afXiJV85wQj4yS7Bz2dK+pSpRURabdIFpurlA1z41IlX+erg2z5+C2FcT2drWhTrw==
+
 "@capacitor/android@^7.4.3":
   version "7.4.3"
   resolved "https://registry.npmjs.org/@capacitor/android/-/android-7.4.3.tgz"
