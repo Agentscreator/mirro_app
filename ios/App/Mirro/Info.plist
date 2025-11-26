@@ -9,5 +9,7 @@
 		<key>NSAppClipRequestLocationConfirmation</key>
 		<false/>
 	</dict>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>Get notified when you receive new messages from friends</string>
 </dict>
 </plist>

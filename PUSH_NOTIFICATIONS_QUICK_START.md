@@ -63,14 +63,11 @@ In Xcode:
 7. Set environment to **"Production"** (for App Store)
 8. Click **"Save"**
 
-### 5. Update iOS Info.plist (2 minutes)
+### 5. Update iOS Info.plist (Already Done! ✅)
 
-Open `ios/App/App/Info.plist` in Xcode or text editor and add:
+The Info.plist has already been updated with the notification permission description.
 
-```xml
-<key>NSUserNotificationsUsageDescription</key>
-<string>Get notified when you receive new messages from friends</string>
-```
+**Note**: Since your web app is on Vercel, you only need to rebuild the iOS app wrapper - no need to redeploy the web app!
 
 ### 6. Build and Test (10 minutes)
 
