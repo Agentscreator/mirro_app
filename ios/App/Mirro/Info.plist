@@ -11,6 +11,8 @@
 	</dict>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>Get notified when you receive new messages from friends</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Use Face ID to securely sign in to your account</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

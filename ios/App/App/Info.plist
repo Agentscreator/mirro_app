@@ -18,10 +18,74 @@
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>mirro2</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.social-networking</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppClip</key>
+	<dict>
+		<key>NSAppClipRequestEphemeralUserNotification</key>
+		<false/>
+		<key>NSAppClipRequestLocationConfirmation</key>
+		<false/>
+	</dict>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>getstream.io</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<false/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>stream-io-api.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<false/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs access to your camera to record and share videos with your friends.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>This app accesses your contacts to help you find and connect with friends who are already using MirroSocial.
+This app accesses your contacts to help you find and connect with friends who are already using MirroSocial.
+</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string></string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app uses the microphone to record audio for videos that you create and share with your friends.
+This app uses the microphone to record audio for videos that you create and share with your friends.
+</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>This app saves photos and videos you create to your photo library so you can access them later.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app allows you to select and share photos from your photo library.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -43,70 +107,12 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSAppClip</key>
-	<dict>
-		<key>NSAppClipRequestEphemeralUserNotification</key>
-		<false/>
-		<key>NSAppClipRequestLocationConfirmation</key>
-		<false/>
-	</dict>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app allows you to select and share photos from your photo library.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>This app needs access to your camera to record and share videos with your friends.</string>
-	<key>NSContactsUsageDescription</key>
-	<string>This app accesses your contacts to help you find and connect with friends who are already using MirroSocial.
-This app accesses your contacts to help you find and connect with friends who are already using MirroSocial.
-</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app uses the microphone to record audio for videos that you create and share with your friends.
-This app uses the microphone to record audio for videos that you create and share with your friends.
-</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>This app saves photos and videos you create to your photo library so you can access them later.</string>
-	<key>LSApplicationCategoryType</key>
-	<string>public.app-category.social-networking</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>mirro2</string>
-			</array>
-		</dict>
-	</array>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:www.mirro2.com</string>
 		<string>applinks:mirro2.com</string>
 	</array>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<false/>
-		<key>NSExceptionDomains</key>
-		<dict>
-			<key>stream-io-api.com</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<false/>
-				<key>NSIncludesSubdomains</key>
-				<true/>
-				<key>NSExceptionRequiresForwardSecrecy</key>
-				<false/>
-			</dict>
-			<key>getstream.io</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<false/>
-				<key>NSIncludesSubdomains</key>
-				<true/>
-				<key>NSExceptionRequiresForwardSecrecy</key>
-				<false/>
-			</dict>
-		</dict>
-	</dict>
 </dict>
 </plist>

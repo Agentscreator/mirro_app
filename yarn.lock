@@ -746,6 +746,11 @@
   resolved "https://registry.yarnpkg.com/@capacitor/network/-/network-7.0.2.tgz#8dd91aba31ab3243052d8f18fb68227f5c82ff11"
   integrity sha512-KKkiUvGfMVKIcYaG+KlGAxrQtoRnwJtT+9yhTkCFzZWeYrY91sBZKOVOfnNHO8RiOxqbKn5VSUlyFLQQiyyfyg==
 
+"@capacitor/push-notifications@^7.0.3":
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/@capacitor/push-notifications/-/push-notifications-7.0.3.tgz#b053f5c8db8cc8ceddda8dd9a1c744a72113e202"
+  integrity sha512-4qt5dRVBkHzq202NEoj3JC+S+zQCrZ1FJh7sjkICy/i1iEos+VaoB3bie8eWDQ2LTARktB4+k2xkdpu8pcVo/g==
+
 "@date-fns/tz@1.2.0":
   version "1.2.0"
   resolved "https://registry.npmjs.org/@date-fns/tz/-/tz-1.2.0.tgz"
