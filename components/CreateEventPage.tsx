@@ -313,6 +313,22 @@ export default function CreateEventPage({ onEventCreated }: CreateEventPageProps
 
       const user = JSON.parse(storedUser)
       
+      // Check if user can create public events (parental controls)
+      if (user.ageCategory === 'minor') {
+        try {
+          const response = await fetch(`/api/parental-controls/can-create-event?userId=${user.id}`)
+          const result = await response.json()
+          
+          if (!result.allowed) {
+            alert(result.reason || 'Public event creation is restricted by parental controls')
+            setIsPublishing(false)
+            return
+          }
+        } catch (error) {
+          console.error('Error checking event creation permissions:', error)
+        }
+      }
+      
       // Handle media gallery upload - Upload all media items
       setIsUploading(true)
       const uploadedGallery: any[] = []

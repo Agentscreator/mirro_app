@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, primaryKey } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, uuid, primaryKey, boolean, integer } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const users = pgTable('users', {
@@ -8,11 +8,44 @@ export const users = pgTable('users', {
   email: text('email').unique().notNull(),
   password: text('password').notNull(),
   profilePicture: text('profile_picture'),
+  dateOfBirth: text('date_of_birth'), // ISO date string
+  ageCategory: text('age_category'), // 'under_13' | 'minor' | 'adult'
+  guardianEmail: text('guardian_email'), // For minors, email for notifications
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 export const passwordResetTokens = pgTable('password_reset_tokens', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  token: text('token').notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  used: timestamp('used'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Parental Controls tables
+export const parentalControls = pgTable('parental_controls', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }).unique(),
+  pin: text('pin').notNull(), // Hashed 4-digit PIN
+  messagingRestricted: boolean('messaging_restricted').default(true),
+  eventCreationRestricted: boolean('event_creation_restricted').default(true),
+  contentFilteringEnabled: boolean('content_filtering_enabled').default(true),
+  notificationsEnabled: boolean('notifications_enabled').default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const pinAttempts = pgTable('pin_attempts', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }).unique(),
+  attemptCount: integer('attempt_count').default(0),
+  lockedUntil: timestamp('locked_until'),
+  lastAttemptAt: timestamp('last_attempt_at').defaultNow().notNull(),
+});
+
+export const pinResetTokens = pgTable('pin_reset_tokens', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   token: text('token').notNull().unique(),
@@ -37,6 +70,8 @@ export const events = pgTable('events', {
   visualStyling: text('visual_styling'), // Store AI-generated visual styling as JSON (for small data)
   visualStylingUrl: text('visual_styling_url'), // Store R2 URL for large visual styling data
   mediaGallery: text('media_gallery'), // Store array of additional media URLs as JSON [{url: string, type: 'image'|'video', uploadedAt: timestamp, uploadedBy: userId}]
+  isPublic: boolean('is_public').default(true),
+  isMature: boolean('is_mature').default(false), // Flagged by content moderation
   createdBy: uuid('created_by').notNull().references(() => users.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -59,11 +94,13 @@ export const eventParticipants = pgTable('event_participants', {
 }));
 
 // Relations
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
   events: many(events),
   followers: many(follows, { relationName: 'UserFollowers' }),
   following: many(follows, { relationName: 'UserFollowing' }),
   eventParticipations: many(eventParticipants),
+  parentalControls: one(parentalControls),
+  pinAttempts: one(pinAttempts),
 }));
 
 export const eventsRelations = relations(events, ({ one, many }) => ({
@@ -151,6 +188,27 @@ export const reportsRelations = relations(reports, ({ one }) => ({
   }),
 }));
 
+export const parentalControlsRelations = relations(parentalControls, ({ one }) => ({
+  user: one(users, {
+    fields: [parentalControls.userId],
+    references: [users.id],
+  }),
+}));
+
+export const pinAttemptsRelations = relations(pinAttempts, ({ one }) => ({
+  user: one(users, {
+    fields: [pinAttempts.userId],
+    references: [users.id],
+  }),
+}));
+
+export const pinResetTokensRelations = relations(pinResetTokens, ({ one }) => ({
+  user: one(users, {
+    fields: [pinResetTokens.userId],
+    references: [users.id],
+  }),
+}));
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Event = typeof events.$inferSelect;
@@ -165,3 +223,9 @@ export type Report = typeof reports.$inferSelect;
 export type NewReport = typeof reports.$inferInsert;
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
 export type NewPasswordResetToken = typeof passwordResetTokens.$inferInsert;
+export type ParentalControl = typeof parentalControls.$inferSelect;
+export type NewParentalControl = typeof parentalControls.$inferInsert;
+export type PinAttempt = typeof pinAttempts.$inferSelect;
+export type NewPinAttempt = typeof pinAttempts.$inferInsert;
+export type PinResetToken = typeof pinResetTokens.$inferSelect;
+export type NewPinResetToken = typeof pinResetTokens.$inferInsert;

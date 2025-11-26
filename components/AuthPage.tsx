@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import Image from "next/image"
+import PinSetupModal from "./PinSetupModal"
 
 interface AuthPageProps {
   onAuthSuccess: () => void
@@ -16,12 +17,17 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
     email: "",
     password: "",
     confirmPassword: "",
+    dateOfBirth: "",
+    guardianEmail: "",
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [ageVerified, setAgeVerified] = useState(false)
+  const [calculatedAge, setCalculatedAge] = useState<number | null>(null)
+  const [showPinSetup, setShowPinSetup] = useState(false)
+  const [newUserId, setNewUserId] = useState<string | null>(null)
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -52,12 +58,38 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
       newErrors.confirmPassword = "Passwords do not match"
     }
 
-    if (!isLogin && !ageVerified) {
-      newErrors.ageVerified = "You must verify that you are at least 13 years old"
+    if (!isLogin && !formData.dateOfBirth) {
+      newErrors.dateOfBirth = "Date of birth is required"
+    } else if (!isLogin && formData.dateOfBirth) {
+      const dob = new Date(formData.dateOfBirth)
+      if (isNaN(dob.getTime())) {
+        newErrors.dateOfBirth = "Invalid date"
+      } else if (dob > new Date()) {
+        newErrors.dateOfBirth = "Date of birth cannot be in the future"
+      }
+    }
+
+    if (!isLogin && calculatedAge !== null && calculatedAge >= 13 && calculatedAge < 18 && !formData.guardianEmail) {
+      newErrors.guardianEmail = "Guardian email is required for users under 18"
+    } else if (!isLogin && formData.guardianEmail && !/\S+@\S+\.\S+/.test(formData.guardianEmail)) {
+      newErrors.guardianEmail = "Please enter a valid guardian email"
     }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
+  }
+
+  const calculateAge = (dateOfBirth: string) => {
+    const today = new Date()
+    const birthDate = new Date(dateOfBirth)
+    let age = today.getFullYear() - birthDate.getFullYear()
+    const monthDiff = today.getMonth() - birthDate.getMonth()
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--
+    }
+    
+    return age
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,9 +112,16 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
       const data = await response.json()
 
       if (response.ok) {
-        // Store user session (you might want to use a more secure method)
+        // Store user session
         localStorage.setItem('user', JSON.stringify(data.user))
-        onAuthSuccess()
+        
+        // If registration and user is a minor, show PIN setup
+        if (!isLogin && data.requiresPinSetup) {
+          setNewUserId(data.user.id)
+          setShowPinSetup(true)
+        } else {
+          onAuthSuccess()
+        }
       } else {
         setErrors({ general: data.error || 'Authentication failed' })
       }
@@ -199,18 +238,62 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
         </div>
 
         {!isLogin && (
-          <div className="animate-slide-up" style={{ animationDelay: '0.7s' }}>
-            <input
-              type="email"
-              placeholder="Email"
-              className={`w-full px-0 py-3 text-base bg-transparent border-0 border-b-2 focus:outline-none focus:ring-0 transition-all duration-300 text-text-primary placeholder-text-light font-light ${
-                errors.email ? "border-red-400" : "border-taupe-300 focus:border-taupe-600"
-              }`}
-              value={formData.email}
-              onChange={(e) => handleInputChange("email", e.target.value)}
-            />
-            {errors.email && <p className="text-red-500 text-xs mt-1 font-light">{errors.email}</p>}
-          </div>
+          <>
+            <div className="animate-slide-up" style={{ animationDelay: '0.7s' }}>
+              <input
+                type="email"
+                placeholder="Email"
+                className={`w-full px-0 py-3 text-base bg-transparent border-0 border-b-2 focus:outline-none focus:ring-0 transition-all duration-300 text-text-primary placeholder-text-light font-light ${
+                  errors.email ? "border-red-400" : "border-taupe-300 focus:border-taupe-600"
+                }`}
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+              />
+              {errors.email && <p className="text-red-500 text-xs mt-1 font-light">{errors.email}</p>}
+            </div>
+
+            <div className="animate-slide-up" style={{ animationDelay: '0.75s' }}>
+              <input
+                type="date"
+                placeholder="Date of Birth"
+                className={`w-full px-0 py-3 text-base bg-transparent border-0 border-b-2 focus:outline-none focus:ring-0 transition-all duration-300 text-text-primary placeholder-text-light font-light ${
+                  errors.dateOfBirth ? "border-red-400" : "border-taupe-300 focus:border-taupe-600"
+                }`}
+                value={formData.dateOfBirth}
+                onChange={(e) => {
+                  handleInputChange("dateOfBirth", e.target.value)
+                  if (e.target.value) {
+                    const age = calculateAge(e.target.value)
+                    setCalculatedAge(age)
+                    if (age < 13) {
+                      setErrors(prev => ({ ...prev, dateOfBirth: 'You must be at least 13 years old to create an account' }))
+                    }
+                  }
+                }}
+              />
+              {errors.dateOfBirth && <p className="text-red-500 text-xs mt-1 font-light">{errors.dateOfBirth}</p>}
+              {calculatedAge !== null && calculatedAge >= 13 && calculatedAge < 18 && (
+                <p className="text-blue-600 text-xs mt-1 font-light">
+                  Parental controls will be enabled for your account
+                </p>
+              )}
+            </div>
+
+            {calculatedAge !== null && calculatedAge >= 13 && calculatedAge < 18 && (
+              <div className="animate-slide-up" style={{ animationDelay: '0.77s' }}>
+                <input
+                  type="email"
+                  placeholder="Guardian Email (for notifications)"
+                  className={`w-full px-0 py-3 text-base bg-transparent border-0 border-b-2 focus:outline-none focus:ring-0 transition-all duration-300 text-text-primary placeholder-text-light font-light ${
+                    errors.guardianEmail ? "border-red-400" : "border-taupe-300 focus:border-taupe-600"
+                  }`}
+                  value={formData.guardianEmail}
+                  onChange={(e) => handleInputChange("guardianEmail", e.target.value)}
+                />
+                {errors.guardianEmail && <p className="text-red-500 text-xs mt-1 font-light">{errors.guardianEmail}</p>}
+              </div>
+            )}
+          </>
         )}
 
         <div className="animate-slide-up" style={{ animationDelay: isLogin ? '0.6s' : '0.8s' }}>
@@ -277,30 +360,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
           </div>
         )}
 
-        {!isLogin && (
-          <div className="mt-6 animate-slide-up" style={{ animationDelay: '1s' }}>
-            <div className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                id="ageVerification"
-                checked={ageVerified}
-                onChange={(e) => {
-                  setAgeVerified(e.target.checked)
-                  if (errors.ageVerified) {
-                    setErrors(prev => ({ ...prev, ageVerified: '' }))
-                  }
-                }}
-                className={`w-4 h-4 text-taupe-600 border-2 rounded focus:ring-0 focus:ring-offset-0 transition-all ${
-                  errors.ageVerified ? "border-red-400" : "border-taupe-400"
-                }`}
-              />
-              <label htmlFor="ageVerification" className="text-xs text-text-muted font-light leading-relaxed">
-                I verify that I am at least 13 years old
-              </label>
-            </div>
-            {errors.ageVerified && <p className="text-red-500 text-xs mt-1 font-light">{errors.ageVerified}</p>}
-          </div>
-        )}
+
 
         {errors.general && (
           <div className="mt-4 p-3 bg-red-50/50 border border-red-200 rounded-lg">
@@ -374,6 +434,22 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
           </div>
         </div>
       </div>
+
+      {/* PIN Setup Modal for Minor Accounts */}
+      {showPinSetup && newUserId && (
+        <PinSetupModal
+          isOpen={showPinSetup}
+          onClose={() => {
+            setShowPinSetup(false)
+            onAuthSuccess()
+          }}
+          userId={newUserId}
+          onSuccess={() => {
+            setShowPinSetup(false)
+            onAuthSuccess()
+          }}
+        />
+      )}
     </div>
   )
 }

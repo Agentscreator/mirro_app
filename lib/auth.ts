@@ -13,7 +13,15 @@ export async function verifyPassword(password: string, hashedPassword: string): 
   return bcrypt.compare(password, hashedPassword);
 }
 
-export async function createUser(name: string, username: string, email: string, password: string) {
+export async function createUser(
+  name: string,
+  username: string,
+  email: string,
+  password: string,
+  dateOfBirth?: string,
+  ageCategory?: string,
+  guardianEmail?: string
+) {
   const hashedPassword = await hashPassword(password);
   
   const [user] = await db.insert(users).values({
@@ -21,6 +29,9 @@ export async function createUser(name: string, username: string, email: string, 
     username,
     email,
     password: hashedPassword,
+    dateOfBirth: dateOfBirth || null,
+    ageCategory: ageCategory || 'adult',
+    guardianEmail: guardianEmail || null,
   }).returning();
   
   // Send welcome email (don't await to avoid blocking user registration)
@@ -132,6 +143,17 @@ export async function getUserEvents(userId: string) {
 
 export async function getAllEvents(currentUserId?: string) {
   let eventsData;
+  let shouldFilterMatureContent = false;
+
+  // Check if current user has content filtering enabled
+  if (currentUserId) {
+    const user = await getUserById(currentUserId);
+    if (user && user.ageCategory === 'minor') {
+      const { getParentalControlSettings } = await import('./parental-controls');
+      const settings = await getParentalControlSettings(currentUserId);
+      shouldFilterMatureContent = settings?.contentFilteringEnabled || false;
+    }
+  }
 
   if (currentUserId) {
     // Get list of blocked user IDs
@@ -142,8 +164,17 @@ export async function getAllEvents(currentUserId?: string) {
 
     const blockedUserIds = blockedUsersList.map(b => b.blockedId);
 
-    // If there are blocked users, filter them out
+    // Build where conditions
+    const whereConditions = [];
     if (blockedUserIds.length > 0) {
+      whereConditions.push(notInArray(events.createdBy, blockedUserIds));
+    }
+    if (shouldFilterMatureContent) {
+      whereConditions.push(eq(events.isMature, false));
+    }
+
+    // If there are conditions, apply them
+    if (whereConditions.length > 0) {
       eventsData = await db.select({
         id: events.id,
         title: events.title,
@@ -158,6 +189,8 @@ export async function getAllEvents(currentUserId?: string) {
         thumbnailUrl: events.thumbnailUrl,
         visualStyling: events.visualStyling,
         visualStylingUrl: events.visualStylingUrl,
+        isPublic: events.isPublic,
+        isMature: events.isMature,
         createdBy: events.createdBy,
         createdAt: events.createdAt,
         updatedAt: events.updatedAt,
@@ -166,7 +199,7 @@ export async function getAllEvents(currentUserId?: string) {
         creatorProfilePicture: users.profilePicture,
       }).from(events)
         .leftJoin(users, eq(events.createdBy, users.id))
-        .where(notInArray(events.createdBy, blockedUserIds));
+        .where(and(...whereConditions));
     } else {
       eventsData = await db.select({
         id: events.id,
@@ -182,6 +215,8 @@ export async function getAllEvents(currentUserId?: string) {
         thumbnailUrl: events.thumbnailUrl,
         visualStyling: events.visualStyling,
         visualStylingUrl: events.visualStylingUrl,
+        isPublic: events.isPublic,
+        isMature: events.isMature,
         createdBy: events.createdBy,
         createdAt: events.createdAt,
         updatedAt: events.updatedAt,
@@ -205,6 +240,8 @@ export async function getAllEvents(currentUserId?: string) {
       thumbnailUrl: events.thumbnailUrl,
       visualStyling: events.visualStyling,
       visualStylingUrl: events.visualStylingUrl,
+      isPublic: events.isPublic,
+      isMature: events.isMature,
       createdBy: events.createdBy,
       createdAt: events.createdAt,
       updatedAt: events.updatedAt,
