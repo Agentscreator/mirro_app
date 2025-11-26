@@ -11,7 +11,7 @@
 ### 1. Install the Package (5 minutes)
 
 ```bash
-npm install @capacitor/push-notifications
+yarn add @capacitor/push-notifications
 npx cap sync ios
 ```
 
@@ -135,7 +135,7 @@ Before submitting to App Store:
 
 Install badge plugin:
 ```bash
-npm install @capacitor/badge
+yarn add @capacitor/badge
 ```
 
 Update unread count:

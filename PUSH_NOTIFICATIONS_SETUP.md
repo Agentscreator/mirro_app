@@ -13,7 +13,7 @@ This guide sets up push notifications for your Capacitor iOS app using Stream Ch
 ## Step 1: Install Required Packages
 
 ```bash
-npm install @capacitor/push-notifications
+yarn add @capacitor/push-notifications
 npx cap sync ios
 ```
 
