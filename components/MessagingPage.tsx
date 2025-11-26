@@ -160,7 +160,7 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
       <Chat client={client}>
         <div className="flex h-full gap-4 px-4">
           {/* Channels List */}
-          <div className={`w-full md:w-1/3 flex flex-col bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden ${showMobileChat ? 'hidden md:flex' : 'flex'}`}>
+          <div className={`w-full lg:w-1/3 flex flex-col bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden ${showMobileChat ? 'hidden lg:flex' : 'flex'}`}>
             {/* Search Bar */}
             <div className="p-4 border-b border-taupe-200/30">
               <div className="relative">
@@ -221,8 +221,8 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
             </div>
           </div>
 
-          {/* Chat Window - Desktop */}
-          <div className="hidden md:flex md:flex-1 bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden">
+          {/* Chat Window - Desktop/iPad */}
+          <div className="hidden lg:flex lg:flex-1 bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden">
             {selectedChannel ? (
               <Channel channel={selectedChannel}>
                 <Window>
@@ -240,7 +240,7 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
 
           {/* Chat Window - Mobile */}
           {showMobileChat && selectedChannel && (
-            <div className="fixed inset-0 z-50 md:hidden flex flex-col bg-gradient-to-b from-cream-50 to-cream-100">
+            <div className="fixed inset-0 z-50 lg:hidden flex flex-col bg-gradient-to-b from-cream-50 to-cream-100">
               {/* Mobile Header - Fixed at top */}
               <div 
                 className="flex-shrink-0 flex items-center gap-3 px-4 bg-white/90 backdrop-blur-sm border-b border-taupe-200/30"

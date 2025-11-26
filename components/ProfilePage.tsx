@@ -579,9 +579,9 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
     }, [eventViewMode, userEvents, joinedEvents])
 
     return (
-        <div className="px-6 py-2 pb-32">
+        <div className="px-6 lg:px-12 py-2 pb-32">
             {/* Profile Header */}
-            <div className="text-center mb-10 relative">
+            <div className="text-center mb-10 relative max-w-2xl mx-auto">
                 {/* Hamburger Menu Button */}
                 <button
                     onClick={() => setIsSettingsOpen(true)}
@@ -791,7 +791,7 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
                         <p className="text-text-muted">Loading events...</p>
                     </div>
                 ) : (
-                    <div className="space-y-3">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                         {eventsToShow.map((event) => (
                             <EventCard
                                 key={event.id}
