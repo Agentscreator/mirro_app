@@ -172,7 +172,7 @@ function EventsAppContent() {
   if (isLoading) {
     return (
       <div
-        className="max-w-md mx-auto min-h-screen shadow-xl flex items-center justify-center"
+        className="max-w-md lg:max-w-4xl xl:max-w-6xl mx-auto min-h-screen shadow-xl flex items-center justify-center"
         style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}
       >
         <div className="glass-card rounded-full p-6">
@@ -190,7 +190,7 @@ function EventsAppContent() {
     if (selectedEventId && sharedEvent && !showAuthFromModal) {
       return (
         <div
-          className="max-w-md mx-auto min-h-screen shadow-xl"
+          className="max-w-md lg:max-w-4xl xl:max-w-6xl mx-auto min-h-screen shadow-xl"
           style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}
         >
           <EventPreviewModal
@@ -218,7 +218,7 @@ function EventsAppContent() {
     if (showAuthFromModal || !selectedEventId) {
       return (
         <div
-          className="max-w-md mx-auto min-h-screen shadow-xl"
+          className="max-w-md lg:max-w-full mx-auto min-h-screen shadow-xl"
           style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}
         >
           <AuthPage 
@@ -240,7 +240,7 @@ function EventsAppContent() {
     if (selectedEventId && isLoadingSharedEvent) {
       return (
         <div
-          className="max-w-md mx-auto min-h-screen shadow-xl flex items-center justify-center"
+          className="max-w-md lg:max-w-4xl xl:max-w-6xl mx-auto min-h-screen shadow-xl flex items-center justify-center"
           style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}
         >
           <div className="glass-card rounded-2xl p-8 text-center">
@@ -260,17 +260,17 @@ function EventsAppContent() {
 
   return (
     <div
-      className="max-w-md mx-auto min-h-screen shadow-xl"
+      className="max-w-md lg:max-w-4xl xl:max-w-6xl mx-auto min-h-screen shadow-xl"
       style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}
     >
       {/* Header */}
-      <header className="px-6 pt-12 pb-6 flex items-center justify-between">
-        <h1 className="text-xl font-light text-text-primary tracking-wide">
+      <header className="px-6 lg:px-12 pt-12 pb-6 flex items-center justify-between">
+        <h1 className="text-xl lg:text-2xl font-light text-text-primary tracking-wide">
           {currentPage === "create" ? "Create Event" : ""}
         </h1>
         <button
           onClick={handleLogout}
-          className="text-xs font-light text-text-muted hover:text-text-secondary transition-all duration-200"
+          className="text-xs lg:text-sm font-light text-text-muted hover:text-text-secondary transition-all duration-200"
         >
           Logout
         </button>
@@ -331,7 +331,7 @@ export default function EventsApp() {
   return (
     <Suspense fallback={
       <div
-        className="max-w-md mx-auto min-h-screen shadow-xl flex items-center justify-center"
+        className="max-w-md lg:max-w-4xl xl:max-w-6xl mx-auto min-h-screen shadow-xl flex items-center justify-center"
         style={{ background: "linear-gradient(135deg, #F5E8D5 0%, #F0DFC7 50%, #EBD6B9 100%)" }}
       >
         <div className="glass-card rounded-full p-6">

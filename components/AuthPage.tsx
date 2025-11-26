@@ -102,17 +102,17 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col lg:flex-row lg:items-center lg:justify-center">
       {/* Black Top Section with Logo */}
-      <div className="bg-black pt-16 pb-20 px-6 animate-fade-in" style={{ background: 'linear-gradient(to bottom, #000000 0%, #0a0a0a 70%, transparent 100%)' }}>
+      <div className="bg-black pt-16 pb-20 px-6 lg:flex-1 lg:min-h-screen lg:flex lg:flex-col lg:items-center lg:justify-center animate-fade-in" style={{ background: 'linear-gradient(to bottom, #000000 0%, #0a0a0a 70%, transparent 100%)' }}>
         {/* App Icon - Seamlessly integrated with black background */}
         <div className="mb-8 relative animate-scale-in" style={{ animationDelay: '0.1s' }}>
-          <div className="w-28 h-28 mx-auto relative">
+          <div className="w-28 h-28 lg:w-40 lg:h-40 mx-auto relative">
             <Image
               src="/app-icon.png"
               alt="App Logo"
-              width={112}
-              height={112}
+              width={160}
+              height={160}
               className="w-full h-full object-contain"
               priority
             />
@@ -121,11 +121,11 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
 
         {/* Elegant Welcome Text */}
         <div className="text-center max-w-sm mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          <h1 className="text-4xl font-extralight tracking-tight text-white mb-2 letterspacing-tight">
+          <h1 className="text-4xl lg:text-6xl font-extralight tracking-tight text-white mb-2 letterspacing-tight">
             {isLogin ? "Welcome" : "Let's Get Started"}
           </h1>
           {sharedEventTitle && (
-            <p className="text-sm text-gray-300 font-light leading-relaxed mt-3">
+            <p className="text-sm lg:text-base text-gray-300 font-light leading-relaxed mt-3">
               {isLogin ? "Sign in" : "Create an account"} to join "{sharedEventTitle}"
             </p>
           )}
@@ -133,7 +133,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
       </div>
 
       {/* Beige Form Section with Curved Top */}
-      <div className="flex-1 bg-gradient-to-b from-cream-100 to-cream-200 -mt-10 rounded-t-[3rem] px-6 pt-12 pb-8 animate-slide-up-delayed">
+      <div className="flex-1 bg-gradient-to-b from-cream-100 to-cream-200 -mt-10 lg:mt-0 lg:rounded-none rounded-t-[3rem] px-6 lg:px-12 pt-12 pb-8 lg:min-h-screen lg:flex lg:flex-col lg:justify-center animate-slide-up-delayed">
         {/* Minimalist Auth Toggle */}
         <div className="mb-10 flex items-center justify-center space-x-10 animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <button
@@ -169,7 +169,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
         </div>
 
         {/* Elegant Form */}
-        <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto space-y-6">
+        <form onSubmit={handleSubmit} className="w-full max-w-sm lg:max-w-md mx-auto space-y-6">
         {!isLogin && (
           <div className="animate-slide-up" style={{ animationDelay: '0.5s' }}>
             <input
