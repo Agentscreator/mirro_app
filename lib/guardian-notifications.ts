@@ -171,6 +171,59 @@ export async function sendWeeklyActivitySummary(
 }
 
 /**
+ * Send PIN to guardian
+ */
+export async function sendPinToGuardian(data: NotificationData & { pin: string }) {
+  try {
+    await resend.emails.send({
+      from: fromEmail,
+      to: data.guardianEmail,
+      subject: `Mirro: Your Parental Controls PIN for ${data.minorName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2196F3;">🔐 Your Parental Controls PIN</h2>
+          <p>Hello,</p>
+          <p>Parental controls have been set up for <strong>${data.minorName}</strong> (@${data.minorUsername}) on Mirro.</p>
+          
+          <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+            <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">Your PIN is:</p>
+            <p style="margin: 0; font-size: 48px; font-weight: bold; color: #2196F3; letter-spacing: 8px;">${data.pin}</p>
+          </div>
+          
+          <div style="background-color: #fff3e0; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff9800;">
+            <p style="margin: 5px 0;"><strong>⚠️ Keep this PIN secure!</strong></p>
+            <p style="margin: 5px 0; font-size: 14px;">You will need this PIN to access and modify parental control settings in the Mirro app.</p>
+          </div>
+          
+          <div style="background-color: #e8f5e9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Active Restrictions:</strong></p>
+            <p style="margin: 5px 0;">✓ Event creation restrictions enabled</p>
+            <p style="margin: 5px 0;">✓ Content filtering enabled</p>
+            <p style="margin: 5px 0;">✓ Guardian notifications enabled</p>
+          </div>
+          
+          <p><strong>How to use your PIN:</strong></p>
+          <ol style="line-height: 1.8;">
+            <li>Open the Mirro app on your child's device</li>
+            <li>Go to Profile → Settings → Parental Controls</li>
+            <li>Enter your PIN when prompted</li>
+            <li>Adjust settings as needed</li>
+          </ol>
+          
+          <p style="color: #666; font-size: 12px; margin-top: 30px;">
+            If you didn't set up this account or have concerns, please contact support immediately at mirrosocial@gmail.com
+          </p>
+        </div>
+      `,
+    });
+    console.log('✅ PIN sent to guardian:', data.guardianEmail);
+  } catch (error) {
+    console.error('❌ Failed to send PIN to guardian:', error);
+    throw error; // Throw error so we know if email failed
+  }
+}
+
+/**
  * Send PIN setup confirmation
  */
 export async function sendPinSetupConfirmation(data: NotificationData) {

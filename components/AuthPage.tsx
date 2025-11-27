@@ -28,6 +28,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
   const [calculatedAge, setCalculatedAge] = useState<number | null>(null)
   const [showPinSetup, setShowPinSetup] = useState(false)
   const [newUserId, setNewUserId] = useState<string | null>(null)
+  const [newUserGuardianEmail, setNewUserGuardianEmail] = useState<string>('')
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -118,6 +119,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
         // If registration and user is a minor, show PIN setup
         if (!isLogin && data.requiresPinSetup) {
           setNewUserId(data.user.id)
+          setNewUserGuardianEmail(formData.guardianEmail)
           setShowPinSetup(true)
         } else {
           onAuthSuccess()
@@ -444,6 +446,7 @@ export default function AuthPage({ onAuthSuccess, sharedEventTitle }: AuthPagePr
             onAuthSuccess()
           }}
           userId={newUserId}
+          guardianEmail={newUserGuardianEmail}
           onSuccess={() => {
             setShowPinSetup(false)
             onAuthSuccess()

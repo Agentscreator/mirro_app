@@ -16,8 +16,37 @@ export default function PinVerificationModal({ isOpen, onClose, userId, onSucces
   const [loading, setLoading] = useState(false);
   const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
   const [lockedUntil, setLockedUntil] = useState<string | null>(null);
+  const [showForgotPin, setShowForgotPin] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSent, setResetSent] = useState(false);
 
   if (!isOpen) return null;
+
+  const handleForgotPin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/parental-controls/reset-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send reset email');
+      }
+
+      setResetSent(true);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,12 +141,71 @@ export default function PinVerificationModal({ isOpen, onClose, userId, onSucces
 
           <button
             type="button"
-            onClick={() => {/* TODO: Implement forgot PIN flow */}}
+            onClick={() => setShowForgotPin(true)}
             className="w-full text-blue-500 text-sm hover:underline"
           >
             Forgot PIN?
           </button>
         </form>
+
+        {/* Forgot PIN Modal */}
+        {showForgotPin && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-10">
+            <div className="bg-white rounded-xl max-w-sm w-full p-6 m-4">
+              <h3 className="text-lg font-semibold mb-4">Reset PIN</h3>
+              
+              {!resetSent ? (
+                <form onSubmit={handleForgotPin} className="space-y-4">
+                  <p className="text-sm text-gray-600">
+                    Enter the guardian email address to receive a new PIN.
+                  </p>
+                  <input
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    placeholder="guardian@example.com"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotPin(false)}
+                      className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+                    >
+                      {loading ? 'Sending...' : 'Send PIN'}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <p className="text-sm text-green-800">
+                      ✓ A new PIN has been sent to the guardian email address.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowForgotPin(false);
+                      setResetSent(false);
+                      setResetEmail('');
+                    }}
+                    className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  >
+                    OK
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,16 +3,16 @@ import { setupPin } from '@/lib/parental-controls';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, pin, confirmPin } = await request.json();
+    const { userId } = await request.json();
     
-    if (!userId || !pin || !confirmPin) {
+    if (!userId) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'User ID is required' },
         { status: 400 }
       );
     }
     
-    const result = await setupPin(userId, pin, confirmPin);
+    const result = await setupPin(userId);
     
     return NextResponse.json(result);
   } catch (error: any) {

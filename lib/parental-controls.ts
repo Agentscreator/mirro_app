@@ -72,26 +72,25 @@ export function validatePinFormat(pin: string): { valid: boolean; error?: string
 }
 
 /**
- * Setup PIN for a user
+ * Generate a random 4-digit PIN
+ */
+function generateRandomPin(): string {
+  return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
+/**
+ * Setup PIN for a user - generates random PIN and emails to guardian
  * Feature: parental-controls, Property 8: Mismatched PIN Rejection
  */
-export async function setupPin(userId: string, pin: string, confirmPin: string) {
-  // Validate PIN format
-  const formatValidation = validatePinFormat(pin);
-  if (!formatValidation.valid) {
-    throw new Error(formatValidation.error);
-  }
-  
-  // Check if PINs match
-  if (pin !== confirmPin) {
-    throw new Error('PINs do not match');
-  }
-  
+export async function setupPin(userId: string) {
   // Check if PIN already exists
   const existing = await db.select().from(parentalControls).where(eq(parentalControls.userId, userId)).limit(1);
   if (existing.length > 0) {
     throw new Error('PIN already configured. Use reset PIN to change it.');
   }
+  
+  // Generate random PIN
+  const pin = generateRandomPin();
   
   // Hash and store PIN
   const hashedPin = await hashPin(pin);
@@ -105,23 +104,24 @@ export async function setupPin(userId: string, pin: string, confirmPin: string) 
     notificationsEnabled: true,
   });
   
-  // Send confirmation email to guardian
+  // Send PIN to guardian via email
   try {
     const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
     if (user.length > 0 && user[0].guardianEmail) {
-      const { sendPinSetupConfirmation } = await import('./guardian-notifications');
-      await sendPinSetupConfirmation({
+      const { sendPinToGuardian } = await import('./guardian-notifications');
+      await sendPinToGuardian({
         guardianEmail: user[0].guardianEmail,
         minorName: user[0].name,
         minorUsername: user[0].username,
+        pin, // Send the actual PIN (not hashed) via email
       });
     }
   } catch (error) {
-    console.error('Failed to send PIN setup confirmation email:', error);
+    console.error('Failed to send PIN to guardian:', error);
     // Don't fail the PIN setup if email fails
   }
   
-  return { success: true };
+  return { success: true, pin }; // Return PIN for display purposes
 }
 
 /**
