@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS parental_controls (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE UNIQUE,
   pin TEXT NOT NULL,
-  messaging_restricted BOOLEAN DEFAULT true,
+  messaging_restricted BOOLEAN DEFAULT false,
   event_creation_restricted BOOLEAN DEFAULT true,
   content_filtering_enabled BOOLEAN DEFAULT true,
   notifications_enabled BOOLEAN DEFAULT true,

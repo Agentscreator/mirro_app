@@ -187,9 +187,9 @@ export async function sendPinSetupConfirmation(data: NotificationData) {
           
           <div style="background-color: #e8f5e9; padding: 15px; border-radius: 8px; margin: 20px 0;">
             <p style="margin: 5px 0;">✓ Parental controls are now active</p>
-            <p style="margin: 5px 0;">✓ Messaging restrictions enabled</p>
             <p style="margin: 5px 0;">✓ Event creation restrictions enabled</p>
             <p style="margin: 5px 0;">✓ Content filtering enabled</p>
+            <p style="margin: 5px 0;">✓ Guardian notifications enabled</p>
           </div>
           
           <p>You can modify these settings anytime using the PIN in the Mirro app.</p>

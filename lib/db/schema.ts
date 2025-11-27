@@ -29,7 +29,7 @@ export const parentalControls = pgTable('parental_controls', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }).unique(),
   pin: text('pin').notNull(), // Hashed 4-digit PIN
-  messagingRestricted: boolean('messaging_restricted').default(true),
+  messagingRestricted: boolean('messaging_restricted').default(false),
   eventCreationRestricted: boolean('event_creation_restricted').default(true),
   contentFilteringEnabled: boolean('content_filtering_enabled').default(true),
   notificationsEnabled: boolean('notifications_enabled').default(true),

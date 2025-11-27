@@ -99,7 +99,7 @@ export async function setupPin(userId: string, pin: string, confirmPin: string) 
   await db.insert(parentalControls).values({
     userId,
     pin: hashedPin,
-    messagingRestricted: true,
+    messagingRestricted: false,
     eventCreationRestricted: true,
     contentFilteringEnabled: true,
     notificationsEnabled: true,
@@ -249,7 +249,7 @@ export async function createDefaultParentalControls(userId: string, initialPin: 
   await db.insert(parentalControls).values({
     userId,
     pin: hashedPin,
-    messagingRestricted: true,
+    messagingRestricted: false,
     eventCreationRestricted: true,
     contentFilteringEnabled: true,
     notificationsEnabled: true,

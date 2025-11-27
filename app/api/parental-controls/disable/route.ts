@@ -58,7 +58,6 @@ export async function POST(request: NextRequest) {
               <div style="background-color: #fff3e0; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff9800;">
                 <p style="margin: 5px 0;"><strong>All restrictions have been removed:</strong></p>
                 <ul style="margin: 10px 0; padding-left: 20px;">
-                  <li>Messaging restrictions removed</li>
                   <li>Event creation restrictions removed</li>
                   <li>Content filtering disabled</li>
                   <li>Guardian notifications stopped</li>
