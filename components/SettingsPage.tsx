@@ -477,12 +477,8 @@ For European users, additional rights and protections apply under GDPR, includin
             const storedUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null
             return storedUser ? JSON.parse(storedUser).id : ''
           })()}
-          onSuccess={() => {
-            const storedUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null
-            const user = storedUser ? JSON.parse(storedUser) : null
-            // In a real implementation, we'd get the PIN from the verification
-            // For now, we'll just mark as verified
-            setVerifiedPin('verified')
+          onSuccess={(pin: string) => {
+            setVerifiedPin(pin)
             setShowPinVerification(false)
           }}
         />

@@ -7,7 +7,7 @@ interface PinVerificationModalProps {
   isOpen: boolean;
   onClose: () => void;
   userId: string;
-  onSuccess: () => void;
+  onSuccess: (pin: string) => void;
 }
 
 export default function PinVerificationModal({ isOpen, onClose, userId, onSuccess }: PinVerificationModalProps) {
@@ -82,7 +82,8 @@ export default function PinVerificationModal({ isOpen, onClose, userId, onSucces
         return;
       }
 
-      onSuccess();
+      // Pass the PIN back to parent on success
+      onSuccess(pin);
     } catch (err: any) {
       setError(err.message);
       setPin('');
