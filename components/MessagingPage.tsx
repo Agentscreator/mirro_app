@@ -49,6 +49,8 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
   }, [showMobileChat, onChatOpen])
 
   useEffect(() => {
+    let mounted = true
+    
     const initChat = async () => {
       try {
         // Use absolute URL for iOS native app
@@ -79,37 +81,71 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
 
         const chatClient = StreamChat.getInstance(apiKey)
 
-        await chatClient.connectUser(
-          {
-            id: user.id,
-            name: user.name || user.username,
-          },
-          token
-        )
+        // Disconnect if already connected to a different user
+        if (chatClient.userID && chatClient.userID !== user.id) {
+          await chatClient.disconnectUser()
+        }
+
+        // Only connect if not already connected as this user
+        if (!chatClient.userID || chatClient.userID !== user.id) {
+          await chatClient.connectUser(
+            {
+              id: user.id,
+              name: user.name || user.username,
+            },
+            token
+          )
+        }
+
+        if (!mounted) return
 
         setClient(chatClient)
         loadChannels(chatClient)
         loadUsers(chatClient)
       } catch (error) {
         console.error('Error initializing chat:', error)
-        setInitError(error instanceof Error ? error.message : 'Unknown error occurred')
+        if (mounted) {
+          setInitError(error instanceof Error ? error.message : 'Unknown error occurred')
+        }
       } finally {
-        setIsLoading(false)
+        if (mounted) {
+          setIsLoading(false)
+        }
       }
     }
 
     initChat()
 
     return () => {
-      client?.disconnectUser()
+      mounted = false
+      // Don't disconnect on unmount to preserve connection across navigation
     }
-  }, [user])
+  }, [user.id])
 
-  const retryConnection = () => {
+  const retryConnection = async () => {
     setIsLoading(true)
     setInitError(null)
+    
+    try {
+      // Disconnect any existing connection first
+      if (client) {
+        await client.disconnectUser()
+      }
+      
+      // Clear the singleton instance
+      const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY
+      if (apiKey) {
+        const chatClient = StreamChat.getInstance(apiKey)
+        if (chatClient.userID) {
+          await chatClient.disconnectUser()
+        }
+      }
+    } catch (error) {
+      console.error('Error disconnecting:', error)
+    }
+    
     setClient(null)
-    // The useEffect will re-run and try to connect again
+    // Reload to reinitialize
     window.location.reload()
   }
 
