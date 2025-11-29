@@ -473,7 +473,7 @@ button:not(:disabled):active {
 
 .str-chat__textarea textarea {
   background: rgba(255, 255, 255, 0.8) !important;
-  border: 1px solid rgba(225, 204, 168, 0.3) !important;
+  border: 2px solid rgba(180, 160, 140, 0.6) !important;
   border-radius: 1.5rem !important;
   padding: 0.75rem 1rem !important;
   color: #2d2a26 !important;
@@ -487,9 +487,9 @@ button:not(:disabled):active {
   content: none !important;
 }
 
-/* Send button styling - iMessage style */
+/* Send button styling - Green iMessage style */
 .str-chat__send-button {
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%) !important;
+  background: linear-gradient(135deg, #34c759 0%, #30b350 100%) !important;
   border: none !important;
   border-radius: 50% !important;
   width: 32px !important;
@@ -497,17 +497,17 @@ button:not(:disabled):active {
   min-width: 32px !important;
   min-height: 32px !important;
   padding: 0 !important;
-  margin-left: 8px !important;
+  margin-left: 4px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   transition: all 0.2s ease !important;
-  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(52, 199, 89, 0.3) !important;
 }
 
 .str-chat__send-button:hover {
   transform: scale(1.05) !important;
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4) !important;
 }
 
 .str-chat__send-button:active {
@@ -531,13 +531,13 @@ button:not(:disabled):active {
 
 /* Alternative: if using button with text */
 button[aria-label="Send"] {
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%) !important;
+  background: linear-gradient(135deg, #34c759 0%, #30b350 100%) !important;
   border: none !important;
   border-radius: 50% !important;
   width: 32px !important;
   height: 32px !important;
   padding: 0 !important;
-  margin-left: 8px !important;
+  margin-left: 4px !important;
   color: white !important;
   transition: all 0.2s ease !important;
 }
@@ -553,12 +553,12 @@ button[aria-label="Send"] svg {
 
 /* Reduce spacing in message input container */
 .str-chat__message-input {
-  gap: 8px !important;
+  gap: 4px !important;
   font-size: 16px !important;
 }
 
 .str-chat__message-input-inner {
-  gap: 8px !important;
+  gap: 4px !important;
 }
 
 /* Ensure all text in Stream Chat is at least 16px to prevent iOS zoom */
