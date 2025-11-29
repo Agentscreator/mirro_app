@@ -554,10 +554,26 @@ button[aria-label="Send"] svg {
 /* Reduce spacing in message input container */
 .str-chat__message-input {
   gap: 8px !important;
+  font-size: 16px !important;
 }
 
 .str-chat__message-input-inner {
   gap: 8px !important;
+}
+
+/* Ensure all text in Stream Chat is at least 16px to prevent iOS zoom */
+.str-chat__message-simple-text,
+.str-chat__message-text,
+.str-chat p,
+.str-chat span {
+  font-size: 16px !important;
+}
+
+/* Message timestamps and metadata can be smaller */
+.str-chat__message-simple-status,
+.str-chat__message-data,
+.str-chat__timestamp {
+  font-size: 12px !important;
 }
 
 /* Mobile adjustments */
@@ -571,10 +587,82 @@ button[aria-label="Send"] svg {
   }
 }
 
-/* iOS safe areas */
+/* iOS safe areas and native app optimizations */
 @supports (-webkit-touch-callout: none) {
   .str-chat__input-flat {
     padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+  }
+  
+  /* Prevent iOS zoom on input focus */
+  .str-chat__textarea textarea,
+  .str-chat__message-textarea,
+  input[type="text"],
+  textarea {
+    font-size: 16px !important;
+    -webkit-text-size-adjust: 100% !important;
+  }
+  
+  /* Disable iOS text field zoom */
+  .str-chat__message-input {
+    -webkit-text-size-adjust: 100% !important;
+  }
+}
+
+/* Prevent zoom on double tap for iOS */
+.str-chat,
+.str-chat * {
+  touch-action: manipulation !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+
+/* Allow text selection in input areas */
+.str-chat__textarea textarea,
+.str-chat__message-textarea,
+input,
+textarea {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+}
+
+/* iOS viewport fixes */
+.str-chat__container {
+  -webkit-overflow-scrolling: touch !important;
+  overflow-y: auto !important;
+}
+
+/* Prevent iOS rubber band scrolling issues */
+.str-chat__list {
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Fix iOS input focus zoom */
+@media screen and (max-width: 768px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+  
+  .str-chat__textarea textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* iOS native app specific fixes */
+@supports (-webkit-touch-callout: none) {
+  /* Prevent zoom on focus */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    font-size: 16px !important;
+  }
+  
+  /* Fix keyboard pushing content */
+  .str-chat__message-input {
+    position: relative !important;
+    bottom: 0 !important;
   }
 }
 
