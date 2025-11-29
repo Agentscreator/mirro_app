@@ -124,7 +124,7 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
             { name: { $autocomplete: query } },
             { id: { $autocomplete: query } }
           ],
-          id: { $ne: user.id }
+          id: { $ne: user.id } as any
         },
         { id: 1 },
         { limit: 20 }
@@ -146,7 +146,7 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
       const channel = client.channel('messaging', channelId, {
         members: [user.id, otherUser.id],
         name: otherUser.name || otherUser.id
-      })
+      } as any)
 
       await channel.watch()
       await loadChannels(client)
