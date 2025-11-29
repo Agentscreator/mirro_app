@@ -464,20 +464,23 @@ button:not(:disabled):active {
   padding: 1rem !important;
 }
 
-/* Hide the textarea container background */
+/* Hide the textarea container background and make it relative for button positioning */
 .str-chat__message-textarea-container {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  position: relative !important;
+  flex: 1 !important;
 }
 
 .str-chat__textarea textarea {
   background: rgba(255, 255, 255, 0.8) !important;
   border: 2px solid rgba(180, 160, 140, 0.6) !important;
   border-radius: 1.5rem !important;
-  padding: 0.75rem 1rem !important;
+  padding: 0.75rem 3rem 0.75rem 1rem !important;
   color: #2d2a26 !important;
   min-height: 44px !important;
+  width: 100% !important;
 }
 
 /* Remove the duplicate rounded box around textarea */
@@ -487,27 +490,31 @@ button:not(:disabled):active {
   content: none !important;
 }
 
-/* Send button styling - Green iMessage style */
+/* Send button styling - Blue iMessage style, positioned inside textarea */
 .str-chat__send-button {
-  background: linear-gradient(135deg, #34c759 0%, #30b350 100%) !important;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%) !important;
   border: none !important;
   border-radius: 50% !important;
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  min-height: 32px !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
   padding: 0 !important;
-  margin-left: 4px !important;
+  margin: 0 !important;
+  position: absolute !important;
+  right: 8px !important;
+  bottom: 8px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   transition: all 0.2s ease !important;
-  box-shadow: 0 2px 8px rgba(52, 199, 89, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3) !important;
+  z-index: 10 !important;
 }
 
 .str-chat__send-button:hover {
   transform: scale(1.05) !important;
-  box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4) !important;
 }
 
 .str-chat__send-button:active {
@@ -531,15 +538,19 @@ button:not(:disabled):active {
 
 /* Alternative: if using button with text */
 button[aria-label="Send"] {
-  background: linear-gradient(135deg, #34c759 0%, #30b350 100%) !important;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%) !important;
   border: none !important;
   border-radius: 50% !important;
-  width: 32px !important;
-  height: 32px !important;
+  width: 28px !important;
+  height: 28px !important;
   padding: 0 !important;
-  margin-left: 4px !important;
+  margin: 0 !important;
+  position: absolute !important;
+  right: 8px !important;
+  bottom: 8px !important;
   color: white !important;
   transition: all 0.2s ease !important;
+  z-index: 10 !important;
 }
 
 button[aria-label="Send"]:disabled {
