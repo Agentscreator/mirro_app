@@ -135,7 +135,7 @@ interface ProfilePageProps {
 
 export default function ProfilePage({ user: initialUser, initialEventId, onEventModalClose, refreshKey, onAccountDeleted }: ProfilePageProps) {
     const [isManageMode, setIsManageMode] = useState(false)
-    const [eventViewMode, setEventViewMode] = useState<'upcoming' | 'all' | 'created'>('all')
+    const [eventViewMode, setEventViewMode] = useState<'upcoming' | 'all' | 'created'>('upcoming')
     const [user, setUser] = useState<User>(initialUser)
     const [profilePicture, setProfilePicture] = useState<string | null>(initialUser.profilePicture || null)
     const [userEvents, setUserEvents] = useState<EventCardData[]>([])
@@ -263,6 +263,8 @@ export default function ProfilePage({ user: initialUser, initialEventId, onEvent
             visualStyling: event.visualStyling || null,
             visualStylingUrl: event.visualStylingUrl || null,
             mediaGallery: event.mediaGallery || null,
+            isPublic: true,
+            isMature: false,
             creatorName: event.creatorName,
             creatorUsername: event.creatorUsername,
             attendees: event.attendees,
