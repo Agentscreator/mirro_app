@@ -218,9 +218,6 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
           <div className={`w-full lg:w-1/3 flex flex-col bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden ${showMobileChat ? 'hidden lg:flex' : 'flex'}`}>
             {/* Header with Edit and Compose */}
             <div className="px-4 pt-4 pb-3 border-b border-taupe-200/30">
-              {/* Messages Title */}
-              <h1 className="text-3xl font-bold text-text-primary mb-4 tracking-tight">Messages</h1>
-              
               <div className="flex items-center justify-between mb-3">
                 {/* Edit Button with Dropdown */}
                 <div className="relative">
@@ -302,6 +299,9 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
                   </svg>
                 </button>
               </div>
+
+              {/* Messages Title */}
+              <h1 className="text-3xl font-bold text-text-primary mb-3 tracking-tight">Messages</h1>
 
               {/* Search Bar */}
               <div className="relative">
