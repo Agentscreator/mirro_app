@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import PinVerificationModal from "./PinVerificationModal"
 import ParentalControlsSettings from "./ParentalControlsSettings"
 
@@ -19,6 +19,20 @@ export default function SettingsPage({ isOpen, onClose, onAccountDeleted, onEdit
   const [showPinVerification, setShowPinVerification] = useState(false)
   const [verifiedPin, setVerifiedPin] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
 
   const handleDeleteAccount = async () => {
     setIsDeleting(true)
