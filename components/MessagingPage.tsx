@@ -218,6 +218,9 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
           <div className={`w-full lg:w-1/3 flex flex-col bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden ${showMobileChat ? 'hidden lg:flex' : 'flex'}`}>
             {/* Header with Edit and Compose */}
             <div className="px-4 pt-4 pb-3 border-b border-taupe-200/30">
+              {/* Messages Title */}
+              <h1 className="text-3xl font-bold text-text-primary mb-4 tracking-tight">Messages</h1>
+              
               <div className="flex items-center justify-between mb-3">
                 {/* Edit Button with Dropdown */}
                 <div className="relative">
@@ -370,7 +373,29 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
           {/* Chat Window - Desktop/iPad */}
           <div className="hidden lg:flex lg:flex-1 bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden">
             {selectedChannel ? (
-              <Channel channel={selectedChannel}>
+              <Channel 
+                channel={selectedChannel}
+                EmptyStateIndicator={() => (
+                  <div className="flex flex-col items-center justify-center w-full h-full p-8">
+                    <div className="relative mb-6">
+                      <div className="w-24 h-24 bg-gradient-to-br from-taupe-400/20 to-taupe-600/20 rounded-3xl flex items-center justify-center backdrop-blur-sm">
+                        <svg className="w-12 h-12 text-taupe-500/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                      </div>
+                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-taupe-600/30 rounded-full flex items-center justify-center">
+                        <svg className="w-3 h-3 text-taupe-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-light text-text-primary mb-2">No messages yet...</h3>
+                    <p className="text-text-muted text-sm text-center max-w-xs">
+                      Start the conversation by sending a message below
+                    </p>
+                  </div>
+                )}
+              >
                 <Window>
                   <ChannelHeader />
                   <MessageList />
@@ -433,7 +458,29 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
 
               {/* Chat Content - Fills remaining space */}
               <div className="flex-1 min-h-0">
-                <Channel channel={selectedChannel}>
+                <Channel 
+                  channel={selectedChannel}
+                  EmptyStateIndicator={() => (
+                    <div className="flex flex-col items-center justify-center w-full h-full p-8">
+                      <div className="relative mb-6">
+                        <div className="w-24 h-24 bg-gradient-to-br from-taupe-400/20 to-taupe-600/20 rounded-3xl flex items-center justify-center backdrop-blur-sm">
+                          <svg className="w-12 h-12 text-taupe-500/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                        </div>
+                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-taupe-600/30 rounded-full flex items-center justify-center">
+                          <svg className="w-3 h-3 text-taupe-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        </div>
+                      </div>
+                      <h3 className="text-xl font-light text-text-primary mb-2">No messages yet...</h3>
+                      <p className="text-text-muted text-sm text-center max-w-xs">
+                        Start the conversation by sending a message below
+                      </p>
+                    </div>
+                  )}
+                >
                   <Window>
                     <MessageList />
                     <MessageInput />
@@ -504,7 +551,6 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-text-primary font-light truncate">{u.name || u.id}</p>
-                          <p className="text-xs text-text-muted truncate">@{u.id}</p>
                         </div>
                       </button>
                     ))
@@ -628,7 +674,6 @@ export default function MessagingPage({ user, onChatOpen }: MessagingPageProps) 
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-text-primary font-light truncate">{u.name || u.id}</p>
-                        <p className="text-xs text-text-muted truncate">@{u.id}</p>
                       </div>
                       <input
                         type="checkbox"
