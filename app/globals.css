@@ -513,6 +513,23 @@ button:not(:disabled):active {
   display: none !important;
 }
 
+/* Hide duplicate avatar backgrounds - keep only the circular avatar */
+.str-chat__avatar-fallback {
+  display: none !important;
+}
+
+/* Ensure only the circular avatar image shows */
+.str-chat__avatar img {
+  display: block !important;
+}
+
+/* Hide the square background behind avatars */
+.str-chat__message-simple .str-chat__avatar::before,
+.str-chat__message-simple .str-chat__avatar::after {
+  display: none !important;
+  content: none !important;
+}
+
 /* Consolidated dark blue for accessibility */
 .str-chat__message--me .str-chat__message-simple-text-inner {
   background: rgba(30, 80, 150, 0.95) !important;
