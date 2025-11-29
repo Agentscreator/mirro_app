@@ -814,3 +814,39 @@ body .str-chat .str-chat__message--me .str-chat__message-simple-text-inner {
   background-color: rgba(30, 80, 150, 0.95) !important;
   color: white !important;
 }
+
+/* Pinned messages styling */
+.str-chat__pinned-message-notification,
+.str-chat__message--pinned {
+  background: rgba(255, 215, 0, 0.1) !important;
+  border-left: 3px solid #d4bc92 !important;
+  padding-left: 0.5rem !important;
+}
+
+.str-chat__message-pin-indicator {
+  color: #d4bc92 !important;
+  font-size: 12px !important;
+}
+
+/* Pin icon styling */
+.str-chat__message-actions-box button[aria-label*="Pin"],
+.str-chat__message-actions-box button[aria-label*="pin"] {
+  background: rgba(212, 188, 146, 0.2) !important;
+  color: #6a5a4f !important;
+  border-radius: 0.5rem !important;
+  padding: 0.5rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.str-chat__message-actions-box button[aria-label*="Pin"]:hover,
+.str-chat__message-actions-box button[aria-label*="pin"]:hover {
+  background: rgba(212, 188, 146, 0.3) !important;
+}
+
+/* Pinned messages banner at top */
+.str-chat__pinned-message-list {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(225, 204, 168, 0.3) !important;
+  padding: 0.75rem 1rem !important;
+}
